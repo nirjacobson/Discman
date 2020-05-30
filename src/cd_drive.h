@@ -59,6 +59,7 @@ class CDDrive : public Producer<int16_t> {
         unsigned int tracks() const;
 
         void track(const int track);
+        unsigned int track() const;
         float elapsed();
 
         lba_t lba(const track_t track) const;
@@ -75,6 +76,7 @@ class CDDrive : public Producer<int16_t> {
 
         bool identify();
         void open();
+        void update_track(const unsigned int track);
 
         static std::vector<std::string> devices();
 
@@ -83,15 +85,16 @@ class CDDrive : public Producer<int16_t> {
 
         std::string _device;
         cdrom_drive_t* _drive;
-        bool _open;
         Reader* _reader;
         Poller* _poller;
 
         int16_t* _buffers[2];
         uint8_t _buffer;
+        unsigned int _buffer_idx;
 
-        long _extent;
-        long _cursor;
+        unsigned int _track;
+        unsigned int _cursor;
+        unsigned int _end;
 
         std::mutex _load_lock;
         std::mutex _cursor_lock;

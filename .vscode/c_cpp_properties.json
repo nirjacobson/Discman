@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/local/Cellar/glibmm/2.64.2/lib/glibmm-2.4/include/",
+                "/usr/local/include/glibmm-2.4/",
+                "/usr/local/Cellar/glib/2.64.3/include/glib-2.0/",
+                "/usr/local/Cellar/glib/2.64.3/lib/glib-2.0/include/",
+                "/usr/local/Cellar/libsigc++@2/2.10.3/include/",
+                "/usr/local/Cellar/libsigc++@2/2.10.3/include/sigc++-2.0/",
+                "/usr/local/Cellar/libsigc++@2/2.10.3/lib/sigc++-2.0/include/",
+                "/usr/local/Cellar/gtkmm3/3.24.2/lib/gtkmm-3.0/include/",
+                "/usr/local/Cellar/gtkmm3/3.24.2/lib/gdkmm-3.0/include/",
+                "/usr/local/Cellar/pangomm/2.42.1/lib/pangomm-1.4/include/",
+                "/usr/local/Cellar/gtkmm3/3.24.2/include/gtkmm-3.0/",
+                "/usr/local/Cellar/pangomm/2.42.1/include/pangomm-1.4/",
+                "/usr/local/Cellar/pango/1.44.7/include/pango-1.0/",
+                "/usr/local/Cellar/harfbuzz/2.6.6/include/harfbuzz/",
+                "/usr/local/Cellar/cairomm/1.12.2_1/include/cairomm-1.0/",
+                "/usr/local/Cellar/cairo/1.16.0_3/include/cairo/",
+                "/usr/local/Cellar/freetype/2.10.1/include/freetype2/",
+                "/usr/local/Cellar/atkmm/2.28.0_2/include/atkmm-1.6/",
+                "/usr/local/Cellar/gtkmm3/3.24.2/include/gdkmm-3.0/",
+                "/usr/local/Cellar/gtk+3/3.24.18_1/include/gtk-3.0/",
+                "/usr/local/Cellar/gdk-pixbuf/2.40.0_1/include/gdk-pixbuf-2.0/",
+                "/usr/local/Cellar/glibmm/2.64.2/include/giomm-2.4/",
+                "/usr/local/Cellar/glibmm/2.64.2/lib/giomm-2.4/include/",
+                "/usr/local/Cellar/atk/2.36.0/include/atk-1.0/"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}

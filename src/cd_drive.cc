@@ -24,7 +24,9 @@ void CDDrive::Reader::action(const Action action) {
 }
 
 void CDDrive::Reader::track(const int track) {
+    _drive._load_lock.lock();
     paranoia_seek(_paranoia, cdda_track_firstsector(_drive._drive, track), SEEK_SET);
+    _drive._load_lock.unlock();
 }
 
 void CDDrive::Reader::buffer(const int buffer) {
@@ -40,6 +42,7 @@ CDDrive::Reader::Action CDDrive::Reader::action() {
 }
 
 void CDDrive::Reader::load() {
+    _drive._load_lock.lock();
     for (int i = 0; i < BUFFER_SECTORS; i++) {
         int16_t* sector = paranoia_read(_paranoia, NULL);
         char* start = reinterpret_cast<char*>(_drive._buffers[_buffer]);
@@ -49,6 +52,7 @@ void CDDrive::Reader::load() {
         if (a == Action::Exit)
             return;
     }
+    _drive._load_lock.unlock();
 }
 
 void CDDrive::Reader::loop() {
@@ -59,9 +63,7 @@ void CDDrive::Reader::loop() {
             case Action::Idle:
                 break;
             case Action::Load:
-                _drive._load_lock.lock();
                 load();
-                _drive._load_lock.unlock();
 
                 if (action() == Action::Exit)
                     return;
@@ -107,8 +109,10 @@ CDDrive::CDDrive()
     , _reader(nullptr)
     , _poller(new Poller(*this))
     , _buffer(0)
-    , _extent(0)
-    , _cursor(0) {
+    , _buffer_idx(0)
+    , _track(0)
+    , _cursor(0)
+    , _end(0) {
     _buffers[0] = new int16_t[BUFFER_SAMPLES];
     _buffers[1] = new int16_t[BUFFER_SAMPLES];
 }
@@ -131,7 +135,7 @@ bool CDDrive::present() const {
 
 void CDDrive::eject() {
     if (!present()) throw NoDiscPresentException();
-    _buffer = _extent = _cursor = 0;
+    _buffer = _cursor = 0;
 
     delete _reader;
     _reader = nullptr;
@@ -254,6 +258,16 @@ void CDDrive::open() {
     _reader = new Reader(*this);
 }
 
+void CDDrive::update_track(const unsigned int track) {
+    _track = track;
+
+    lsn_t first_sector = cdio_cddap_track_firstsector(_drive, track);
+    lsn_t last_sector = cdio_cddap_track_lastsector(_drive, track);
+    int sectors = last_sector - first_sector + 1;
+
+    _end = sectors * CDIO_CD_FRAMESIZE_RAW / BYTES_PER_SAMPLE;
+}
+
 unsigned int CDDrive::tracks() const {
     if (!present()) throw NoDiscPresentException();
 
@@ -263,12 +277,9 @@ unsigned int CDDrive::tracks() const {
 void CDDrive::track(const int track) {
     if (!present()) throw NoDiscPresentException();
 
-    lsn_t first_sector = cdio_cddap_track_firstsector(_drive, track);
-    lsn_t last_sector = cdio_cddap_track_lastsector(_drive, track);
-    int sectors = last_sector - first_sector + 1;
-
-    _extent = sectors * CDIO_CD_FRAMESIZE_RAW / BYTES_PER_SAMPLE;
-    _buffer = _cursor = 0;
+    update_track(track);
+    _buffer = _buffer_idx = 0;
+    _cursor = 0;
 
     _reader->track(track);
 
@@ -276,6 +287,10 @@ void CDDrive::track(const int track) {
     _reader->buffer(_buffer);
     _reader->action(Reader::Action::Load);
     _load_lock.unlock();
+}
+
+unsigned int CDDrive::track() const {
+    return _track;
 }
 
 float CDDrive::elapsed() {
@@ -299,29 +314,29 @@ unsigned int CDDrive::seconds() const {
 }
 
 int16_t CDDrive::next() {
-    _cursor_lock.lock();
-    if (_cursor == _extent) {
-        _cursor_lock.unlock();
-        return 0;
-    }
-
-    int cursor = _cursor++;
-    _cursor_lock.unlock();
-
-    long buffer_idx = cursor % BUFFER_SAMPLES;
-
-    if (buffer_idx == 0) {
+    if (_buffer_idx == 0) {
         _load_lock.lock();
         _reader->buffer(1 - _buffer);
         _reader->action(Reader::Action::Load);
         _load_lock.unlock();
     }
+    if (_cursor == _end) return 0;
 
-    int16_t sample = _buffers[_buffer][buffer_idx];
+    int16_t sample = _buffers[_buffer][_buffer_idx++];
+    _buffer_idx %= BUFFER_SAMPLES;
 
-    if (buffer_idx == BUFFER_SAMPLES - 1) {
+    if (_buffer_idx == 0) {
         _buffer = 1 - _buffer;
     }
+
+    _cursor_lock.lock();
+    if (++_cursor == _end) {
+        if (_track < tracks()) {
+            update_track(_track + 1);
+            _cursor = 0;
+        }
+    }
+    _cursor_lock.unlock();
 
     return sample;
 }
@@ -329,9 +344,5 @@ int16_t CDDrive::next() {
 bool CDDrive::done() {
     if (!present()) throw NoDiscPresentException();
 
-    _cursor_lock.lock();
-    bool done = _cursor == _extent;
-    _cursor_lock.unlock();
-
-    return done;
+    return _cursor == _end;
 }
