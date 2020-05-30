@@ -1,2 +1,2 @@
 # cdplayer
-A CDDA player developed on the Raspberry Pi 3.
+A CDDA player developed for the Raspberry Pi 3.
