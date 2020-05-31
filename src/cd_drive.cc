@@ -135,7 +135,6 @@ bool CDDrive::present() const {
 
 void CDDrive::eject() {
     if (!present()) throw NoDiscPresentException();
-    _buffer = _cursor = 0;
 
     delete _reader;
     _reader = nullptr;
@@ -164,8 +163,7 @@ std::vector<std::string> CDDrive::devices() {
         close(p[READ_END]);
         close(p[WRITE_END]);
 
-        char* argv[2] = { new char[6], NULL };
-        strcpy(argv[0], "lsblk");
+        char* argv[2] = { const_cast<char*>("lsblk"), NULL };
         execvp("lsblk", argv);
     } else {
         close(p[WRITE_END]);

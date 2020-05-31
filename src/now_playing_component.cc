@@ -43,7 +43,7 @@ void NowPlayingComponent::set_state(const State state) {
   _state = state;
 
   if (state == State::Disabled || state == State::Stopped) {
-    _trackTitleLabel->set_text("Now Playing");
+    _trackTitleLabel->set_text("");
     _trackArtistLabel->set_text("");
     _seekScale->get_adjustment()->set_value(0);
     _prevButton->set_sensitive(false);
