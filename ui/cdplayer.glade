@@ -247,6 +247,7 @@
                         <property name="can_focus">False</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">No Disc</property>
+                        <property name="ellipsize">end</property>
                         <attributes>
                           <attribute name="scale" value="2.3999999999999999"/>
                         </attributes>

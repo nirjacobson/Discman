@@ -15,23 +15,25 @@ Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std
 
   Json::Value root;
   ss >> root;
-
+  std::cout << root << std::endl;
   Json::Value image = root["album"]["image"];
 
   for (unsigned int i = 0; i < image.size(); i++) {
     Json::Value element = image[i];
     if (element["size"] == "mega") {
       request_url = element["#text"].asString();
-      easyhandle.setOpt(cURLpp::Options::Url(request_url));
+      if (!request_url.empty()) {
+        easyhandle.setOpt(cURLpp::Options::Url(request_url));
 
-      ss.str("");
-      easyhandle.perform();
+        ss.str("");
+        easyhandle.perform();
 
-      std::string data = ss.str();
-      Glib::RefPtr<Glib::Bytes> bytes = Glib::Bytes::create(data.c_str(), data.size());
-      Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
-      is->add_bytes(bytes);
-      return Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true);
+        std::string data = ss.str();
+        Glib::RefPtr<Glib::Bytes> bytes = Glib::Bytes::create(data.c_str(), data.size());
+        Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
+        is->add_bytes(bytes);
+        return Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true);
+      }
     }
   }
 

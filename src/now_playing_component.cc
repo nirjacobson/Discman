@@ -12,6 +12,8 @@ NowPlayingComponent::NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder)
   builder->get_widget("stopButton", _stopButton);
   builder->get_widget("nextButton", _nextButton);
 
+  _albumArtImage->clear();
+
   _prevButton->signal_clicked().connect(sigc::mem_fun(this, &NowPlayingComponent::on_prev_button_clicked));
   _playPauseButton->signal_clicked().connect(sigc::mem_fun(this, &NowPlayingComponent::on_playpause_button_clicked));
   _stopButton->signal_clicked().connect(sigc::mem_fun(this, &NowPlayingComponent::on_stop_button_clicked));
@@ -66,7 +68,11 @@ void NowPlayingComponent::set_seconds(const float seconds) {
 }
 
 void NowPlayingComponent::set_album(const std::string& artist, const std::string& title) {
-  _albumArtImage->set(LastFM::album_art(artist, title, _albumArtImage->get_width(), _albumArtImage->get_height()));
+  try {
+    _albumArtImage->set(LastFM::album_art(artist, title, _albumArtImage->get_width(), _albumArtImage->get_height()));
+  } catch (const LastFM::NotFoundException& e) {
+    _albumArtImage->clear();
+  }
 }
 
 NowPlayingComponent::sig_button NowPlayingComponent::signal_prev() {
