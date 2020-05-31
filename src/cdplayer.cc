@@ -48,6 +48,7 @@ void CDPlayer::notify() {
 void CDPlayer::on_notification_from_poller() {
   _disc = CDDB().disc(_drive);
   _discComponent->set_disc(&_disc);
+  _nowPlayingComponent->set_album(_disc.artist(), _disc.title());
   _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
 
   delete _poller;

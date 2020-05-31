@@ -43,6 +43,8 @@ void NowPlayingComponent::set_state(const State state) {
   _state = state;
 
   if (state == State::Disabled || state == State::Stopped) {
+    if (state == State::Disabled)
+      _albumArtImage->clear();
     _trackTitleLabel->set_text("");
     _trackArtistLabel->set_text("");
     _seekScale->get_adjustment()->set_value(0);
@@ -61,6 +63,10 @@ NowPlayingComponent::State NowPlayingComponent::get_state() const {
 
 void NowPlayingComponent::set_seconds(const float seconds) {
   _seekScale->get_adjustment()->set_value(seconds);
+}
+
+void NowPlayingComponent::set_album(const std::string& artist, const std::string& title) {
+  _albumArtImage->set(LastFM::album_art(artist, title, _albumArtImage->get_width(), _albumArtImage->get_height()));
 }
 
 NowPlayingComponent::sig_button NowPlayingComponent::signal_prev() {

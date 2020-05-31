@@ -15,6 +15,7 @@
 
 #include "disc.h"
 #include "track.h"
+#include "last_fm.h"
 
 class DiscComponent {
   public:

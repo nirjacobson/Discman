@@ -28,6 +28,16 @@
     <property name="stock">gtk-cdrom</property>
     <property name="icon_size">6</property>
   </object>
+  <object class="GtkListStore" id="tracksListStore">
+    <columns>
+      <!-- column-name # -->
+      <column type="guint"/>
+      <!-- column-name Title -->
+      <column type="gchararray"/>
+      <!-- column-name Length -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="window">
     <property name="width_request">800</property>
     <property name="height_request">480</property>
@@ -37,12 +47,18 @@
       <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="margin_start">8</property>
+        <property name="margin_end">8</property>
+        <property name="margin_top">8</property>
+        <property name="margin_bottom">8</property>
+        <property name="spacing">8</property>
         <property name="homogeneous">True</property>
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
+            <property name="spacing">8</property>
             <child>
               <object class="GtkAlignment">
                 <property name="visible">True</property>
@@ -54,10 +70,23 @@
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkImage" id="albumArtImage">
+                      <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="stock">gtk-missing-image</property>
+                        <property name="can_focus">True</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkViewport">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkImage" id="albumArtImage">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-missing-image</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -74,13 +103,12 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
+                <property name="spacing">8</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkLabel" id="trackTitleLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="margin_top">8</property>
-                    <property name="margin_bottom">8</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -92,7 +120,6 @@
                   <object class="GtkLabel" id="trackArtistLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="margin_bottom">8</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -112,8 +139,6 @@
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
-                <property name="margin_start">8</property>
-                <property name="margin_end">8</property>
                 <property name="round_digits">1</property>
                 <property name="draw_value">False</property>
               </object>
@@ -127,8 +152,6 @@
               <object class="GtkButtonBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_top">8</property>
-                <property name="margin_bottom">8</property>
                 <property name="spacing">8</property>
                 <property name="layout_style">center</property>
                 <child>
@@ -206,38 +229,23 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
+            <property name="spacing">8</property>
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="spacing">8</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkLabel" id="albumArtistLabel">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Please insert disc.</property>
-                        <attributes>
-                          <attribute name="scale" value="1.2"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="pack_type">end</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
+                    <property name="spacing">8</property>
                     <child>
                       <object class="GtkLabel" id="albumLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="halign">start</property>
-                        <property name="margin_bottom">8</property>
                         <property name="label" translatable="yes">No Disc</property>
                         <attributes>
                           <attribute name="scale" value="2.3999999999999999"/>
@@ -246,7 +254,22 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="pack_type">end</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="albumArtistLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">Please insert disc.</property>
+                        <attributes>
+                          <attribute name="scale" value="1"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -263,8 +286,6 @@
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="margin_end">8</property>
-                    <property name="margin_top">8</property>
                     <property name="image">image5</property>
                   </object>
                   <packing>
@@ -284,9 +305,6 @@
               <object class="GtkScrolledWindow">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="margin_end">8</property>
-                <property name="margin_top">8</property>
-                <property name="margin_bottom">8</property>
                 <property name="shadow_type">in</property>
                 <child>
                   <object class="GtkTreeView" id="tracksTreeView">
@@ -318,15 +336,5 @@
     <child type="titlebar">
       <placeholder/>
     </child>
-  </object>
-  <object class="GtkListStore" id="tracksListStore">
-    <columns>
-      <!-- column-name # -->
-      <column type="guint"/>
-      <!-- column-name Title -->
-      <column type="gchararray"/>
-      <!-- column-name Length -->
-      <column type="gchararray"/>
-    </columns>
   </object>
 </interface>

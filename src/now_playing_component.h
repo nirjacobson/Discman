@@ -8,9 +8,11 @@
 #include <gtkmm-3.0/gtkmm/scale.h>
 #include <gtkmm-3.0/gtkmm/adjustment.h>
 #include <gtkmm-3.0/gtkmm/button.h>
+#include <gdkmm/pixbuf.h>
 #include <sigc++/signal.h>
 
 #include "track.h"
+#include "last_fm.h"
 
 class NowPlayingComponent {
 
@@ -31,6 +33,7 @@ class NowPlayingComponent {
     void set_state(const State state);
     State get_state() const;
     void set_seconds(const float seconds);
+    void set_album(const std::string& artist, const std::string& title);
 
     sig_button signal_prev();
     sig_button signal_playpause();
