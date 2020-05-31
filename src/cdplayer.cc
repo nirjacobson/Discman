@@ -138,8 +138,8 @@ void CDPlayer::eject() {
   _nowPlayingComponent->set_state(NowPlayingComponent::State::Disabled);
   _drive.eject();
 
-    if (!_poller)
-      _poller = new Poller(*this);
+  if (!_poller)
+    _poller = new Poller(*this);
 }
 
 CDPlayer::Poller::Poller(CDPlayer& cdplayer)
