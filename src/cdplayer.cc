@@ -45,8 +45,25 @@ void CDPlayer::notify() {
   _dispatcher.emit();
 }
 
+void CDPlayer::queryDiscDB() {
+  DiscDB::Disc::Builder builder;
+
+  for (unsigned int i = 0; i < _drive.tracks(); i++) {
+    builder.track(DiscDB::Track::Builder()
+      .frameOffset(_drive.lba(1 + i))
+      .build());
+  }
+
+  const DiscDB::Disc disc = builder
+    .length(_drive.seconds())
+    .calculateDiscID()
+    .build();
+
+  _disc = DiscDB::DiscDB::query(disc);
+}
+
 void CDPlayer::on_notification_from_poller() {
-  _disc = CDDB().disc(_drive);
+  queryDiscDB();
   _discComponent->set_disc(&_disc);
   _nowPlayingComponent->set_album(_disc.artist(), _disc.title());
   _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
@@ -86,7 +103,7 @@ bool CDPlayer::on_timeout() {
     if (_track != _drive.track()) {
       _track = _drive.track();
       _discComponent->set_selection(_track);
-      _nowPlayingComponent->set_track(_disc.tracks().at(_track - 1), _track == 1, _track == _disc.tracks().size());
+      _nowPlayingComponent->set_track(_disc, _track, _track == 1, _track == _disc.tracks().size());
     }
     _nowPlayingComponent->set_seconds(_drive.elapsed());
   }
@@ -102,7 +119,7 @@ void CDPlayer::play(unsigned int track) {
 
   _drive.track(track);
   _discComponent->set_selection(track);
-  _nowPlayingComponent->set_track(_disc.tracks().at(track - 1), track == 1, track == _disc.tracks().size());
+  _nowPlayingComponent->set_track(_disc, _track, track == 1, track == _disc.tracks().size());
   play();
 }
 

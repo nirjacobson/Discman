@@ -33,7 +33,7 @@ DiscComponent::~DiscComponent() {
   delete _ejectButton;
 }
 
-void DiscComponent::set_disc(const Disc* const disc) {
+void DiscComponent::set_disc(const DiscDB::Disc* const disc) {
   _albumLabel->set_text(disc ? disc->title() : "No Disc");
   _albumArtistLabel->set_text(disc ? disc->artist() : "Please insert disc.");
 
@@ -46,9 +46,10 @@ void DiscComponent::set_disc(const Disc* const disc) {
       row[cols.titleColumn] = disc->tracks().at(i).title();
 
       std::stringstream lengthStream;
-      lengthStream << disc->tracks().at(i).length() / 60
+      const unsigned int seconds = disc->trackLength(i + 1);
+      lengthStream << seconds / 60
                    << ":"
-                   << std::setw(2) << std::setfill('0') << disc->tracks().at(i).length() % 60;
+                   << std::setw(2) << std::setfill('0') << seconds % 60;
 
       row[cols.lengthColumn] = lengthStream.str();
     }

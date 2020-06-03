@@ -14,7 +14,7 @@
 #include "cd_drive.h"
 #include "disc_component.h"
 #include "now_playing_component.h"
-#include "cddb.h"
+#include "discdb.h"
 #include "audio_output.h"
 
 class CDPlayer {
@@ -46,7 +46,7 @@ class CDPlayer {
     Glib::RefPtr<Gtk::Application> _app;
     Gtk::Window* _window;
     CDDrive _drive;
-    Disc _disc;
+    DiscDB::Disc _disc;
     AudioOutput<int16_t>* _audioOutput;
     unsigned int _track;
 
@@ -72,6 +72,8 @@ class CDPlayer {
     void pause();
     void stop();
     void eject();
+
+    void queryDiscDB();
 
 };
 

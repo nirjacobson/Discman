@@ -31,11 +31,11 @@ NowPlayingComponent::~NowPlayingComponent() {
   delete _albumArtImage;
 }
 
-void NowPlayingComponent::set_track(const Track& track, const bool first, const bool last) {
-  _trackTitleLabel->set_text(track.title());
-  _trackArtistLabel->set_text(track.artist());
+void NowPlayingComponent::set_track(const DiscDB::Disc& disc, unsigned int track, const bool first, const bool last) {
+  _trackTitleLabel->set_text(disc.tracks()[track - 1].title());
+  _trackArtistLabel->set_text(disc.artist());
   _seekScale->get_adjustment()->set_lower(0);
-  _seekScale->get_adjustment()->set_upper(track.length());
+  _seekScale->get_adjustment()->set_upper(disc.trackLength(track));
   _seekScale->get_adjustment()->set_value(0);
   _prevButton->set_sensitive(!first);
   _nextButton->set_sensitive(!last);

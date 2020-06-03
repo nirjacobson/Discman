@@ -14,7 +14,6 @@
 #include <iomanip>
 
 #include "disc.h"
-#include "track.h"
 #include "last_fm.h"
 
 class DiscComponent {
@@ -25,7 +24,7 @@ class DiscComponent {
     DiscComponent(Glib::RefPtr<Gtk::Builder> builder);
     ~DiscComponent();
 
-    void set_disc(const Disc* const disc);
+    void set_disc(const DiscDB::Disc* const disc);
     void clear_selection();
     void set_selection(unsigned int track);
 

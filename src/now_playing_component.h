@@ -11,7 +11,7 @@
 #include <gdkmm/pixbuf.h>
 #include <sigc++/signal.h>
 
-#include "track.h"
+#include "disc.h"
 #include "last_fm.h"
 
 class NowPlayingComponent {
@@ -29,7 +29,7 @@ class NowPlayingComponent {
     NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder);
     ~NowPlayingComponent();
 
-    void set_track(const Track& track, const bool first, const bool last);
+    void set_track(const DiscDB::Disc& disc, unsigned int track, const bool first, const bool last);
     void set_state(const State state);
     State get_state() const;
     void set_seconds(const float seconds);

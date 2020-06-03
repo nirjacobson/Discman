@@ -27,7 +27,8 @@
                 "/usr/local/Cellar/gdk-pixbuf/2.40.0_1/include/gdk-pixbuf-2.0/",
                 "/usr/local/Cellar/glibmm/2.64.2/include/giomm-2.4/",
                 "/usr/local/Cellar/glibmm/2.64.2/lib/giomm-2.4/include/",
-                "/usr/local/Cellar/atk/2.36.0/include/atk-1.0/"
+                "/usr/local/Cellar/atk/2.36.0/include/atk-1.0/",
+                "/Users/nir/GitHub/libdiscdb/src"
             ],
             "defines": [],
             "macFrameworkPath": [
