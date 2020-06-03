@@ -1,6 +1,7 @@
 #include "last_fm.h"
 
 Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
+  cURLpp::Cleanup cleanup;
   cURLpp::Easy easyhandle;
 
   std::string request_url = url(Method::ALBUM_GET_INFO, API_KEY, {

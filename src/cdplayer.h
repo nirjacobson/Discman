@@ -35,7 +35,6 @@ class CDPlayer {
 
       private:
         CDPlayer& _cdplayer;
-        bool _present;
         bool _exit;
 
         std::thread _thread;
@@ -61,6 +60,7 @@ class CDPlayer {
     void notify();
 
     void on_track_selected(unsigned int track);
+    void on_button(const NowPlayingComponent::Button button);
     void on_prev();
     void on_playpause();
     void on_stop();

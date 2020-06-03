@@ -5,7 +5,7 @@ MODULES=last_fm		\
 				cd_drive 	 \
 				main
 OBJECTS=$(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-LIBS		= libcdio_paranoia portaudio-2.0 libcddb gtkmm-3.0 jsoncpp
+LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-3.0 jsoncpp
 CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -I../libdiscdb/src -g
 LDFLAGS = `pkg-config --libs ${LIBS}` `curlpp-config --libs` -L../libdiscdb -ldiscdb
 EXEC=cdplayer

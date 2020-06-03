@@ -17,7 +17,6 @@
 class NowPlayingComponent {
 
   public:
-    typedef sigc::signal<void> sig_button;
 
     enum State {
       Disabled,
@@ -25,6 +24,15 @@ class NowPlayingComponent {
       Paused,
       Stopped
     };
+
+    enum Button {
+      Previous,
+      PlayPause,
+      Stop,
+      Next
+    };
+
+    typedef sigc::signal<void, const Button> sig_button;
 
     NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder);
     ~NowPlayingComponent();
@@ -35,10 +43,7 @@ class NowPlayingComponent {
     void set_seconds(const float seconds);
     void set_album(const std::string& artist, const std::string& title);
 
-    sig_button signal_prev();
-    sig_button signal_playpause();
-    sig_button signal_stop();
-    sig_button signal_next();
+    sig_button signal_button();
 
   private:
     State _state;
@@ -52,10 +57,7 @@ class NowPlayingComponent {
     Gtk::Button* _stopButton;
     Gtk::Button* _nextButton;
 
-    sig_button _signal_prev;
-    sig_button _signal_playpause;
-    sig_button _signal_stop;
-    sig_button _signal_next;
+    sig_button _signal_button;
 
     void on_prev_button_clicked();
     void on_playpause_button_clicked();

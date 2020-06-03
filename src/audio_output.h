@@ -99,6 +99,8 @@ void AudioOutput<T>::destroy() {
     std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
     return;
   }
+
+  delete _instance;
 }
 
 template <typename T>
@@ -133,8 +135,8 @@ int AudioOutput<T>::paCallback(const void* inputBuffer,
 
     for( i=0; i<framesPerBuffer; i++ )
     {
-        *out++ = instance()->consume();
-        *out++ = instance()->consume();
+        *out++ = instance()->consume(); // left
+        *out++ = instance()->consume(); // right
     }
 
     return 0;

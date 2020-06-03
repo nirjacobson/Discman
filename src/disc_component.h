@@ -36,18 +36,14 @@ class DiscComponent {
     class TracksListColumnRecord : public Gtk::TreeModel::ColumnRecord {
       public:
         TracksListColumnRecord() {
-            this->add(this->numberColumn);
-            this->add(this->titleColumn);
-            this->add(this->lengthColumn);
+          this->add(this->numberColumn);
+          this->add(this->titleColumn);
+          this->add(this->lengthColumn);
         }
 
         Gtk::TreeModelColumn<guint> numberColumn;
         Gtk::TreeModelColumn<Glib::ustring> titleColumn;
         Gtk::TreeModelColumn<Glib::ustring> lengthColumn;
-    };
-
-    class LengthCellRenderer : public Gtk::CellRenderer {
-
     };
 
     Gtk::Label* _albumLabel;

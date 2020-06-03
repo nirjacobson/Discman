@@ -17,10 +17,7 @@ CDPlayer::CDPlayer(int argc, char **argv)
   _discComponent->signal_track_selected().connect(sigc::mem_fun(this, &CDPlayer::on_track_selected));
 
   _nowPlayingComponent = new NowPlayingComponent(_builder);
-  _nowPlayingComponent->signal_prev().connect(sigc::mem_fun(this, &CDPlayer::on_prev));
-  _nowPlayingComponent->signal_playpause().connect(sigc::mem_fun(this, &CDPlayer::on_playpause));
-  _nowPlayingComponent->signal_stop().connect(sigc::mem_fun(this, &CDPlayer::on_stop));
-  _nowPlayingComponent->signal_next().connect(sigc::mem_fun(this, &CDPlayer::on_next));
+  _nowPlayingComponent->signal_button().connect(sigc::mem_fun(this, &CDPlayer::on_button));
 
   _builder->get_widget("window", _window);
   _window->fullscreen();
@@ -76,24 +73,25 @@ void CDPlayer::on_track_selected(unsigned int track) {
   play(track);
 }
 
-void CDPlayer::on_prev() {
-  play(_track - 1);
-}
-
-void CDPlayer::on_playpause() {
-  if (_nowPlayingComponent->get_state() == NowPlayingComponent::State::Playing) {
-    pause();
-  } else {
-    play();
+void CDPlayer::on_button(const NowPlayingComponent::Button button) {
+  switch (button) {
+    case NowPlayingComponent::Button::Previous:
+      play(_track - 1);
+      break;
+    case NowPlayingComponent::Button::PlayPause:
+      if (_nowPlayingComponent->get_state() == NowPlayingComponent::State::Playing) {
+        pause();
+      } else {
+        play();
+      }
+      break;
+    case NowPlayingComponent::Button::Stop:
+      stop();
+      break;
+    case NowPlayingComponent::Button::Next:
+      play(_track + 1);
+      break;
   }
-}
-
-void CDPlayer::on_stop() {
-  stop();
-}
-
-void CDPlayer::on_next() {
-  play(_track + 1);
 }
 
 bool CDPlayer::on_timeout() {
@@ -162,7 +160,6 @@ void CDPlayer::eject() {
 
 CDPlayer::Poller::Poller(CDPlayer& cdplayer)
   : _cdplayer(cdplayer)
-  , _present(false)
   , _exit(false)
   , _thread(&CDPlayer::Poller::loop, this) {
 

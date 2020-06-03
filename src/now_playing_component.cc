@@ -75,34 +75,22 @@ void NowPlayingComponent::set_album(const std::string& artist, const std::string
   }
 }
 
-NowPlayingComponent::sig_button NowPlayingComponent::signal_prev() {
-  return _signal_prev;
-}
-
-NowPlayingComponent::sig_button NowPlayingComponent::signal_playpause() {
-  return _signal_playpause;
-}
-
-NowPlayingComponent::sig_button NowPlayingComponent::signal_stop() {
-  return _signal_stop;
-}
-
-NowPlayingComponent::sig_button NowPlayingComponent::signal_next() {
-  return _signal_next;
+NowPlayingComponent::sig_button NowPlayingComponent::signal_button() {
+  return _signal_button;
 }
 
 void NowPlayingComponent::on_prev_button_clicked() {
-  _signal_prev.emit();
+  _signal_button.emit(Button::Previous);
 }
 
 void NowPlayingComponent::on_playpause_button_clicked() {
-  _signal_playpause.emit();
+  _signal_button.emit(Button::PlayPause);
 }
 
 void NowPlayingComponent::on_stop_button_clicked() {
-  _signal_stop.emit();
+  _signal_button.emit(Button::Stop);
 }
 
 void NowPlayingComponent::on_next_button_clicked() {
-  _signal_next.emit();
+  _signal_button.emit(Button::Next);
 }

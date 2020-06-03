@@ -5,13 +5,9 @@
 
 int main (int argc, char **argv)
 {
-  cURLpp::initialize();
-
   CDPlayer cdplayer(argc, argv);
 
   cdplayer.run();
-
-  cURLpp::terminate();
 
   return 0;
 }
