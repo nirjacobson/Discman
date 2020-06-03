@@ -11,9 +11,9 @@
 #include <gdkmm/pixbuf.h>
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
-#include <jsoncpp/json/value.h>
-#include <jsoncpp/json/reader.h>
-#include <jsoncpp/json/writer.h>
+#include <json/value.h>
+#include <json/reader.h>
+#include <json/writer.h>
 
 class LastFM {
 
