@@ -85,9 +85,11 @@ void CDPlayer::on_notification_from_poller() {
 
 void CDPlayer::on_bluetooth_button() {
   _stack->set_visible_child(*_bluetoothBox);
+  _bluetoothComponent->on_show();
 }
 
 void CDPlayer::on_bluetooth_done() {
+  _bluetoothComponent->on_hide();
   _stack->set_visible_child(*_playerBox);
 }
 

@@ -4,6 +4,8 @@
   <requires lib="gtk+" version="3.22"/>
   <object class="GtkListStore" id="devicesListStore">
     <columns>
+      <!-- column-name Address -->
+      <column type="gchararray"/>
       <!-- column-name Name -->
       <column type="gchararray"/>
     </columns>
@@ -486,6 +488,7 @@
                       <object class="GtkButton" id="connectButton">
                         <property name="label" translatable="yes">Connect</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                       </object>

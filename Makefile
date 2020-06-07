@@ -7,8 +7,8 @@ MODULES=bluetooth_component \
 				main
 OBJECTS=$(foreach MODULE, ${MODULES}, build/${MODULE}.o)
 LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-3.0 jsoncpp
-CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -I../libdiscdb/src -g
-LDFLAGS = `pkg-config --libs ${LIBS}` `curlpp-config --libs` -L../libdiscdb -ldiscdb
+CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -I../libdiscdb/src -I../libbluez/src -g
+LDFLAGS = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -L../libdiscdb -ldiscdb -L../libbluez -lbluez
 EXEC=cdplayer
 
 all: build ${EXEC}

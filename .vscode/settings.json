@@ -69,6 +69,8 @@
     "utility": "cpp",
     "valarray": "cpp",
     "vector": "cpp",
-    "__cxx_version": "cpp"
+    "__cxx_version": "cpp",
+    "regex": "cpp",
+    "fstream": "cpp"
   }
 }

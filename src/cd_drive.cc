@@ -97,7 +97,11 @@ void CDDrive::Poller::poll() {
 
         if (exit) return;
 
-        if (!_drive.identify()) continue;
+        if (!_drive.identify()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            continue;
+        }
+
         _drive.open();
 
         return;
@@ -163,7 +167,8 @@ std::vector<std::string> CDDrive::devices() {
         close(p[READ_END]);
         close(p[WRITE_END]);
 
-        char* argv[2] = { const_cast<char*>("lsblk"), NULL };
+        char* argv[2] = { new char[strlen("lsblk")+1], NULL };
+        strcpy(argv[0], "lsblk");
         execvp("lsblk", argv);
     } else {
         close(p[WRITE_END]);
