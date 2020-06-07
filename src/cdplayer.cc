@@ -12,12 +12,21 @@ CDPlayer::CDPlayer(int argc, char **argv)
   _builder = Gtk::Builder::create();
   _builder->add_from_file("ui/cdplayer.glade");
 
+  _builder->get_widget("stack", _stack);
+  _builder->get_widget("bluetoothBox", _bluetoothBox);
+  _builder->get_widget("playerBox", _playerBox);
+  _builder->get_widget("bluetoothButton", _bluetoothButton);
+  _bluetoothButton->signal_clicked().connect(sigc::mem_fun(this, &CDPlayer::on_bluetooth_button));
+
   _discComponent = new DiscComponent(_builder);
   _discComponent->signal_eject_requested().connect(sigc::mem_fun(this, &CDPlayer::eject));
   _discComponent->signal_track_selected().connect(sigc::mem_fun(this, &CDPlayer::on_track_selected));
 
   _nowPlayingComponent = new NowPlayingComponent(_builder);
   _nowPlayingComponent->signal_button().connect(sigc::mem_fun(this, &CDPlayer::on_button));
+
+  _bluetoothComponent = new BluetoothComponent(_builder);
+  _bluetoothComponent->signal_done().connect(sigc::mem_fun(this, &CDPlayer::on_bluetooth_done));
 
   _builder->get_widget("window", _window);
   _window->fullscreen();
@@ -26,7 +35,12 @@ CDPlayer::CDPlayer(int argc, char **argv)
 }
 
 CDPlayer::~CDPlayer() {
+  delete _playerBox;
+  delete _bluetoothBox;
+  delete _bluetoothButton;
+  delete _stack;
   delete _window;
+  delete _bluetoothComponent;
   delete _nowPlayingComponent;
   delete _discComponent;
   if (_poller) delete _poller;
@@ -67,6 +81,14 @@ void CDPlayer::on_notification_from_poller() {
 
   delete _poller;
   _poller = nullptr;
+}
+
+void CDPlayer::on_bluetooth_button() {
+  _stack->set_visible_child(*_bluetoothBox);
+}
+
+void CDPlayer::on_bluetooth_done() {
+  _stack->set_visible_child(*_playerBox);
 }
 
 void CDPlayer::on_track_selected(unsigned int track) {

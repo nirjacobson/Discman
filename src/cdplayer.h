@@ -6,6 +6,8 @@
 #include <gtkmm-3.0/gtkmm/application.h>
 #include <gtkmm-3.0/gtkmm/builder.h>
 #include <gtkmm-3.0/gtkmm/window.h>
+#include <gtkmm-3.0/gtkmm/stack.h>
+#include <gtkmm-3.0/gtkmm/box.h>
 #include <gtkmm-3.0/gtkmm/stockid.h>
 
 #include <iostream>
@@ -14,6 +16,7 @@
 #include "cd_drive.h"
 #include "disc_component.h"
 #include "now_playing_component.h"
+#include "bluetooth_component.h"
 #include "discdb.h"
 #include "audio_output.h"
 
@@ -53,10 +56,17 @@ class CDPlayer {
     Poller* _poller;
     sigc::connection _timerConnection;
 
+    Gtk::Stack* _stack;
+    Gtk::Button* _bluetoothButton;
+    Gtk::Box* _playerBox;
+    Gtk::Box* _bluetoothBox;
     DiscComponent* _discComponent;
     NowPlayingComponent* _nowPlayingComponent;
+    BluetoothComponent* _bluetoothComponent;
     
     void on_notification_from_poller();
+    void on_bluetooth_button();
+    void on_bluetooth_done();
     void notify();
 
     void on_track_selected(unsigned int track);

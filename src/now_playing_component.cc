@@ -55,7 +55,7 @@ void NowPlayingComponent::set_state(const State state) {
   }
 
   _playPauseButton->set_sensitive(state != State::Disabled);
-  _playPauseButton->set_image_from_icon_name((state != State::Playing) ? "gtk-media-play" : "gtk-media-pause");
+  _playPauseButton->set_image_from_icon_name((state != State::Playing) ? "media-playback-start" : "media-playback-pause", Gtk::BuiltinIconSize::ICON_SIZE_LARGE_TOOLBAR);
   _stopButton->set_sensitive(state != State::Stopped && state != State::Disabled);
 }
 

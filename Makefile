@@ -1,4 +1,5 @@
-MODULES=last_fm		\
+MODULES=bluetooth_component \
+				last_fm		\
 				now_playing_component \
 			  disc_component \
 				cdplayer	 \

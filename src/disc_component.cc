@@ -16,11 +16,8 @@ DiscComponent::DiscComponent(Glib::RefPtr<Gtk::Builder> builder) {
   _tracksTreeView->get_column_cell_renderer(0)->set_alignment(1.0, 0.5);
   _tracksTreeView->get_column_cell_renderer(2)->set_alignment(1.0, 0.5);
 
-  _tracksTreeView->get_column_cell_renderer(0)->set_property("size-points", 16);
-  _tracksTreeView->get_column_cell_renderer(1)->set_property("size-points", 16);
   _tracksTreeView->get_column_cell_renderer(1)->set_property("ellipsize", Pango::ELLIPSIZE_END);
   _tracksTreeView->get_column(1)->set_property("expand", true);
-  _tracksTreeView->get_column_cell_renderer(2)->set_property("size-points", 16);
 
   _ejectButton->signal_clicked().connect(sigc::mem_fun(this, &DiscComponent::on_eject_button_clicked));
   _tracksTreeView->signal_row_activated().connect(sigc::mem_fun(this, &DiscComponent::on_row_activated));
