@@ -26,6 +26,7 @@ CDPlayer::CDPlayer(int argc, char **argv)
   _nowPlayingComponent->signal_button().connect(sigc::mem_fun(this, &CDPlayer::on_button));
 
   _bluetoothComponent = new BluetoothComponent(_builder);
+  _bluetoothComponent->signal_connected().connect(sigc::mem_fun(this, &CDPlayer::on_bluetooth_connected));
   _bluetoothComponent->signal_done().connect(sigc::mem_fun(this, &CDPlayer::on_bluetooth_done));
 
   _builder->get_widget("window", _window);
@@ -86,6 +87,12 @@ void CDPlayer::on_notification_from_poller() {
 void CDPlayer::on_bluetooth_button() {
   _stack->set_visible_child(*_bluetoothBox);
   _bluetoothComponent->on_show();
+}
+
+void CDPlayer::on_bluetooth_connected() {
+  Glib::signal_timeout().connect_once([this](){
+    _audioOutput->restart();
+  }, 5000);
 }
 
 void CDPlayer::on_bluetooth_done() {

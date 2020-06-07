@@ -1,6 +1,7 @@
 #ifndef CD_PLAYER_H
 #define CD_PLAYER_H
 
+#include <glibmm-2.4/glibmm/main.h>
 #include <glibmm-2.4/glibmm.h>
 #include <glibmm-2.4/glibmm/dispatcher.h>
 #include <gtkmm-3.0/gtkmm/application.h>
@@ -66,6 +67,7 @@ class CDPlayer {
     
     void on_notification_from_poller();
     void on_bluetooth_button();
+    void on_bluetooth_connected();
     void on_bluetooth_done();
     void notify();
 

@@ -17,6 +17,7 @@ class AudioOutput : public Consumer<T> {
 
         static void start();
         static void stop();
+        static void restart();
 
         static constexpr int SAMPLE_RATE = 44100;
 
@@ -119,6 +120,23 @@ void AudioOutput<T>::stop() {
     std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
     return;
   }
+}
+
+template <typename T>
+void AudioOutput<T>::restart() {
+  _paError = Pa_CloseStream( _paStream );
+  if( _paError != paNoError ) {
+    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    return;
+  }
+
+  _paError = Pa_Terminate();
+  if( _paError != paNoError ) {
+    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    return;
+  }
+
+  init();
 }
 
 template <typename T>

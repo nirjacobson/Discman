@@ -54,6 +54,10 @@ BluetoothComponent::sig_done BluetoothComponent::signal_done() {
   return _signal_done;
 }
 
+BluetoothComponent::sig_conn BluetoothComponent::signal_connected() {
+  return _signal_connected;
+}
+
 void BluetoothComponent::on_done_button_clicked() {
   _signal_done.emit();
 }
@@ -141,6 +145,9 @@ void BluetoothComponent::on_connect_button_clicked() {
     
 void BluetoothComponent::on_device_status_change() {
   set_device_labels();
+  if (_alsaDevice->connected()) {
+    _signal_connected.emit();
+  }
 }
 
 void BluetoothComponent::build_devices_list() {

@@ -22,6 +22,7 @@ class BluetoothComponent {
 
   public:
     typedef sigc::signal<void> sig_done;
+    typedef sigc::signal<void> sig_conn;
 
     BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder);
     ~BluetoothComponent();
@@ -30,6 +31,7 @@ class BluetoothComponent {
     void on_hide();
 
     sig_done signal_done();
+    sig_conn signal_connected();
 
   private:
 
@@ -43,6 +45,8 @@ class BluetoothComponent {
         Gtk::TreeModelColumn<Glib::ustring> addressColumn;
         Gtk::TreeModelColumn<Glib::ustring> nameColumn;
     };
+
+    sig_conn _signal_connected;
 
     Bluez::Adapter _adapter;
     std::string _alsaDeviceAddress;
