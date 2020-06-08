@@ -24,6 +24,13 @@
 class Application {
 
   public:
+
+    struct InitializationError : public std::exception {
+        const char* what() const throw() {
+            return "Could not initialize program variables.";
+        }
+    };
+
     Application(int argc, char **argv);
     ~Application();
 

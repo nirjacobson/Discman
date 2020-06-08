@@ -1,5 +1,16 @@
 #include "last_fm.h"
 
+std::string LastFM::API_KEY;
+
+bool LastFM::init() {
+  const char* apiKey = std::getenv("LAST_FM_API_KEY");
+  if (apiKey) {
+    LastFM::API_KEY = apiKey;
+  }
+
+  return !!apiKey;
+}
+
 Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
   cURLpp::Cleanup cleanup;
   cURLpp::Easy easyhandle;
@@ -67,11 +78,32 @@ std::string LastFM::url_with_params(const std::string& url, const std::map<std::
   for (std::map<std::string, std::string>::const_iterator it=params.cbegin(); it!=params.cend(); ++it) {
     ss << (it == params.cbegin() ? '?' : '&');
 
-    std::string formatted_value(it->second);
-    std::replace(formatted_value.begin(), formatted_value.end(), ' ', '+');
-
-    ss << it->first << '=' << formatted_value;
+    ss << it->first << '=' << url_encode(it->second);
   }
 
   return ss.str();
+}
+
+std::string LastFM::url_encode(const std::string& input) {
+    std::stringstream escaped;
+    escaped.fill('0');
+    escaped << std::hex;
+
+    for (std::string::const_iterator i = input.begin(), n = input.end(); i != n; ++i) {
+        std::string::value_type c = (*i);
+
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+            continue;
+        } else if (c == ' ') {
+            escaped << '+';
+            continue;
+        }
+
+        escaped << std::uppercase;
+        escaped << '%' << std::setw(2) << int((unsigned char) c);
+        escaped << std::nouppercase;
+    }
+
+    return escaped.str();
 }

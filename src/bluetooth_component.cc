@@ -75,6 +75,8 @@ void BluetoothComponent::on_device_added(const std::string& address) {
   row[cols.addressColumn] = address;
   row[cols.nameColumn] = _adapter.alias(address);
 
+  _devicesTreeView->get_vadjustment()->set_value(_devicesTreeView->get_vadjustment()->get_upper());
+
   if (!_alsaDevice && _alsaDeviceAddress == address) {
     try_get_alsa_device();
     set_device_labels();

@@ -4,6 +4,10 @@ Application::Application(int argc, char **argv)
   : _audioOutput(AudioOutput<int16_t>::instance())
   , _track(0)
   , _poller(new Poller(*this)) {
+  if (!LastFM::init()) {
+    throw InitializationError();
+  }
+  
   _audioOutput->producer(&_drive);
   _audioOutput->init();
 

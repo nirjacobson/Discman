@@ -1,6 +1,9 @@
 #ifndef LAST_FM_H
 #define LAST_FM_H
 
+#include <cstdlib>
+#include <cctype>
+#include <iomanip>
 #include <algorithm>
 #include <sstream>
 #include <string>
@@ -30,7 +33,8 @@ class LastFM {
       ALBUM_GET_INFO
     };
     static constexpr const char* BASE_URL = "http://ws.audioscrobbler.com/2.0/";
-    static constexpr const char* API_KEY = "c4f9a47a4ca890c0981d1707ff28c434";
+
+    static bool init();
 
     static Glib::RefPtr<Gdk::Pixbuf> album_art(const std::string& artist, const std::string& title, const int width, const int height);
 
@@ -38,6 +42,9 @@ class LastFM {
     static std::string method_name(const Method method);
     static std::string url(const Method method, const std::string& apiKey, const std::map<std::string, std::string>& params);
     static std::string url_with_params(const std::string& url, const std::map<std::string, std::string>& params);
+    static std::string url_encode(const std::string& input);
+
+    static std::string API_KEY;
 };
 
 #endif // LAST_FM_H
