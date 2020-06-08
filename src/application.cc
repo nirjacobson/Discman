@@ -1,13 +1,13 @@
-#include "cdplayer.h"
+#include "application.h"
 
-CDPlayer::CDPlayer(int argc, char **argv)
+Application::Application(int argc, char **argv)
   : _audioOutput(AudioOutput<int16_t>::instance())
   , _track(0)
   , _poller(new Poller(*this)) {
   _audioOutput->producer(&_drive);
   _audioOutput->init();
 
-  _app = Gtk::Application::create(argc, argv, "org.nirjacobson.cdplayer");
+  _app = Gtk::Application::create(argc, argv, "com.nirjacobson.cdplayer");
 
   _builder = Gtk::Builder::create();
   _builder->add_from_file("ui/cdplayer.glade");
@@ -16,26 +16,28 @@ CDPlayer::CDPlayer(int argc, char **argv)
   _builder->get_widget("bluetoothBox", _bluetoothBox);
   _builder->get_widget("playerBox", _playerBox);
   _builder->get_widget("bluetoothButton", _bluetoothButton);
-  _bluetoothButton->signal_clicked().connect(sigc::mem_fun(this, &CDPlayer::on_bluetooth_button));
+  _bluetoothButton->signal_clicked().connect(sigc::mem_fun(this, &Application::on_bluetooth_button));
 
   _discComponent = new DiscComponent(_builder);
-  _discComponent->signal_eject_requested().connect(sigc::mem_fun(this, &CDPlayer::eject));
-  _discComponent->signal_track_selected().connect(sigc::mem_fun(this, &CDPlayer::on_track_selected));
+  _discComponent->signal_eject_requested().connect(sigc::mem_fun(this, &Application::eject));
+  _discComponent->signal_track_selected().connect(sigc::mem_fun(this, &Application::on_track_selected));
 
   _nowPlayingComponent = new NowPlayingComponent(_builder);
-  _nowPlayingComponent->signal_button().connect(sigc::mem_fun(this, &CDPlayer::on_button));
+  _nowPlayingComponent->signal_button().connect(sigc::mem_fun(this, &Application::on_button));
 
   _bluetoothComponent = new BluetoothComponent(_builder);
-  _bluetoothComponent->signal_connected().connect(sigc::mem_fun(this, &CDPlayer::on_bluetooth_connected));
-  _bluetoothComponent->signal_done().connect(sigc::mem_fun(this, &CDPlayer::on_bluetooth_done));
+  _bluetoothComponent->signal_connected().connect(sigc::mem_fun(this, &Application::on_bluetooth_connected));
+  _bluetoothComponent->signal_done().connect(sigc::mem_fun(this, &Application::on_bluetooth_done));
+  if (_audioOutput->wireless())
+    _bluetoothComponent->on_device_initialization_complete(true);
 
   _builder->get_widget("window", _window);
   _window->fullscreen();
 
-  _dispatcher.connect(sigc::mem_fun(*this, &CDPlayer::on_notification_from_poller));
+  _dispatcher.connect(sigc::mem_fun(*this, &Application::on_notification_from_poller));
 }
 
-CDPlayer::~CDPlayer() {
+Application::~Application() {
   delete _playerBox;
   delete _bluetoothBox;
   delete _bluetoothButton;
@@ -49,15 +51,15 @@ CDPlayer::~CDPlayer() {
   _audioOutput->destroy();
 }
 
-void CDPlayer::run() {
+void Application::run() {
   _app->run(*_window);
 }
 
-void CDPlayer::notify() {
+void Application::notify() {
   _dispatcher.emit();
 }
 
-void CDPlayer::queryDiscDB() {
+void Application::queryDiscDB() {
   DiscDB::Disc::Builder builder;
 
   for (unsigned int i = 0; i < _drive.tracks(); i++) {
@@ -71,10 +73,10 @@ void CDPlayer::queryDiscDB() {
     .calculateDiscID()
     .build();
 
-  _disc = DiscDB::DiscDB::query(disc);
+  _disc = DiscDB::query(disc);
 }
 
-void CDPlayer::on_notification_from_poller() {
+void Application::on_notification_from_poller() {
   queryDiscDB();
   _discComponent->set_disc(&_disc);
   _nowPlayingComponent->set_album(_disc.artist(), _disc.title());
@@ -84,27 +86,42 @@ void CDPlayer::on_notification_from_poller() {
   _poller = nullptr;
 }
 
-void CDPlayer::on_bluetooth_button() {
+void Application::on_bluetooth_button() {
   _stack->set_visible_child(*_bluetoothBox);
   _bluetoothComponent->on_show();
 }
 
-void CDPlayer::on_bluetooth_connected() {
-  Glib::signal_timeout().connect_once([this](){
-    _audioOutput->restart();
-  }, 5000);
+void Application::on_bluetooth_connected() {
+  Glib::signal_timeout().connect([this](){
+    static int attempts = 3;
+
+    if (attempts-- > 0) {
+      _audioOutput->restart();
+      if (_audioOutput->wireless()) {
+        _bluetoothComponent->on_device_initialization_complete(true);
+        attempts = 3;
+        return false;
+      }
+      
+      return true;
+    }
+
+    _bluetoothComponent->on_device_initialization_complete(false);
+    attempts = 3;
+    return false;
+  }, 1000);
 }
 
-void CDPlayer::on_bluetooth_done() {
+void Application::on_bluetooth_done() {
   _bluetoothComponent->on_hide();
   _stack->set_visible_child(*_playerBox);
 }
 
-void CDPlayer::on_track_selected(unsigned int track) {
+void Application::on_track_selected(unsigned int track) {
   play(track);
 }
 
-void CDPlayer::on_button(const NowPlayingComponent::Button button) {
+void Application::on_button(const NowPlayingComponent::Button button) {
   switch (button) {
     case NowPlayingComponent::Button::Previous:
       play(_track - 1);
@@ -125,7 +142,7 @@ void CDPlayer::on_button(const NowPlayingComponent::Button button) {
   }
 }
 
-bool CDPlayer::on_timeout() {
+bool Application::on_timeout() {
   if (_drive.done()) {
     eject();
   } else {
@@ -140,7 +157,7 @@ bool CDPlayer::on_timeout() {
   return true;
 }
 
-void CDPlayer::play(unsigned int track) {
+void Application::play(unsigned int track) {
   if (_nowPlayingComponent->get_state() == NowPlayingComponent::State::Playing)
     stop();
 
@@ -152,23 +169,23 @@ void CDPlayer::play(unsigned int track) {
   play();
 }
 
-void CDPlayer::play() {
+void Application::play() {
   if (_track == 0) {
     play(1);
   } else {
-    _timerConnection = Glib::signal_timeout().connect(sigc::mem_fun(this, &CDPlayer::on_timeout), 250);
+    _timerConnection = Glib::signal_timeout().connect(sigc::mem_fun(this, &Application::on_timeout), 250);
     _audioOutput->start();
     _nowPlayingComponent->set_state(NowPlayingComponent::State::Playing);
   }
 }
 
-void CDPlayer::pause() {
+void Application::pause() {
   _timerConnection.disconnect();
   _audioOutput->stop();
   _nowPlayingComponent->set_state(NowPlayingComponent::State::Paused);
 }
 
-void CDPlayer::stop() {
+void Application::stop() {
   _track = 0;
 
   _timerConnection.disconnect();
@@ -177,7 +194,7 @@ void CDPlayer::stop() {
   _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
 }
 
-void CDPlayer::eject() {
+void Application::eject() {
   if (_nowPlayingComponent->get_state() == NowPlayingComponent::State::Playing)
     stop();
 
@@ -189,14 +206,14 @@ void CDPlayer::eject() {
     _poller = new Poller(*this);
 }
 
-CDPlayer::Poller::Poller(CDPlayer& cdplayer)
-  : _cdplayer(cdplayer)
+Application::Poller::Poller(Application& app)
+  : _app(app)
   , _exit(false)
-  , _thread(&CDPlayer::Poller::loop, this) {
+  , _thread(&Application::Poller::loop, this) {
 
 }
 
-CDPlayer::Poller::~Poller() {
+Application::Poller::~Poller() {
   _exit_lock.lock();
   _exit = true;
   _exit_lock.unlock();
@@ -204,7 +221,7 @@ CDPlayer::Poller::~Poller() {
   _thread.join();
 }
 
-void CDPlayer::Poller::loop() {
+void Application::Poller::loop() {
   while (true) {
     _exit_lock.lock();
     bool exit = _exit;
@@ -212,8 +229,8 @@ void CDPlayer::Poller::loop() {
 
     if (exit) return;
 
-    if (_cdplayer._drive.present()) {
-      _cdplayer.notify();
+    if (_app._drive.present()) {
+      _app.notify();
       return;
     }
   }

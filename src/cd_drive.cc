@@ -49,8 +49,10 @@ void CDDrive::Reader::load() {
         memcpy(start + (i * CDIO_CD_FRAMESIZE_RAW), sector, CDIO_CD_FRAMESIZE_RAW);
 
         Action a = action();
-        if (a == Action::Exit)
+        if (a == Action::Exit) {
+            _drive._load_lock.unlock();
             return;
+        }
     }
     _drive._load_lock.unlock();
 }
@@ -285,7 +287,6 @@ void CDDrive::track(const int track) {
     _cursor = 0;
 
     _reader->track(track);
-
     _load_lock.lock();
     _reader->buffer(_buffer);
     _reader->action(Reader::Action::Load);

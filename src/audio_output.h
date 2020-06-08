@@ -19,6 +19,8 @@ class AudioOutput : public Consumer<T> {
         static void stop();
         static void restart();
 
+        static bool wireless();
+
         static constexpr int SAMPLE_RATE = 44100;
 
     private:
@@ -137,6 +139,11 @@ void AudioOutput<T>::restart() {
   }
 
   init();
+}
+
+template <typename T>
+bool AudioOutput<T>::wireless() {
+  return Pa_GetDefaultOutputDevice() > 0;
 }
 
 template <typename T>

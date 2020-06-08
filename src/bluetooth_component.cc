@@ -2,7 +2,8 @@
 
 BluetoothComponent::BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder)
   : _adapter("hci0")
-  , _alsaDevice(nullptr) {
+  , _alsaDevice(nullptr)
+  , _alsaDeviceInitialization(DeviceInitialization::NotInitialized) {
   builder->get_widget("deviceLabel", _deviceLabel);
   builder->get_widget("deviceStatusLabel", _deviceStatusLabel);
   builder->get_widget("devicesTreeView", _devicesTreeView);
@@ -48,6 +49,11 @@ void BluetoothComponent::on_show() {
 
 void BluetoothComponent::on_hide() {
   _adapter.stopDiscovery();
+}
+
+void BluetoothComponent::on_device_initialization_complete(const bool initialized) {
+  _alsaDeviceInitialization = initialized ? DeviceInitialization::Initialized : DeviceInitialization::Error;
+  set_device_labels();
 }
 
 BluetoothComponent::sig_done BluetoothComponent::signal_done() {
@@ -129,14 +135,14 @@ void BluetoothComponent::on_connect_button_clicked() {
   if (connect) {
     if (_alsaDevice)
       _alsaDevice->disconnect();
-
+    _alsaDeviceInitialization = DeviceInitialization::NotInitialized;
+    
     update_asoundrc(selectedAddress);
     get_alsa_device_address();
     try_get_alsa_device();
     set_device_labels();
     assert(_alsaDevice);
     _alsaDevice->connect();
-    // TODO: Emit signal to restart PortAudio
   } else {
     assert(_alsaDevice);
     _alsaDevice->disconnect();
@@ -201,7 +207,13 @@ void BluetoothComponent::set_device_labels() {
     _deviceLabel->set_text(_alsaDevice->alias());
 
     if (_alsaDevice->connected()) {
-      _deviceStatusLabel->set_text("Connected.");
+      if (_alsaDeviceInitialization == DeviceInitialization::Initialized) {
+        _deviceStatusLabel->set_text("Ready.");
+      } else if (_alsaDeviceInitialization == DeviceInitialization::Error) {
+        _deviceStatusLabel->set_text("Initialization failed.");
+      } else {
+        _deviceStatusLabel->set_text("Connected.");
+      }
     } else if (_alsaDevice->paired()) {
       _deviceStatusLabel->set_text("Paired.");
     } else {

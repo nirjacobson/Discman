@@ -29,11 +29,18 @@ class BluetoothComponent {
 
     void on_show();
     void on_hide();
+    void on_device_initialization_complete(const bool initialized);
 
     sig_done signal_done();
     sig_conn signal_connected();
 
   private:
+
+    enum DeviceInitialization {
+      NotInitialized,
+      Initialized,
+      Error
+    };
 
     class DevicesListColumnRecord : public Gtk::TreeModel::ColumnRecord {
       public:
@@ -58,6 +65,8 @@ class BluetoothComponent {
     Glib::RefPtr<Gtk::ListStore> _devicesListStore;
     Gtk::Button* _doneButton;
     Gtk::Button* _connectButton;
+
+    DeviceInitialization _alsaDeviceInitialization;
 
     sig_done _signal_done;
 

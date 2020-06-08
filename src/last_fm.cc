@@ -16,7 +16,7 @@ Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std
 
   Json::Value root;
   ss >> root;
-  std::cout << root << std::endl;
+
   Json::Value image = root["album"]["image"];
 
   for (unsigned int i = 0; i < image.size(); i++) {

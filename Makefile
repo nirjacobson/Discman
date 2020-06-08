@@ -1,9 +1,9 @@
-MODULES=bluetooth_component \
-				last_fm		\
+MODULES=bluetooth_component   \
+				last_fm		            \
 				now_playing_component \
-			  disc_component \
-				cdplayer	 \
-				cd_drive 	 \
+			  disc_component        \
+				application	          \
+				cd_drive 	            \
 				main
 OBJECTS=$(foreach MODULE, ${MODULES}, build/${MODULE}.o)
 LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-3.0 jsoncpp

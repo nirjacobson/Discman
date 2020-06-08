@@ -21,24 +21,24 @@
 #include "discdb.h"
 #include "audio_output.h"
 
-class CDPlayer {
+class Application {
 
   public:
-    CDPlayer(int argc, char **argv);
-    ~CDPlayer();
+    Application(int argc, char **argv);
+    ~Application();
 
     void run();
 
   private:
     class Poller {
       public:
-        Poller(CDPlayer& cdplayer);
+        Poller(Application& app);
         ~Poller();
 
         void loop();
 
       private:
-        CDPlayer& _cdplayer;
+        Application& _app;
         bool _exit;
 
         std::thread _thread;

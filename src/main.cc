@@ -1,13 +1,10 @@
-#include <gtkmm.h>
-#include <curlpp/cURLpp.hpp>
-
-#include "cdplayer.h"
+#include "application.h"
 
 int main (int argc, char **argv)
 {
-  CDPlayer cdplayer(argc, argv);
+  Application app(argc, argv);
 
-  cdplayer.run();
+  app.run();
 
   return 0;
 }
