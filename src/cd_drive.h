@@ -50,13 +50,13 @@ class CDDrive : public Producer<int16_t> {
                 return "Could not open disc.";
             }
         };
-        
+
         CDDrive();
         ~CDDrive();
 
         bool present() const;
         void eject();
-        
+
         unsigned int tracks() const;
 
         void track(const int track);
@@ -139,7 +139,7 @@ class CDDrive::Poller {
     public:
         Poller(CDDrive& drive);
         ~Poller();
-        
+
         void poll();
 
     private:

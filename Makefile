@@ -16,6 +16,9 @@ all: build ${EXEC}
 ${EXEC}: ${OBJECTS}
 	g++ $^ -o $@ ${LDFLAGS}
 
+format:
+	astyle -rnCS *.{h,cc}
+
 build/%.o : src/%.cc
 	g++ -c $< -o $@ ${CFLAGS}
 

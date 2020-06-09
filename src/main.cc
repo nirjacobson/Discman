@@ -2,9 +2,9 @@
 
 int main (int argc, char **argv)
 {
-  Application app(argc, argv);
+    Application app(argc, argv);
 
-  app.run();
+    app.run();
 
-  return 0;
+    return 0;
 }

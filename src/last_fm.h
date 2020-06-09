@@ -21,30 +21,30 @@
 
 class LastFM {
 
-  public:
+    public:
 
-    struct NotFoundException : public std::exception {
-        const char* what() const throw() {
-            return "Resource could not be found.";
-        }
-    };
+        struct NotFoundException : public std::exception {
+            const char* what() const throw() {
+                return "Resource could not be found.";
+            }
+        };
 
-    enum Method {
-      ALBUM_GET_INFO
-    };
-    static constexpr const char* BASE_URL = "http://ws.audioscrobbler.com/2.0/";
+        enum Method {
+            ALBUM_GET_INFO
+        };
+        static constexpr const char* BASE_URL = "http://ws.audioscrobbler.com/2.0/";
 
-    static bool init();
+        static bool init();
 
-    static Glib::RefPtr<Gdk::Pixbuf> album_art(const std::string& artist, const std::string& title, const int width, const int height);
+        static Glib::RefPtr<Gdk::Pixbuf> album_art(const std::string& artist, const std::string& title, const int width, const int height);
 
-  private:
-    static std::string method_name(const Method method);
-    static std::string url(const Method method, const std::string& apiKey, const std::map<std::string, std::string>& params);
-    static std::string url_with_params(const std::string& url, const std::map<std::string, std::string>& params);
-    static std::string url_encode(const std::string& input);
+    private:
+        static std::string method_name(const Method method);
+        static std::string url(const Method method, const std::string& apiKey, const std::map<std::string, std::string>& params);
+        static std::string url_with_params(const std::string& url, const std::map<std::string, std::string>& params);
+        static std::string url_encode(const std::string& input);
 
-    static std::string API_KEY;
+        static std::string API_KEY;
 };
 
 #endif // LAST_FM_H

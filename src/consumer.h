@@ -29,7 +29,7 @@ template <typename T>
 T Consumer<T>::consume() const {
     if (_producer == nullptr)
         throw "no producer set";
-    
+
     return _producer->next();
 }
 

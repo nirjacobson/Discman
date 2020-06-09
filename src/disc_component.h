@@ -17,46 +17,46 @@
 #include "last_fm.h"
 
 class DiscComponent {
-  public:
-    typedef sigc::signal<void> sig_eject_requested;
-    typedef sigc::signal<void, unsigned int> sig_track_selected;
-  
-    DiscComponent(Glib::RefPtr<Gtk::Builder> builder);
-    ~DiscComponent();
+    public:
+        typedef sigc::signal<void> sig_eject_requested;
+        typedef sigc::signal<void, unsigned int> sig_track_selected;
 
-    void set_disc(const DiscDB::Disc* const disc);
-    void clear_selection();
-    void set_selection(unsigned int track);
+        DiscComponent(Glib::RefPtr<Gtk::Builder> builder);
+        ~DiscComponent();
 
-    sig_eject_requested signal_eject_requested();
-    sig_track_selected signal_track_selected();
+        void set_disc(const DiscDB::Disc* const disc);
+        void clear_selection();
+        void set_selection(unsigned int track);
 
-  private:
+        sig_eject_requested signal_eject_requested();
+        sig_track_selected signal_track_selected();
 
-    class TracksListColumnRecord : public Gtk::TreeModel::ColumnRecord {
-      public:
-        TracksListColumnRecord() {
-          this->add(this->numberColumn);
-          this->add(this->titleColumn);
-          this->add(this->lengthColumn);
-        }
+    private:
 
-        Gtk::TreeModelColumn<guint> numberColumn;
-        Gtk::TreeModelColumn<Glib::ustring> titleColumn;
-        Gtk::TreeModelColumn<Glib::ustring> lengthColumn;
-    };
+        class TracksListColumnRecord : public Gtk::TreeModel::ColumnRecord {
+            public:
+                TracksListColumnRecord() {
+                    this->add(this->numberColumn);
+                    this->add(this->titleColumn);
+                    this->add(this->lengthColumn);
+                }
 
-    Gtk::Label* _albumLabel;
-    Gtk::Label* _albumArtistLabel;
-    Gtk::Button* _ejectButton;
-    Gtk::TreeView* _tracksTreeView;
-    Glib::RefPtr<Gtk::ListStore> _tracksListStore;
+                Gtk::TreeModelColumn<guint> numberColumn;
+                Gtk::TreeModelColumn<Glib::ustring> titleColumn;
+                Gtk::TreeModelColumn<Glib::ustring> lengthColumn;
+        };
 
-    sig_eject_requested _signal_eject_requested;
-    sig_track_selected _signal_track_selected;
+        Gtk::Label* _albumLabel;
+        Gtk::Label* _albumArtistLabel;
+        Gtk::Button* _ejectButton;
+        Gtk::TreeView* _tracksTreeView;
+        Glib::RefPtr<Gtk::ListStore> _tracksListStore;
 
-    void on_eject_button_clicked();
-    void on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeView::Column*);
+        sig_eject_requested _signal_eject_requested;
+        sig_track_selected _signal_track_selected;
+
+        void on_eject_button_clicked();
+        void on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeView::Column*);
 };
 
 #endif // DISC_COMPONENT_H

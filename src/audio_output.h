@@ -55,108 +55,108 @@ AudioOutput<T>* AudioOutput<T>::instance() {
 
 template <typename T>
 void AudioOutput<T>::init() {
-  _paError = Pa_Initialize();
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    _paError = Pa_Initialize();
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 
-  PaSampleFormat format;
-  if constexpr (std::is_same_v<T, int16_t>)
-    format = paInt16;
-  else if constexpr (std::is_same_v<T, float>)
-    format = paFloat32;
+    PaSampleFormat format;
+    if constexpr (std::is_same_v<T, int16_t>)
+        format = paInt16;
+    else if constexpr (std::is_same_v<T, float>)
+        format = paFloat32;
 
-  /* Open an audio I/O stream. */
-  _paError = Pa_OpenDefaultStream( &_paStream,
-                              0,          /* no input channels */
-                              2,          /* stereo output */
-                              format,  
-                              SAMPLE_RATE,
-                              256,        /* frames per buffer, i.e. the number
+    /* Open an audio I/O stream. */
+    _paError = Pa_OpenDefaultStream( &_paStream,
+                                     0,          /* no input channels */
+                                     2,          /* stereo output */
+                                     format,
+                                     SAMPLE_RATE,
+                                     256,        /* frames per buffer, i.e. the number
                                                   of sample frames that PortAudio will
                                                   request from the callback. Many apps
                                                   may want to use
                                                   paFramesPerBufferUnspecified, which
                                                   tells PortAudio to pick the best,
                                                   possibly changing, buffer size.*/
-                              &paCallback, /* this is your callback function */
-                              nullptr); /*This is a pointer that will be passed to
+                                     &paCallback, /* this is your callback function */
+                                     nullptr); /*This is a pointer that will be passed to
                                                   your callback*/
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 }
 
 template <typename T>
 void AudioOutput<T>::destroy() {
-  _paError = Pa_CloseStream( _paStream );
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    _paError = Pa_CloseStream( _paStream );
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 
-  _paError = Pa_Terminate();
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    _paError = Pa_Terminate();
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 
-  delete _instance;
+    delete _instance;
 }
 
 template <typename T>
 void AudioOutput<T>::start() {
-  _paError = Pa_StartStream( _paStream );
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    _paError = Pa_StartStream( _paStream );
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 }
 
 template <typename T>
 void AudioOutput<T>::stop() {
-  _paError = Pa_StopStream( _paStream );
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    _paError = Pa_StopStream( _paStream );
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 }
 
 template <typename T>
 void AudioOutput<T>::restart() {
-  _paError = Pa_CloseStream( _paStream );
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    _paError = Pa_CloseStream( _paStream );
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 
-  _paError = Pa_Terminate();
-  if( _paError != paNoError ) {
-    std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
-    return;
-  }
+    _paError = Pa_Terminate();
+    if( _paError != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+        return;
+    }
 
-  init();
+    init();
 }
 
 template <typename T>
 bool AudioOutput<T>::wireless() {
-  return Pa_GetDefaultOutputDevice() > 0;
+    return Pa_GetDefaultOutputDevice() > 0;
 }
 
 template <typename T>
 int AudioOutput<T>::paCallback(const void* inputBuffer,
-                            void* outputBuffer,
-                            unsigned long framesPerBuffer,
-                            const PaStreamCallbackTimeInfo* timeInfo,
-                            PaStreamCallbackFlags statusFlags,
-                            void* userData) {
+                               void* outputBuffer,
+                               unsigned long framesPerBuffer,
+                               const PaStreamCallbackTimeInfo* timeInfo,
+                               PaStreamCallbackFlags statusFlags,
+                               void* userData) {
     T* out = (T*)outputBuffer;
     unsigned int i;
     (void) inputBuffer; /* Prevent unused variable warning. */
-    (void) userData; 
+    (void) userData;
 
     for( i=0; i<framesPerBuffer; i++ )
     {

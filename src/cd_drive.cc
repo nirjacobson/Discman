@@ -5,7 +5,7 @@ CDDrive::Reader::Reader(CDDrive& drive)
     , _action(Idle)
     , _buffer(0)
     , _thread(&CDDrive::Reader::loop, this) {
-    
+
     _paranoia = paranoia_init(_drive._drive);
     paranoia_modeset(_paranoia, PARANOIA_MODE_FULL^PARANOIA_MODE_NEVERSKIP);
 }
@@ -130,7 +130,7 @@ CDDrive::~CDDrive() {
 
     delete [] _buffers[1];
     delete [] _buffers[0];
-    
+
     if (_drive)
         cdda_close(_drive);
 }
@@ -147,7 +147,7 @@ void CDDrive::eject() {
 
     cdda_close(_drive);
     _drive = nullptr;
-    
+
     cdio_eject_media_drive(_device.c_str());
     _device.clear();
 
@@ -309,7 +309,7 @@ float CDDrive::elapsed() {
 
 lba_t CDDrive::lba(const track_t track) const {
     if (!present()) throw NoDiscPresentException();
-    
+
     return cdio_get_track_lba(_drive->p_cdio, track);
 }
 
