@@ -1,3 +1,5 @@
+SHELL=/bin/bash
+
 MODULES=bluetooth_component   \
 				last_fm		            \
 				now_playing_component \
@@ -11,7 +13,7 @@ CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cf
 LDFLAGS = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -L../libdiscdb -ldiscdb -L../libbluez -lbluez
 EXEC=cdplayer
 
-all: build ${EXEC}
+all: ${EXEC}
 
 ${EXEC}: ${OBJECTS}
 	g++ $^ -o $@ ${LDFLAGS}
@@ -19,10 +21,10 @@ ${EXEC}: ${OBJECTS}
 format:
 	astyle -rnCS *.{h,cc}
 
-build/%.o : format src/%.cc
-	g++ -c $< -o $@ ${CFLAGS}
+build/%.o : builddir src/%.cc
+	g++ -c $(word 2, $^) -o $@ ${CFLAGS}
 
-build:
+builddir:
 	mkdir -p build
 
 clean:
