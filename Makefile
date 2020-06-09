@@ -19,7 +19,7 @@ ${EXEC}: ${OBJECTS}
 format:
 	astyle -rnCS *.{h,cc}
 
-build/%.o : src/%.cc
+build/%.o : format src/%.cc
 	g++ -c $< -o $@ ${CFLAGS}
 
 build:
