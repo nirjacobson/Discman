@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <mutex>
+#include <libgen.h>
 
 #include "cd_drive.h"
 #include "disc_component.h"
@@ -27,7 +28,7 @@ class Application {
 
         struct InitializationError : public std::exception {
             const char* what() const throw() {
-                return "Could not initialize program variables.";
+                return "Could not initialize program variables. Make sure the required environment variables are set.";
             }
         };
 
@@ -72,6 +73,8 @@ class Application {
         NowPlayingComponent* _nowPlayingComponent;
         BluetoothComponent* _bluetoothComponent;
 
+        Gtk::Button* _shutdownButton;
+
         void on_notification_from_poller();
         void on_bluetooth_button();
         void on_bluetooth_connected();
@@ -85,6 +88,8 @@ class Application {
         void on_stop();
         void on_next();
         bool on_timeout();
+
+        void on_shutdown_button();
 
         void play(unsigned int track);
         void play();

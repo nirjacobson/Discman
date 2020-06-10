@@ -324,9 +324,11 @@ int16_t CDDrive::next() {
         _reader->action(Reader::Action::Load);
         _load_lock.unlock();
     }
+
     if (_cursor == _end) return 0;
 
-    int16_t sample = _buffers[_buffer][_buffer_idx++];
+    const int16_t sample = _buffers[_buffer][_buffer_idx++];
+
     _buffer_idx %= BUFFER_SAMPLES;
 
     if (_buffer_idx == 0) {

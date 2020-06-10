@@ -28,10 +28,10 @@ Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std
     Json::Value root;
     ss >> root;
 
-    Json::Value image = root["album"]["image"];
+    const Json::Value image = root["album"]["image"];
 
     for (unsigned int i = 0; i < image.size(); i++) {
-        Json::Value element = image[i];
+        const Json::Value element = image[i];
         if (element["size"] == "mega") {
             request_url = element["#text"].asString();
             if (!request_url.empty()) {
@@ -90,7 +90,7 @@ std::string LastFM::url_encode(const std::string& input) {
     escaped << std::hex;
 
     for (std::string::const_iterator i = input.begin(), n = input.end(); i != n; ++i) {
-        std::string::value_type c = (*i);
+        const std::string::value_type c = (*i);
 
         if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
             escaped << c;

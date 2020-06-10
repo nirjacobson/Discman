@@ -19,7 +19,7 @@ class AudioOutput : public Consumer<T> {
         static void stop();
         static void restart();
 
-        static bool wireless();
+        static bool isDefault();
 
         static constexpr int SAMPLE_RATE = 44100;
 
@@ -142,7 +142,7 @@ void AudioOutput<T>::restart() {
 }
 
 template <typename T>
-bool AudioOutput<T>::wireless() {
+bool AudioOutput<T>::isDefault() {
     return Pa_GetDefaultOutputDevice() > 0;
 }
 

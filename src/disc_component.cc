@@ -35,7 +35,7 @@ void DiscComponent::set_disc(const DiscDB::Disc* const disc) {
     _albumArtistLabel->set_text(disc ? disc->artist() : "Please insert disc.");
 
     if (!!disc) {
-        TracksListColumnRecord cols;
+        const TracksListColumnRecord cols;
 
         for (unsigned int i = 0; i < disc->tracks().size(); i++) {
             auto row = *(_tracksListStore->append());

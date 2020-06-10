@@ -61,12 +61,14 @@ class CDDrive : public Producer<int16_t> {
 
         void track(const int track);
         unsigned int track() const;
-        float elapsed();
 
         lba_t lba(const track_t track) const;
+
+        float elapsed();
         unsigned int seconds() const;
 
         int16_t next();
+
         bool done();
 
     private:

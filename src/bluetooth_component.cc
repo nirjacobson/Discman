@@ -106,7 +106,7 @@ void BluetoothComponent::on_device_removed(const std::string& address) {
 void BluetoothComponent::on_devices_list_selection_changed() {
     std::string selectedAddress = _devicesTreeView->get_selection()->get_selected()->get_value(DevicesListColumnRecord().addressColumn);
 
-    bool showDisconnect = (_alsaDevice && _alsaDevice->address() == selectedAddress && _alsaDevice->connected());
+    const bool showDisconnect = (_alsaDevice && _alsaDevice->address() == selectedAddress && _alsaDevice->connected());
 
     _connectButton->set_sensitive(!_devicesTreeView->get_selection()->get_selected_rows().empty());
     _connectButton->set_label(showDisconnect ? "Disconnect" : "Connect");
@@ -116,7 +116,7 @@ void BluetoothComponent::update_asoundrc(const std::string& address) {
     std::ifstream asoundrc;
     std::ofstream asoundrc_tmp;
     std::string line;
-    std::regex mac_pattern("([0-9A-F]{2}:){5}[0-9A-F]{2}");
+    const std::regex mac_pattern("([0-9A-F]{2}:){5}[0-9A-F]{2}");
 
     asoundrc.open("/home/pi/.asoundrc");
     asoundrc_tmp.open("/home/pi/.asoundrc.tmp");
@@ -131,8 +131,8 @@ void BluetoothComponent::update_asoundrc(const std::string& address) {
 }
 
 void BluetoothComponent::on_connect_button_clicked() {
-    bool connect = _connectButton->get_label() == "Connect";
-    std::string selectedAddress = _devicesTreeView->get_selection()->get_selected()->get_value(DevicesListColumnRecord().addressColumn);
+    const bool connect = _connectButton->get_label() == "Connect";
+    const std::string selectedAddress = _devicesTreeView->get_selection()->get_selected()->get_value(DevicesListColumnRecord().addressColumn);
 
     if (connect) {
         if (_alsaDevice)
@@ -159,7 +159,7 @@ void BluetoothComponent::on_device_status_change() {
 }
 
 void BluetoothComponent::build_devices_list() {
-    std::vector<std::string> devices = _adapter.devices();
+    const std::vector<std::string> devices = _adapter.devices();
 
     _devicesListStore->clear();
 
@@ -175,7 +175,7 @@ void BluetoothComponent::build_devices_list() {
 void BluetoothComponent::get_alsa_device_address() {
     std::ifstream asoundrc;
     std::string line;
-    std::regex mac_pattern("([0-9A-F]{2}:){5}[0-9A-F]{2}");
+    const std::regex mac_pattern("([0-9A-F]{2}:){5}[0-9A-F]{2}");
 
     asoundrc.open("/home/pi/.asoundrc");
     if (asoundrc.good()) {

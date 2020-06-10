@@ -13,13 +13,20 @@ Application::Application(int argc, char **argv)
 
     _app = Gtk::Application::create(argc, argv, "com.nirjacobson.cdplayer");
 
+    char result[ PATH_MAX ];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    const char *path;
+    if (count != -1) {
+        path = dirname(result);
+    }
     _builder = Gtk::Builder::create();
-    _builder->add_from_file("ui/cdplayer.glade");
+    _builder->add_from_file(std::string(path) + "/ui/cdplayer.glade");
 
     _builder->get_widget("stack", _stack);
     _builder->get_widget("bluetoothBox", _bluetoothBox);
     _builder->get_widget("playerBox", _playerBox);
     _builder->get_widget("bluetoothButton", _bluetoothButton);
+    _builder->get_widget("shutdownButton", _shutdownButton);
     _bluetoothButton->signal_clicked().connect(sigc::mem_fun(this, &Application::on_bluetooth_button));
 
     _discComponent = new DiscComponent(_builder);
@@ -32,8 +39,10 @@ Application::Application(int argc, char **argv)
     _bluetoothComponent = new BluetoothComponent(_builder);
     _bluetoothComponent->signal_connected().connect(sigc::mem_fun(this, &Application::on_bluetooth_connected));
     _bluetoothComponent->signal_done().connect(sigc::mem_fun(this, &Application::on_bluetooth_done));
-    if (_audioOutput->wireless())
+    if (!_audioOutput->isDefault())
         _bluetoothComponent->on_device_initialization_complete(true);
+
+    _shutdownButton->signal_clicked().connect(sigc::mem_fun(this, &Application::on_shutdown_button));
 
     _builder->get_widget("window", _window);
     _window->fullscreen();
@@ -44,6 +53,7 @@ Application::Application(int argc, char **argv)
 Application::~Application() {
     delete _playerBox;
     delete _bluetoothBox;
+    delete _shutdownButton;
     delete _bluetoothButton;
     delete _stack;
     delete _window;
@@ -101,7 +111,7 @@ void Application::on_bluetooth_connected() {
 
         if (attempts-- > 0) {
             _audioOutput->restart();
-            if (_audioOutput->wireless()) {
+            if (!_audioOutput->isDefault()) {
                 _bluetoothComponent->on_device_initialization_complete(true);
                 attempts = 3;
                 return false;
@@ -159,6 +169,10 @@ bool Application::on_timeout() {
     }
 
     return true;
+}
+
+void Application::on_shutdown_button() {
+    _app->quit();
 }
 
 void Application::play(unsigned int track) {
