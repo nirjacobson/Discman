@@ -143,7 +143,7 @@ void AudioOutput<T>::restart() {
 
 template <typename T>
 bool AudioOutput<T>::isDefault() {
-    return Pa_GetDefaultOutputDevice() > 0;
+    return Pa_GetDefaultOutputDevice() == 0;
 }
 
 template <typename T>

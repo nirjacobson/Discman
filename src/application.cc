@@ -107,13 +107,13 @@ void Application::on_bluetooth_button() {
 
 void Application::on_bluetooth_connected() {
     Glib::signal_timeout().connect([this]() {
-        static int attempts = 3;
+        static int attempts = 5;
 
         if (attempts-- > 0) {
             _audioOutput->restart();
             if (!_audioOutput->isDefault()) {
                 _bluetoothComponent->on_device_initialization_complete(true);
-                attempts = 3;
+                attempts = 5;
                 return false;
             }
 
@@ -121,7 +121,7 @@ void Application::on_bluetooth_connected() {
         }
 
         _bluetoothComponent->on_device_initialization_complete(false);
-        attempts = 3;
+        attempts = 5;
         return false;
     }, 1000);
 }

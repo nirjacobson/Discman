@@ -153,6 +153,11 @@ void BluetoothComponent::on_connect_button_clicked() {
 
 void BluetoothComponent::on_device_status_change() {
     set_device_labels();
+
+    const std::string selectedAddress = _devicesTreeView->get_selection()->get_selected()->get_value(DevicesListColumnRecord().addressColumn);
+    const bool showDisconnect = (_alsaDevice && _alsaDevice->address() == selectedAddress && _alsaDevice->connected());
+    _connectButton->set_label(showDisconnect ? "Disconnect" : "Connect");
+
     if (_alsaDevice->connected()) {
         _signal_connected.emit();
     }
