@@ -48,6 +48,12 @@ Application::Application(int argc, char **argv)
     _window->fullscreen();
 
     _dispatcher.connect(sigc::mem_fun(*this, &Application::on_notification_from_poller));
+
+    _systemdProxy = Gio::DBus::Proxy::create_for_bus_sync(
+                        Gio::DBus::BusType::BUS_TYPE_SYSTEM,
+                        "org.freedesktop.login1",
+                        "/org/freedesktop/login1",
+                        "org.freedesktop.login1.Manager");
 }
 
 Application::~Application() {
@@ -172,7 +178,7 @@ bool Application::on_timeout() {
 }
 
 void Application::on_shutdown_button() {
-    _app->quit();
+    _systemdProxy->call_sync("PowerOff", Glib::VariantContainerBase::create_tuple(Glib::Variant<bool>::create(false)));
 }
 
 void Application::play(unsigned int track) {

@@ -10,6 +10,9 @@
 #include <gtkmm-3.0/gtkmm/stack.h>
 #include <gtkmm-3.0/gtkmm/box.h>
 #include <gtkmm-3.0/gtkmm/stockid.h>
+#include <glibmm/refptr.h>
+#include <glibmm/variant.h>
+#include <giomm/dbusproxy.h>
 
 #include <iostream>
 #include <mutex>
@@ -60,6 +63,8 @@ class Application {
         DiscDB::Disc _disc;
         AudioOutput<int16_t>* _audioOutput;
         unsigned int _track;
+
+        Glib::RefPtr<Gio::DBus::Proxy> _systemdProxy;
 
         Glib::Dispatcher _dispatcher;
         Poller* _poller;
