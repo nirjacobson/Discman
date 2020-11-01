@@ -93,7 +93,7 @@ void Application::queryDiscDB() {
                               .calculateDiscID()
                               .build();
 
-    _disc = DiscDB::query(disc);
+    _disc = DiscDB::find(disc);
 }
 
 void Application::on_notification_from_poller() {
