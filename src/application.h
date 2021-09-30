@@ -18,11 +18,12 @@
 #include <mutex>
 #include <libgen.h>
 
+#include <discdb/discdb.h>
+
 #include "cd_drive.h"
 #include "disc_component.h"
 #include "now_playing_component.h"
 #include "bluetooth_component.h"
-#include "discdb.h"
 #include "audio_output.h"
 
 class Application {
