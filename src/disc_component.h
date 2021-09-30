@@ -13,7 +13,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "disc.h"
+#include <discdb/disc.h>
 #include "last_fm.h"
 
 class DiscComponent {

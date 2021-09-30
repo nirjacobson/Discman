@@ -16,7 +16,7 @@
 #include <gtkmm-3.0/gtkmm/liststore.h>
 #include <sigc++/signal.h>
 
-#include "adapter.h"
+#include <bluez/adapter.h>
 
 class BluetoothComponent {
 

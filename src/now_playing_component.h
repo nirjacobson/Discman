@@ -11,7 +11,7 @@
 #include <gdkmm/pixbuf.h>
 #include <sigc++/signal.h>
 
-#include "disc.h"
+#include <discdb/disc.h>
 #include "last_fm.h"
 
 class NowPlayingComponent {
