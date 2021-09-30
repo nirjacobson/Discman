@@ -36,7 +36,8 @@ build/:
 
 clean:
 	rm -rf build
-	rm ${EXEC}
+	rm -f src/resources.cc
+	rm -f ${EXEC}
 
 distclean:
 	sudo rm -f /usr/bin/${EXEC}
