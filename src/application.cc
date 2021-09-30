@@ -20,7 +20,7 @@ Application::Application(int argc, char **argv)
         path = dirname(result);
     }
     _builder = Gtk::Builder::create();
-    _builder->add_from_file(std::string(path) + "/ui/cdplayer.glade");
+    _builder->add_from_resource(std::string(path) + "/ui/cdplayer.glade");
 
     _builder->get_widget("stack", _stack);
     _builder->get_widget("bluetoothBox", _bluetoothBox);
