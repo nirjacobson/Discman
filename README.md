@@ -111,5 +111,3 @@ su -l pi -c startx
 
 exit 0
 ```
-
-## Reboot
