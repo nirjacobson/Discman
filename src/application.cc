@@ -13,12 +13,6 @@ Application::Application(int argc, char **argv)
 
     _app = Gtk::Application::create(argc, argv, "com.nirjacobson.cdplayer");
 
-    char result[ PATH_MAX ];
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    const char *path;
-    if (count != -1) {
-        path = dirname(result);
-    }
     _builder = Gtk::Builder::create();
     _builder->add_from_resource("/ui/cdplayer.glade");
 
