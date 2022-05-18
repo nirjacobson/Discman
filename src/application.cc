@@ -39,7 +39,7 @@ Application::Application(int argc, char **argv)
     _shutdownButton->signal_clicked().connect(sigc::mem_fun(this, &Application::on_shutdown_button));
 
     _builder->get_widget("window", _window);
-    _window->fullscreen();
+    // _window->fullscreen();
 
     _dispatcher.connect(sigc::mem_fun(*this, &Application::on_notification_from_poller));
 

@@ -71,6 +71,19 @@
     "vector": "cpp",
     "__cxx_version": "cpp",
     "regex": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "clocale": "cpp",
+    "*.tcc": "cpp",
+    "codecvt": "cpp",
+    "compare": "cpp",
+    "concepts": "cpp",
+    "condition_variable": "cpp",
+    "memory_resource": "cpp",
+    "numeric": "cpp",
+    "random": "cpp",
+    "numbers": "cpp",
+    "semaphore": "cpp",
+    "stop_token": "cpp",
+    "cinttypes": "cpp"
   }
 }

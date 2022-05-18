@@ -9,7 +9,7 @@ MODULES = resources             \
           cd_drive              \
           main
 OBJECTS = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-3.0 jsoncpp
+LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-3.0 glibmm-2.4 jsoncpp
 CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -lbluez -ldiscdb
 EXEC    = cdplayer

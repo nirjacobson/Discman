@@ -6,8 +6,17 @@ A CD player built from the [Raspberry Pi 3](https://www.raspberrypi.org/products
 Once assembled...
 
 ## Install dependencies
+### Raspbian:
 ```
 sudo apt install libcdio-paranoia-dev portaudio19-dev libgtkmm-3.0-dev libglibmm-2.4-dev libjsoncpp-dev libcurlpp-dev libcurl4-openssl-dev sg3-utils bluealsa xorg
+```
+### Gentoo:
+```
+emerge -av sudo libcdio-paranoia portaudio gtkmm glibmm jsoncpp sg3_utils bluez-alsa
+```
+Manually build:
+```
+https://github.com/jpbarrette/curlpp
 ```
 
 ## Clone the code
@@ -35,9 +44,17 @@ make
 make install
 ```
 
-## Add user to the bluetooth group
+## (Raspbian) Add user to the bluetooth group
 ```
 usermod -a -G bluetooth pi
+```
+
+## (Gentoo)
+`/etc/dbus-1/system.d/bluetooth.conf`:
+```
+  <policy group="plugdev">
+    <allow send_destination="org.bluealsa"/>
+  </policy>
 ```
 
 ## Configure ALSA for Bluetooth audio
