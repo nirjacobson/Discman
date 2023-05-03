@@ -2,5 +2,13 @@
 <gresources>
   <gresource prefix="/">
     <file preprocess="xml-stripblanks">ui/cdplayer.glade</file>
+    <file>ui/icons/bluetooth.png</file>
+    <file>ui/icons/eject.png</file>
+    <file>ui/icons/next.png</file>
+    <file>ui/icons/pause.png</file>
+    <file>ui/icons/play.png</file>
+    <file>ui/icons/prev.png</file>
+    <file>ui/icons/shutdown.png</file>
+    <file>ui/icons/stop.png</file>
   </gresource>
 </gresources>

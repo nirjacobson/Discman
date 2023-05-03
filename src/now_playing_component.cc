@@ -11,6 +11,7 @@ NowPlayingComponent::NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder)
     builder->get_widget("playPauseButton", _playPauseButton);
     builder->get_widget("stopButton", _stopButton);
     builder->get_widget("nextButton", _nextButton);
+    builder->get_widget("playPauseImage", _playPauseImage);
 
     _albumArtImage->clear();
 
@@ -55,7 +56,7 @@ void NowPlayingComponent::set_state(const State state) {
     }
 
     _playPauseButton->set_sensitive(state != State::Disabled);
-    _playPauseButton->set_image_from_icon_name((state != State::Playing) ? "media-playback-start" : "media-playback-pause", Gtk::BuiltinIconSize::ICON_SIZE_LARGE_TOOLBAR);
+    _playPauseImage->set_from_resource((state != State::Playing) ? "/ui/icons/play.png" : "/ui/icons/pause.png");
     _stopButton->set_sensitive(state != State::Stopped && state != State::Disabled);
 }
 

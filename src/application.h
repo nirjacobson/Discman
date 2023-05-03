@@ -53,8 +53,8 @@ class Application {
                 Application& _app;
                 bool _exit;
 
-                std::thread _thread;
                 std::mutex _exit_lock;
+                std::thread _thread;
         };
 
         Glib::RefPtr<Gtk::Builder> _builder;

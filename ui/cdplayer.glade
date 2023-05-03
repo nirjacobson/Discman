@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.22"/>
   <object class="GtkImage" id="bluetoothImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">bluetooth</property>
+    <property name="resource">/ui/icons/bluetooth.png</property>
     <property name="icon_size">3</property>
   </object>
   <object class="GtkListStore" id="devicesListStore">
@@ -19,37 +19,37 @@
   <object class="GtkImage" id="ejectImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">media-eject</property>
+    <property name="resource">/ui/icons/eject.png</property>
     <property name="icon_size">3</property>
   </object>
   <object class="GtkImage" id="nextImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">media-skip-forward</property>
+    <property name="resource">/ui/icons/next.png</property>
     <property name="icon_size">3</property>
   </object>
-  <object class="GtkImage" id="playImage">
+  <object class="GtkImage" id="playPauseImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">media-playback-start</property>
+    <property name="resource">/ui/icons/play.png</property>
     <property name="icon_size">3</property>
   </object>
   <object class="GtkImage" id="prevImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">media-skip-backward</property>
+    <property name="resource">/ui/icons/prev.png</property>
     <property name="icon_size">3</property>
   </object>
   <object class="GtkImage" id="shutdownImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">system-shutdown</property>
+    <property name="resource">/ui/icons/shutdown.png</property>
     <property name="icon_size">3</property>
   </object>
   <object class="GtkImage" id="stopImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">media-playback-stop</property>
+    <property name="resource">/ui/icons/stop.png</property>
     <property name="icon_size">3</property>
   </object>
   <object class="GtkListStore" id="tracksListStore">
@@ -295,7 +295,7 @@
                             <property name="sensitive">False</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">True</property>
-                            <property name="image">playImage</property>
+                            <property name="image">playPauseImage</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

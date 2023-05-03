@@ -133,8 +133,8 @@ class CDDrive::Reader {
 
         cdrom_paranoia_t* _paranoia;
 
-        std::thread _thread;
         std::mutex _action_lock;
+        std::thread _thread;
 };
 
 class CDDrive::Poller {

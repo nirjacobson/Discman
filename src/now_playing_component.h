@@ -57,6 +57,8 @@ class NowPlayingComponent {
         Gtk::Button* _stopButton;
         Gtk::Button* _nextButton;
 
+        Gtk::Image* _playPauseImage;
+
         sig_button _signal_button;
 
         void on_prev_button_clicked();

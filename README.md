@@ -101,14 +101,6 @@ ExecStart=/usr/bin/bluealsa --a2dp-force-audio-cd
 ACTION=="add", ATTRS{idProduct}=="1500", ATTRS{idVendor}=="05ac", DRIVERS=="usb", RUN+="/usr/bin/sg_raw /dev/$kernel EA 00 00 00 00 00 01"
 ```
 
-## Install the [Buuf icon theme](https://www.gnome-look.org/p/1012512/)
-
-`~/.config/gtk-3.0/settings.ini:`
-```
-[Settings]
-gtk-icon-theme-name = buuf3.34
-```
-
 ## Set last.fm API key
 `~/.profile`:
 ```
@@ -128,3 +120,6 @@ su -l pi -c startx
 
 exit 0
 ```
+## Credits
+
+ [Buuf icon theme](https://www.gnome-look.org/p/1012512/)
