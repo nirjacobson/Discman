@@ -12,7 +12,7 @@ sudo apt install libcdio-paranoia-dev portaudio19-dev libgtkmm-3.0-dev libglibmm
 ```
 ### Gentoo:
 ```
-emerge -av sudo libcdio-paranoia portaudio gtkmm glibmm jsoncpp sg3_utils bluez-alsa
+emerge -av libcdio-paranoia portaudio gtkmm glibmm jsoncpp sg3_utils bluez-alsa
 ```
 Manually build:
 ```

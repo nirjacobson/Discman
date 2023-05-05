@@ -17,7 +17,7 @@ EXEC    = cdplayer
 all: build/ ${EXEC}
 
 install: ${EXEC}
-	sudo cp $< /usr/bin
+	cp $< /usr/bin
 
 ${EXEC}: ${OBJECTS}
 	g++ $^ -o $@ ${LDFLAGS}
@@ -40,5 +40,5 @@ clean:
 	rm -f ${EXEC}
 
 distclean:
-	sudo rm -f /usr/bin/${EXEC}
+	rm -f /usr/bin/${EXEC}
 
