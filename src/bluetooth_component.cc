@@ -4,29 +4,27 @@ BluetoothComponent::BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder)
     : _adapter("hci0")
     , _alsaDevice(nullptr)
     , _alsaDeviceInitialization(DeviceInitialization::NotInitialized) {
-    builder->get_widget("deviceLabel", _deviceLabel);
-    builder->get_widget("deviceStatusLabel", _deviceStatusLabel);
-    builder->get_widget("devicesTreeView", _devicesTreeView);
-    builder->get_widget("bluetoothDoneButton", _doneButton);
-    builder->get_widget("connectButton", _connectButton);
+    _deviceLabel = builder->get_widget<Gtk::Label>("deviceLabel");
+    _deviceStatusLabel = builder->get_widget<Gtk::Label>("deviceStatusLabel");
+    _devicesTreeView = builder->get_widget<Gtk::TreeView>("devicesTreeView");
+    _doneButton = builder->get_widget<Gtk::Button>("bluetoothDoneButton");
+    _connectButton = builder->get_widget<Gtk::Button>("connectButton");
 
-    _devicesListStore = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(
-                            builder->get_object("devicesListStore")
-                        );
+    _devicesListStore = std::dynamic_pointer_cast<Gtk::ListStore>(builder->get_object("devicesListStore"));
 
     DevicesListColumnRecord cols;
     _devicesTreeView->append_column("Devices", cols.nameColumn);
 
     build_devices_list();
 
-    _devicesTreeView->get_selection()->signal_changed().connect(sigc::mem_fun(this, &BluetoothComponent::on_devices_list_selection_changed));
+    _devicesTreeView->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &BluetoothComponent::on_devices_list_selection_changed));
 
-    _connectButton->signal_clicked().connect(sigc::mem_fun(this, &BluetoothComponent::on_connect_button_clicked));
+    _connectButton->signal_clicked().connect(sigc::mem_fun(*this, &BluetoothComponent::on_connect_button_clicked));
 
-    _doneButton->signal_clicked().connect(sigc::mem_fun(this, &BluetoothComponent::on_done_button_clicked));
+    _doneButton->signal_clicked().connect(sigc::mem_fun(*this, &BluetoothComponent::on_done_button_clicked));
 
-    _adapter.signal_device_added().connect(sigc::mem_fun(this, &BluetoothComponent::on_device_added));
-    _adapter.signal_device_removed().connect(sigc::mem_fun(this, &BluetoothComponent::on_device_removed));
+    _adapter.signal_device_added().connect(sigc::mem_fun(*this, &BluetoothComponent::on_device_added));
+    _adapter.signal_device_removed().connect(sigc::mem_fun(*this, &BluetoothComponent::on_device_removed));
 }
 
 BluetoothComponent::~BluetoothComponent() {
@@ -90,7 +88,7 @@ void BluetoothComponent::on_device_removed(const std::string& address) {
 
     for (; it; it++) {
         Gtk::TreeModel::Row row = *it;
-        if (row[cols.addressColumn] == address) {
+        if (row[cols.addressColumn] == address.data()) {
             _devicesListStore->erase(it);
             break;
         }
@@ -201,9 +199,9 @@ void BluetoothComponent::try_get_alsa_device() {
             delete _alsaDevice;
 
         _alsaDevice = _adapter.device(_alsaDeviceAddress);
-        _alsaDevice->signal_paired().connect(sigc::mem_fun(this, &BluetoothComponent::on_device_status_change));
-        _alsaDevice->signal_connected().connect(sigc::mem_fun(this, &BluetoothComponent::on_device_status_change));
-        _alsaDevice->signal_disconnected().connect(sigc::mem_fun(this, &BluetoothComponent::on_device_status_change));
+        _alsaDevice->signal_paired().connect(sigc::mem_fun(*this, &BluetoothComponent::on_device_status_change));
+        _alsaDevice->signal_connected().connect(sigc::mem_fun(*this, &BluetoothComponent::on_device_status_change));
+        _alsaDevice->signal_disconnected().connect(sigc::mem_fun(*this, &BluetoothComponent::on_device_status_change));
     } catch (const Bluez::Adapter::DeviceNotFound& e) {
         _alsaDevice = nullptr;
     }

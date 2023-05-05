@@ -2,23 +2,23 @@
 
 NowPlayingComponent::NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder)
     : _state(State::Stopped) {
-    builder->get_widget("albumArtImage", _albumArtImage);
-    builder->get_widget("trackTitleLabel", _trackTitleLabel);
-    builder->get_widget("trackArtistLabel", _trackArtistLabel);
-    builder->get_widget("seekScale", _seekScale);
-    builder->get_widget("seekScale", _seekScale);
-    builder->get_widget("prevButton", _prevButton);
-    builder->get_widget("playPauseButton", _playPauseButton);
-    builder->get_widget("stopButton", _stopButton);
-    builder->get_widget("nextButton", _nextButton);
-    builder->get_widget("playPauseImage", _playPauseImage);
+    _albumArtImage = builder->get_widget<Gtk::Image>("albumArtImage");
+    _trackTitleLabel = builder->get_widget<Gtk::Label>("trackTitleLabel");
+    _trackArtistLabel = builder->get_widget<Gtk::Label>("trackArtistLabel");
+    _seekScale = builder->get_widget<Gtk::Scale>("seekScale");
+    _seekScale = builder->get_widget<Gtk::Scale>("seekScale");
+    _prevButton = builder->get_widget<Gtk::Button>("prevButton");
+    _playPauseButton = builder->get_widget<Gtk::Button>("playPauseButton");
+    _stopButton = builder->get_widget<Gtk::Button>("stopButton");
+    _nextButton = builder->get_widget<Gtk::Button>("nextButton");
+    _playPauseImage = builder->get_widget<Gtk::Image>("playPauseImage");
 
     _albumArtImage->clear();
 
-    _prevButton->signal_clicked().connect(sigc::mem_fun(this, &NowPlayingComponent::on_prev_button_clicked));
-    _playPauseButton->signal_clicked().connect(sigc::mem_fun(this, &NowPlayingComponent::on_playpause_button_clicked));
-    _stopButton->signal_clicked().connect(sigc::mem_fun(this, &NowPlayingComponent::on_stop_button_clicked));
-    _nextButton->signal_clicked().connect(sigc::mem_fun(this, &NowPlayingComponent::on_next_button_clicked));
+    _prevButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_prev_button_clicked));
+    _playPauseButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_playpause_button_clicked));
+    _stopButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_stop_button_clicked));
+    _nextButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_next_button_clicked));
 }
 
 NowPlayingComponent::~NowPlayingComponent() {

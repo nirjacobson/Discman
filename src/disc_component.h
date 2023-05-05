@@ -1,13 +1,14 @@
 #ifndef DISC_COMPONENT_H
 #define DISC_COMPONENT_H
 
-#include <glibmm-2.4/glibmm.h>
-#include <gtkmm-3.0/gtkmm/builder.h>
-#include <gtkmm-3.0/gtkmm/button.h>
-#include <gtkmm-3.0/gtkmm/label.h>
-#include <gtkmm-3.0/gtkmm/treeview.h>
-#include <gtkmm-3.0/gtkmm/treemodel.h>
-#include <gtkmm-3.0/gtkmm/liststore.h>
+#include <glibmm.h>
+#include <pangomm/layout.h>
+#include <gtkmm/builder.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/treeview.h>
+#include <gtkmm/treemodel.h>
+#include <gtkmm/liststore.h>
 #include <sigc++/signal.h>
 #include <sstream>
 #include <iostream>
@@ -18,8 +19,8 @@
 
 class DiscComponent {
     public:
-        typedef sigc::signal<void> sig_eject_requested;
-        typedef sigc::signal<void, unsigned int> sig_track_selected;
+        typedef sigc::signal<void()> sig_eject_requested;
+        typedef sigc::signal<void(unsigned int)> sig_track_selected;
 
         DiscComponent(Glib::RefPtr<Gtk::Builder> builder);
         ~DiscComponent();

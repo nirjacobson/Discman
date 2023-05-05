@@ -1,7 +1,9 @@
 #include "application.h"
 
 Application::Application(int argc, char **argv)
-    : _audioOutput(AudioOutput<int16_t>::instance())
+    : _argc(argc)
+    , _argv(argv)
+    , _audioOutput(AudioOutput<int16_t>::instance())
     , _track(0)
     , _poller(new Poller(*this)) {
     if (!LastFM::init()) {
@@ -11,40 +13,41 @@ Application::Application(int argc, char **argv)
     _audioOutput->producer(&_drive);
     _audioOutput->init();
 
-    _app = Gtk::Application::create(argc, argv, "com.nirjacobson.cdplayer");
+    _app = Gtk::Application::create("com.nirjacobson.cdplayer");
+    _app->signal_activate().connect(sigc::mem_fun(*this, &Application::on_activate));
 
     _builder = Gtk::Builder::create();
     _builder->add_from_resource("/ui/cdplayer.glade");
 
-    _builder->get_widget("stack", _stack);
-    _builder->get_widget("bluetoothBox", _bluetoothBox);
-    _builder->get_widget("playerBox", _playerBox);
-    _builder->get_widget("bluetoothButton", _bluetoothButton);
-    _builder->get_widget("shutdownButton", _shutdownButton);
-    _bluetoothButton->signal_clicked().connect(sigc::mem_fun(this, &Application::on_bluetooth_button));
+    _stack = _builder->get_widget<Gtk::Stack>("stack");
+    _bluetoothBox = _builder->get_widget<Gtk::Box>("bluetoothBox");
+    _playerBox = _builder->get_widget<Gtk::Box>("playerBox");
+    _bluetoothButton = _builder->get_widget<Gtk::Button>("bluetoothButton");
+    _shutdownButton = _builder->get_widget<Gtk::Button>("shutdownButton");
+    _bluetoothButton->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_bluetooth_button));
 
     _discComponent = new DiscComponent(_builder);
-    _discComponent->signal_eject_requested().connect(sigc::mem_fun(this, &Application::eject));
-    _discComponent->signal_track_selected().connect(sigc::mem_fun(this, &Application::on_track_selected));
+    _discComponent->signal_eject_requested().connect(sigc::mem_fun(*this, &Application::eject));
+    _discComponent->signal_track_selected().connect(sigc::mem_fun(*this, &Application::on_track_selected));
 
     _nowPlayingComponent = new NowPlayingComponent(_builder);
-    _nowPlayingComponent->signal_button().connect(sigc::mem_fun(this, &Application::on_button));
+    _nowPlayingComponent->signal_button().connect(sigc::mem_fun(*this, &Application::on_button));
 
     _bluetoothComponent = new BluetoothComponent(_builder);
-    _bluetoothComponent->signal_connected().connect(sigc::mem_fun(this, &Application::on_bluetooth_connected));
-    _bluetoothComponent->signal_done().connect(sigc::mem_fun(this, &Application::on_bluetooth_done));
+    _bluetoothComponent->signal_connected().connect(sigc::mem_fun(*this, &Application::on_bluetooth_connected));
+    _bluetoothComponent->signal_done().connect(sigc::mem_fun(*this, &Application::on_bluetooth_done));
     if (!_audioOutput->isDefault())
         _bluetoothComponent->on_device_initialization_complete(true);
 
-    _shutdownButton->signal_clicked().connect(sigc::mem_fun(this, &Application::on_shutdown_button));
+    _shutdownButton->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_shutdown_button));
 
-    _builder->get_widget("window", _window);
+    _window = _builder->get_widget<Gtk::Window>("window");
     // _window->fullscreen();
 
     _dispatcher.connect(sigc::mem_fun(*this, &Application::on_notification_from_poller));
 
     _systemdProxy = Gio::DBus::Proxy::create_for_bus_sync(
-                        Gio::DBus::BusType::BUS_TYPE_SYSTEM,
+                        Gio::DBus::BusType::SYSTEM,
                         "org.freedesktop.login1",
                         "/org/freedesktop/login1",
                         "org.freedesktop.login1.Manager");
@@ -66,7 +69,7 @@ Application::~Application() {
 }
 
 void Application::run() {
-    _app->run(*_window);
+    _app->run(_argc, _argv);
 }
 
 void Application::notify() {
@@ -88,6 +91,11 @@ void Application::queryDiscDB() {
                               .build();
 
     _disc = DiscDB::find(disc);
+}
+
+void Application::on_activate() {
+    _app->add_window(*_window);
+    _window->show();
 }
 
 void Application::on_notification_from_poller() {
@@ -191,7 +199,7 @@ void Application::play() {
     if (_track == 0) {
         play(1);
     } else {
-        _timerConnection = Glib::signal_timeout().connect(sigc::mem_fun(this, &Application::on_timeout), 250);
+        _timerConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout), 250);
         _audioOutput->start();
         _nowPlayingComponent->set_state(NowPlayingComponent::State::Playing);
     }

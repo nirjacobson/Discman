@@ -1,15 +1,14 @@
 #ifndef CD_PLAYER_H
 #define CD_PLAYER_H
 
-#include <glibmm-2.4/glibmm/main.h>
-#include <glibmm-2.4/glibmm.h>
-#include <glibmm-2.4/glibmm/dispatcher.h>
-#include <gtkmm-3.0/gtkmm/application.h>
-#include <gtkmm-3.0/gtkmm/builder.h>
-#include <gtkmm-3.0/gtkmm/window.h>
-#include <gtkmm-3.0/gtkmm/stack.h>
-#include <gtkmm-3.0/gtkmm/box.h>
-#include <gtkmm-3.0/gtkmm/stockid.h>
+#include <glibmm/main.h>
+#include <glibmm.h>
+#include <glibmm/dispatcher.h>
+#include <gtkmm/application.h>
+#include <gtkmm/builder.h>
+#include <gtkmm/window.h>
+#include <gtkmm/stack.h>
+#include <gtkmm/box.h>
 #include <glibmm/refptr.h>
 #include <glibmm/variant.h>
 #include <giomm/dbusproxy.h>
@@ -57,6 +56,9 @@ class Application {
                 std::thread _thread;
         };
 
+        int _argc;
+        char** _argv;
+
         Glib::RefPtr<Gtk::Builder> _builder;
         Glib::RefPtr<Gtk::Application> _app;
         Gtk::Window* _window;
@@ -80,6 +82,8 @@ class Application {
         BluetoothComponent* _bluetoothComponent;
 
         Gtk::Button* _shutdownButton;
+
+        void on_activate();
 
         void on_notification_from_poller();
         void on_bluetooth_button();

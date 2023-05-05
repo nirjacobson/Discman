@@ -7,13 +7,13 @@
 #include <string>
 #include <regex>
 
-#include <glibmm-2.4/glibmm.h>
-#include <gtkmm-3.0/gtkmm/builder.h>
-#include <gtkmm-3.0/gtkmm/button.h>
-#include <gtkmm-3.0/gtkmm/label.h>
-#include <gtkmm-3.0/gtkmm/treeview.h>
-#include <gtkmm-3.0/gtkmm/treemodel.h>
-#include <gtkmm-3.0/gtkmm/liststore.h>
+#include <glibmm.h>
+#include <gtkmm/builder.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/treeview.h>
+#include <gtkmm/treemodel.h>
+#include <gtkmm/liststore.h>
 #include <sigc++/signal.h>
 
 #include <bluez/adapter.h>
@@ -21,8 +21,8 @@
 class BluetoothComponent {
 
     public:
-        typedef sigc::signal<void> sig_done;
-        typedef sigc::signal<void> sig_conn;
+        typedef sigc::signal<void()> sig_done;
+        typedef sigc::signal<void()> sig_conn;
 
         BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder);
         ~BluetoothComponent();

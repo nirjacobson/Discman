@@ -1,13 +1,13 @@
 #ifndef NOW_PLAYING_COMPONENT
 #define NOW_PLAYING_COMPONENT
 
-#include <glibmm-2.4/glibmm.h>
-#include <gtkmm-3.0/gtkmm/builder.h>
-#include <gtkmm-3.0/gtkmm/image.h>
-#include <gtkmm-3.0/gtkmm/label.h>
-#include <gtkmm-3.0/gtkmm/scale.h>
-#include <gtkmm-3.0/gtkmm/adjustment.h>
-#include <gtkmm-3.0/gtkmm/button.h>
+#include <glibmm.h>
+#include <gtkmm/builder.h>
+#include <gtkmm/image.h>
+#include <gtkmm/label.h>
+#include <gtkmm/scale.h>
+#include <gtkmm/adjustment.h>
+#include <gtkmm/button.h>
 #include <gdkmm/pixbuf.h>
 #include <sigc++/signal.h>
 
@@ -32,7 +32,7 @@ class NowPlayingComponent {
             Next
         };
 
-        typedef sigc::signal<void, const Button> sig_button;
+        typedef sigc::signal<void(const Button)> sig_button;
 
         NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder);
         ~NowPlayingComponent();

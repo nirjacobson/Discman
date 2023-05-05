@@ -1,13 +1,11 @@
 #include "disc_component.h"
 
 DiscComponent::DiscComponent(Glib::RefPtr<Gtk::Builder> builder) {
-    builder->get_widget("ejectButton", _ejectButton);
-    builder->get_widget("albumLabel", _albumLabel);
-    builder->get_widget("albumArtistLabel", _albumArtistLabel);
-    builder->get_widget("tracksTreeView", _tracksTreeView);
-    _tracksListStore = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(
-                           builder->get_object("tracksListStore")
-                       );
+    _ejectButton = builder->get_widget<Gtk::Button>("ejectButton");
+    _albumLabel = builder->get_widget<Gtk::Label>("albumLabel");
+    _albumArtistLabel = builder->get_widget<Gtk::Label>("albumArtistLabel");
+    _tracksTreeView = builder->get_widget<Gtk::TreeView>("tracksTreeView");
+    _tracksListStore = std::dynamic_pointer_cast<Gtk::ListStore>(builder->get_object("tracksListStore"));
 
     TracksListColumnRecord cols;
     _tracksTreeView->append_column_numeric("#", cols.numberColumn, "%d");
@@ -16,11 +14,11 @@ DiscComponent::DiscComponent(Glib::RefPtr<Gtk::Builder> builder) {
     _tracksTreeView->get_column_cell_renderer(0)->set_alignment(1.0, 0.5);
     _tracksTreeView->get_column_cell_renderer(2)->set_alignment(1.0, 0.5);
 
-    _tracksTreeView->get_column_cell_renderer(1)->set_property("ellipsize", Pango::ELLIPSIZE_END);
+    _tracksTreeView->get_column_cell_renderer(1)->set_property("ellipsize", Pango::EllipsizeMode::END);
     _tracksTreeView->get_column(1)->set_property("expand", true);
 
-    _ejectButton->signal_clicked().connect(sigc::mem_fun(this, &DiscComponent::on_eject_button_clicked));
-    _tracksTreeView->signal_row_activated().connect(sigc::mem_fun(this, &DiscComponent::on_row_activated));
+    _ejectButton->signal_clicked().connect(sigc::mem_fun(*this, &DiscComponent::on_eject_button_clicked));
+    _tracksTreeView->signal_row_activated().connect(sigc::mem_fun(*this, &DiscComponent::on_row_activated));
 }
 
 DiscComponent::~DiscComponent() {
@@ -62,9 +60,11 @@ void DiscComponent::clear_selection() {
 }
 
 void DiscComponent::set_selection(unsigned int track) {
+    Glib::RefPtr<Gtk::TreeModel> model = _tracksTreeView->get_model();
     Gtk::TreeNodeChildren::iterator it = _tracksListStore->children().begin();
-    for (unsigned int i = 0; i < track - 1; i++) it++;
-    _tracksTreeView->get_selection()->select(*it);
+    for (unsigned int i = 0; i < track - 1; i++)
+        it++;
+    _tracksTreeView->get_selection()->select(model->get_path(it));
 }
 
 DiscComponent::sig_eject_requested DiscComponent::signal_eject_requested() {

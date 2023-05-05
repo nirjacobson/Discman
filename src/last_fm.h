@@ -9,7 +9,7 @@
 #include <string>
 #include <map>
 #include <exception>
-#include <glibmm-2.4/glibmm.h>
+#include <glibmm.h>
 #include <giomm/memoryinputstream.h>
 #include <gdkmm/pixbuf.h>
 #include <curlpp/Easy.hpp>
