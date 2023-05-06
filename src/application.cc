@@ -42,7 +42,7 @@ Application::Application(int argc, char **argv)
     _shutdownButton->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_shutdown_button));
 
     _window = _builder->get_widget<Gtk::Window>("window");
-    // _window->fullscreen();
+    _window->fullscreen();
 
     _dispatcher.connect(sigc::mem_fun(*this, &Application::on_notification_from_poller));
 

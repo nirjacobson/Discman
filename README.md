@@ -6,17 +6,8 @@ A CD player built from the [Raspberry Pi 3](https://www.raspberrypi.org/products
 Once assembled...
 
 ## Install dependencies
-### Raspbian:
 ```
-sudo apt install libcdio-paranoia-dev portaudio19-dev libgtkmm-3.0-dev libglibmm-2.4-dev libjsoncpp-dev libcurlpp-dev libcurl4-openssl-dev sg3-utils bluealsa xorg
-```
-### Gentoo:
-```
-emerge -av libcdio-paranoia portaudio gtkmm glibmm jsoncpp sg3_utils bluez-alsa
-```
-Manually build:
-```
-https://github.com/jpbarrette/curlpp
+emerge -av libcdio-paranoia portaudio gtkmm glibmm curlpp jsoncpp sg3_utils bluez-alsa
 ```
 
 ## Clone the code
@@ -44,19 +35,6 @@ make
 make install
 ```
 
-## (Raspbian) Add user to the bluetooth group
-```
-usermod -a -G bluetooth pi
-```
-
-## (Gentoo)
-`/etc/dbus-1/system.d/bluetooth.conf`:
-```
-  <policy group="plugdev">
-    <allow send_destination="org.bluealsa"/>
-  </policy>
-```
-
 ## Configure ALSA for Bluetooth audio
 `~/.asoundrc`:
 ```
@@ -71,27 +49,16 @@ pcm.!default {
 }
 ```
 
-## Configure bluealsa
-`/usr/lib/systemd/system/bluealsa.service`:
-```
-...
-ExecStart=/usr/bin/bluealsa --a2dp-force-audio-cd
-```
-
 ## Allow powering off as user
 
-`/usr/share/polkit-1/actions/org.freedesktop.login1.policy`:
+`/etc/polkit-1/rules.d/10-poweroff.rules`:
 ```
-        <action id="org.freedesktop.login1.power-off">
-                <description gettext-domain="systemd">Power off the system</description>
-                <message gettext-domain="systemd">Authentication is required for powering off the s$
-                <defaults>
-                        <allow_any>yes</allow_any>
-                        <allow_inactive>yes</allow_inactive>
-                        <allow_active>yes</allow_active>
-                </defaults>
-                <annotate key="org.freedesktop.policykit.imply">org.freedesktop.login1.set-wall-mes$
-        </action>
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.login1.power-off" &&
+        subject.user == "nir") {
+        return polkit.Result.YES;
+    }
+});
 ```
 
 ## Enable the Apple SuperDrive at boot
@@ -109,17 +76,7 @@ export LAST_FM_API_KEY="YOUR_KEY_HERE"
 ```
 
 ## Run cdplayer at boot
-`~/.xinitrc`:
-```
-cdplayer
-```
-`/etc/rc.local`:
-```
-...
-su -l pi -c startx
-
-exit 0
-```
+TODO
 ## Credits
 
  [Buuf icon theme](https://www.gnome-look.org/p/1012512/)
