@@ -15,8 +15,6 @@ BluetoothComponent::BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder)
     DevicesListColumnRecord cols;
     _devicesTreeView->append_column("Devices", cols.nameColumn);
 
-    build_devices_list();
-
     _devicesTreeView->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &BluetoothComponent::on_devices_list_selection_changed));
 
     _connectButton->signal_clicked().connect(sigc::mem_fun(*this, &BluetoothComponent::on_connect_button_clicked));
@@ -39,6 +37,8 @@ BluetoothComponent::~BluetoothComponent() {
 }
 
 void BluetoothComponent::on_show() {
+    build_devices_list();
+
     get_alsa_device_address();
     try_get_alsa_device();
     set_device_labels();

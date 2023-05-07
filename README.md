@@ -69,7 +69,7 @@ ACTION=="add", ATTRS{idProduct}=="1500", ATTRS{idVendor}=="05ac", DRIVERS=="usb"
 ```
 
 ## Set last.fm API key
-`~/.profile`:
+`~/.bash_profile`:
 ```
 ...
 export LAST_FM_API_KEY="YOUR_KEY_HERE"

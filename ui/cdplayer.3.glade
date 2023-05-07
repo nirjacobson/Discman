@@ -204,6 +204,7 @@
                           <object class="GtkLabel" id="trackTitleLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="ellipsize">end</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -215,6 +216,7 @@
                           <object class="GtkLabel" id="trackArtistLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="ellipsize">end</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
