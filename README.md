@@ -53,7 +53,7 @@ pcm.!default {
 ```
 polkit.addRule(function(action, subject) {
     if (action.id == "org.freedesktop.login1.power-off" &&
-        subject.user == "nir") {
+        subject.user == "<your username>") {
         return polkit.Result.YES;
     }
 });
@@ -73,7 +73,7 @@ ACTION=="add", ATTRS{idProduct}=="1500", ATTRS{idVendor}=="05ac", DRIVERS=="usb"
 [Service]
 Type=simple
 ExecStart=
-ExecStart=-/sbin/agetty --autologin <user> --noclear %I 38400 linux
+ExecStart=-/sbin/agetty --autologin <your username> --noclear %I 38400 linux
 ```
 
 `~/.bash_profile`:
