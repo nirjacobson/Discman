@@ -12,7 +12,7 @@ OBJECTS = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
 LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-4.0 glibmm-2.68 curlpp jsoncpp
 CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -lbluez -ldiscdb
-EXEC    = cdplayer
+EXEC    = discman
 
 all: build/ ${EXEC}
 

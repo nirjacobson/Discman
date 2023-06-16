@@ -6,18 +6,14 @@ Application::Application(int argc, char **argv)
     , _audioOutput(AudioOutput<int16_t>::instance())
     , _track(0)
     , _poller(new Poller(*this)) {
-    if (!LastFM::init()) {
-        throw InitializationError();
-    }
-
     _audioOutput->producer(&_drive);
     _audioOutput->init();
 
-    _app = Gtk::Application::create("com.nirjacobson.cdplayer");
+    _app = Gtk::Application::create("com.nirjacobson.discman");
     _app->signal_activate().connect(sigc::mem_fun(*this, &Application::on_activate));
 
     _builder = Gtk::Builder::create();
-    _builder->add_from_resource("/ui/cdplayer.glade");
+    _builder->add_from_resource("/ui/discman.glade");
 
     _stack = _builder->get_widget<Gtk::Stack>("stack");
     _bluetoothBox = _builder->get_widget<Gtk::Box>("bluetoothBox");

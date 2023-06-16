@@ -1,20 +1,18 @@
-# cdplayer
+# Discman
 A CD player built from the [Raspberry Pi 3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/), [Pi Display](https://shop.pimoroni.com/products/raspberry-pi-7-touchscreen-display-with-frame) and [Apple SuperDrive](https://www.apple.com/shop/product/MD564LL/A/apple-usb-superdrive).
-
-![cdplayer](https://nirjacobson.com/wp-content/uploads/2020/08/20200815_145216.jpg)
 
 Once assembled...
 
 ## Install dependencies
 ```
-emerge -av libcdio-paranoia portaudio gtkmm glibmm curlpp jsoncpp sg3_utils bluez-alsa
+emerge -av libcdio-paranoia portaudio gtkmm glibmm curlpp jsoncpp sg3_utils bluez-alsa weston
 ```
 
 ## Clone the code
 ```
 git clone https://github.com/nirjacobson/libbluez.git
 git clone https://github.com/nirjacobson/libdiscdb.git
-git clone https://github.com/nirjacobson/cdplayer.git
+git clone https://github.com/nirjacobson/Discman.git
 ```
 
 ## Build the libraries
@@ -28,9 +26,9 @@ make
 make install
 ```
 
-## Build cdplayer
+## Build Discman
 ```
-cd cdplayer
+cd Discman
 make
 make install
 ```
@@ -68,15 +66,27 @@ polkit.addRule(function(action, subject) {
 ACTION=="add", ATTRS{idProduct}=="1500", ATTRS{idVendor}=="05ac", DRIVERS=="usb", RUN+="/usr/bin/sg_raw /dev/$kernel EA 00 00 00 00 00 01"
 ```
 
-## Set last.fm API key
+## Run Discman at boot
+```
+# systemctl edit getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=
+ExecStart=-/sbin/agetty --autologin <user> --noclear %I 38400 linux
+```
+
 `~/.bash_profile`:
 ```
 ...
-export LAST_FM_API_KEY="YOUR_KEY_HERE"
-```
 
-## Run cdplayer at boot
-TODO
+if tty | grep -q 'tty1'; then
+    weston --shell=kiosk-shell.so &
+    export WAYLAND_DISPLAY=wayland-1
+    sleep 3
+    discman&
+fi
+```
 ## Credits
 
  [Buuf icon theme](https://www.gnome-look.org/p/1012512/)

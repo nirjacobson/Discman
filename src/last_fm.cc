@@ -1,15 +1,6 @@
 #include "last_fm.h"
 
-std::string LastFM::API_KEY;
-
-bool LastFM::init() {
-    const char* apiKey = std::getenv("LAST_FM_API_KEY");
-    if (apiKey) {
-        LastFM::API_KEY = apiKey;
-    }
-
-    return !!apiKey;
-}
+std::string LastFM::API_KEY = "c4f9a47a4ca890c0981d1707ff28c434";
 
 Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
     cURLpp::Cleanup cleanup;
