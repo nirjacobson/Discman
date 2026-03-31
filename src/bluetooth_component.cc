@@ -42,6 +42,7 @@ void BluetoothComponent::on_show() {
     get_alsa_device_address();
     try_get_alsa_device();
     set_device_labels();
+
     _adapter.startDiscovery();
 }
 
@@ -116,8 +117,8 @@ void BluetoothComponent::update_asoundrc(const std::string& address) {
     std::string line;
     const std::regex mac_pattern("([0-9A-F]{2}:){5}[0-9A-F]{2}");
 
-    asoundrc.open("/home/pi/.asoundrc");
-    asoundrc_tmp.open("/home/pi/.asoundrc.tmp");
+    asoundrc.open("/home/nir/.asoundrc");
+    asoundrc_tmp.open("/home/nir/.asoundrc.tmp");
     if (asoundrc.good()) {
         while (getline(asoundrc, line)) {
             std::string outLine = std::regex_replace(line, mac_pattern, address);
@@ -125,7 +126,7 @@ void BluetoothComponent::update_asoundrc(const std::string& address) {
         }
     }
     asoundrc_tmp.close();
-    std::filesystem::rename("/home/pi/.asoundrc.tmp", "/home/pi/.asoundrc");
+    std::filesystem::rename("/home/nir/.asoundrc.tmp", "/home/nir/.asoundrc");
 }
 
 void BluetoothComponent::on_connect_button_clicked() {
@@ -180,7 +181,7 @@ void BluetoothComponent::get_alsa_device_address() {
     std::string line;
     const std::regex mac_pattern("([0-9A-F]{2}:){5}[0-9A-F]{2}");
 
-    asoundrc.open("/home/pi/.asoundrc");
+    asoundrc.open("/home/nir/.asoundrc");
     if (asoundrc.good()) {
         while (getline(asoundrc, line)) {
             std::smatch match;

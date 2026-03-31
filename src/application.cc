@@ -32,8 +32,6 @@ Application::Application(int argc, char **argv)
     _bluetoothComponent = new BluetoothComponent(_builder);
     _bluetoothComponent->signal_connected().connect(sigc::mem_fun(*this, &Application::on_bluetooth_connected));
     _bluetoothComponent->signal_done().connect(sigc::mem_fun(*this, &Application::on_bluetooth_done));
-    if (!_audioOutput->isDefault())
-        _bluetoothComponent->on_device_initialization_complete(true);
 
     _shutdownButton->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_shutdown_button));
 
@@ -111,21 +109,8 @@ void Application::on_bluetooth_button() {
 
 void Application::on_bluetooth_connected() {
     Glib::signal_timeout().connect([this]() {
-        static int attempts = 5;
-
-        if (attempts-- > 0) {
-            _audioOutput->restart();
-            if (!_audioOutput->isDefault()) {
-                _bluetoothComponent->on_device_initialization_complete(true);
-                attempts = 5;
-                return false;
-            }
-
-            return true;
-        }
-
-        _bluetoothComponent->on_device_initialization_complete(false);
-        attempts = 5;
+        _audioOutput->restart();
+        _bluetoothComponent->on_device_initialization_complete(true);
         return false;
     }, 1000);
 }

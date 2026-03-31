@@ -164,13 +164,10 @@
                       <object class="GtkAspectFrame">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label-xalign">0</property>
-                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkScrolledWindow">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
-                            <property name="shadow-type">in</property>
                             <child>
                               <object class="GtkViewport">
                                 <property name="visible">True</property>
@@ -415,7 +412,6 @@
                       <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="shadow-type">in</property>
                         <child>
                           <object class="GtkTreeView" id="tracksTreeView">
                             <property name="visible">True</property>
@@ -450,7 +446,6 @@
             </child>
           </object>
           <packing>
-            <property name="name">page0</property>
             <property name="title" translatable="yes">page0</property>
           </packing>
         </child>
@@ -545,7 +540,6 @@
                       <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="shadow-type">in</property>
                         <child>
                           <object class="GtkTreeView" id="devicesTreeView">
                             <property name="visible">True</property>
@@ -593,9 +587,7 @@
             </child>
           </object>
           <packing>
-            <property name="name">page1</property>
             <property name="title" translatable="yes">page1</property>
-            <property name="position">1</property>
           </packing>
         </child>
       </object>

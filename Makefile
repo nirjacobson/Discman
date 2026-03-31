@@ -13,6 +13,7 @@ LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-4.0 glibmm-2.68 curlpp jsoncpp
 CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -lbluez -ldiscdb
 EXEC    = discman
+LINENOPAT = ^[^:]+:([^:]+):(.+)$
 
 all: build/ ${EXEC}
 
@@ -25,7 +26,15 @@ ${EXEC}: ${OBJECTS}
 format:
 	astyle -rnNCS *.{h,cc}
 
-src/resources.cc: resources.xml
+ui/discman.glade: ui/discman.3.glade
+	LINES=
+	while IFS= read -r line; do \
+		LINES=`echo $$line | sed -nre 's/${LINENOPAT}/\1/p'`d\;$$LINES; \
+	done < <(gtk4-builder-tool simplify --3to4 $< 2>&1 | grep "not found"); \
+	sed -i "$$LINES" $<
+	gtk4-builder-tool simplify --3to4 $< > $@
+
+src/resources.cc: resources.xml ui/discman.glade
 	glib-compile-resources --target=$@ --generate-source $<
 
 build/%.o : src/%.cc
@@ -37,6 +46,7 @@ build/:
 clean:
 	rm -rf build
 	rm -f src/resources.cc
+	rm -f ui/discman.glade
 	rm -f ${EXEC}
 
 distclean:
