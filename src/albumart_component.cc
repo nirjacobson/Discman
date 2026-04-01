@@ -22,7 +22,7 @@ AlbumArtComponent::sig_art AlbumArtComponent::signal_art() {
     return _signal_art;
 }
 
-void AlbumArtComponent::set_albumarts(const std::vector<LastFM::AlbumArt>& arts, const int windowWidth) {
+void AlbumArtComponent::set_albumarts(const std::vector<Spotify::AlbumArt>& arts, const int windowWidth) {
     Gtk::Grid* newGrid = new Gtk::Grid();
     newGrid->set_halign(Gtk::Align::CENTER);
     newGrid->set_valign(Gtk::Align::START);
@@ -57,8 +57,8 @@ void AlbumArtComponent::set_albumarts(const std::vector<LastFM::AlbumArt>& arts,
             button->set_child(*image);
 
             const std::string url = arts[(i * cols) + j].url;
-            button->signal_clicked().connect([=](){
-                this->_signal_art.emit(url);
+            button->signal_clicked().connect([this,url](){
+                _signal_art.emit(url);
             });
 
             newGrid->attach(*button, j, i);

@@ -12,7 +12,7 @@
 #include <sigc++/signal.h>
 
 #include <discdb/disc.h>
-#include "last_fm.h"
+#include "spotify.h"
 
 class NowPlayingComponent {
 

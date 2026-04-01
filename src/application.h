@@ -25,6 +25,7 @@
 #include "albumart_component.h"
 #include "bluetooth_component.h"
 #include "audio_output.h"
+#include "spotify.h"
 
 class Application {
 

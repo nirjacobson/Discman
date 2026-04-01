@@ -15,7 +15,6 @@
 #include <iomanip>
 
 #include <discdb/disc.h>
-#include "last_fm.h"
 
 class DiscComponent {
     public:

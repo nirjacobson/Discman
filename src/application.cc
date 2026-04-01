@@ -9,6 +9,8 @@ Application::Application(int argc, char **argv)
     _audioOutput->producer(&_drive);
     _audioOutput->init();
 
+    Spotify::init();
+
     _app = Gtk::Application::create("com.nirjacobson.discman");
     _app->signal_activate().connect(sigc::mem_fun(*this, &Application::on_activate));
 
@@ -104,7 +106,7 @@ void Application::on_notification_from_poller() {
     queryDiscDB();
     _discComponent->set_disc(&_disc);
 
-    std::vector<LastFM::AlbumArt> arts = LastFM::album_art(_disc.artist(), _disc.title(), AlbumArtComponent::ART_SIZE, AlbumArtComponent::ART_SIZE);
+    std::vector<Spotify::AlbumArt> arts = Spotify::album_art(_disc.artist(), _disc.title(), AlbumArtComponent::ART_SIZE, AlbumArtComponent::ART_SIZE);
 
     _albumArtComponent->set_albumarts(arts, _window->get_width());
     _nowPlayingComponent->set_album(arts[0].url);

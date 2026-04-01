@@ -3,15 +3,15 @@ SHELL = /bin/bash
 MODULES = resources             \
           albumart_component    \
           bluetooth_component   \
-          last_fm               \
+          spotify               \
           now_playing_component \
           disc_component        \
           application           \
           cd_drive              \
           main
 OBJECTS = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-4.0 glibmm-2.68 curlpp jsoncpp
-CFLAGS  = -std=c++17 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
+LIBS		= libcdio_paranoia portaudio-2.0 gtkmm-4.0 glibmm-2.68 curlpp jsoncpp openssl
+CFLAGS  = -std=c++20 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -lbluez -ldiscdb
 EXEC    = discman
 LINENOPAT = ^[^:]+:([^:]+):(.+)$
