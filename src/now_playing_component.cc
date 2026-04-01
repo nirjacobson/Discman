@@ -74,9 +74,9 @@ void NowPlayingComponent::set_seconds(const float seconds) {
 
 void NowPlayingComponent::set_album(const std::string& url) {
     try {
-        Spotify::AlbumArt albumArt = Spotify::album_art(url, _albumArtImage->get_width(), _albumArtImage->get_height());
+        AlbumArtProvider::AlbumArt albumArt = AlbumArtProvider::instance()->album_art(url, _albumArtImage->get_width(), _albumArtImage->get_height());
         _albumArtImage->set(albumArt.art);
-    } catch (const Spotify::NotFoundException& e) {
+    } catch (const AlbumArtProvider::NotFoundException& e) {
         _albumArtImage->clear();
     }
 }

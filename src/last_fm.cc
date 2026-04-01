@@ -1,12 +1,16 @@
 #include "last_fm.h"
 
-std::string LastFM::API_KEY = "c4f9a47a4ca890c0981d1707ff28c434";
+std::string LastFM::_apiKey;
 
-std::vector<LastFM::AlbumArt> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
+void LastFM::init() {
+    LastFM::_apiKey = std::getenv("LASTFM_API_KEY");
+}
+
+std::vector<AlbumArtProvider::AlbumArt> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
     cURLpp::Cleanup cleanup;
     cURLpp::Easy easyhandle;
 
-    std::string request_url = url(Method::ALBUM_GET_INFO, API_KEY, {
+    std::string request_url = url(Method::ALBUM_GET_INFO, {
         {"artist", artist},
         {"album", title}
     });
@@ -30,7 +34,7 @@ std::vector<LastFM::AlbumArt> LastFM::album_art(const std::string& artist, const
         ""
     }};
 
-    std::vector<LastFM::AlbumArt> albumArts;
+    std::vector<AlbumArtProvider::AlbumArt> albumArts;
 
     for (unsigned int i = 0; i < sizes.size(); i++) {
         for (unsigned int j = 0; j < image.size(); j++) {
@@ -48,7 +52,7 @@ std::vector<LastFM::AlbumArt> LastFM::album_art(const std::string& artist, const
                     Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
                     is->add_bytes(bytes);
 
-                    LastFM::AlbumArt art = {
+                    AlbumArtProvider::AlbumArt art = {
                         .art = Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true),
                         .url = request_url
                     };
@@ -66,7 +70,7 @@ std::vector<LastFM::AlbumArt> LastFM::album_art(const std::string& artist, const
     return albumArts;
 }
 
-LastFM::AlbumArt LastFM::album_art(const std::string& url, const int width, const int height) {
+AlbumArtProvider::AlbumArt LastFM::album_art(const std::string& url, const int width, const int height) {
     cURLpp::Cleanup cleanup;
     cURLpp::Easy easyhandle;
 
@@ -80,7 +84,7 @@ LastFM::AlbumArt LastFM::album_art(const std::string& url, const int width, cons
     Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
     is->add_bytes(bytes);
 
-    LastFM::AlbumArt art = {
+    AlbumArtProvider::AlbumArt art = {
         .art = Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true),
         .url = url
     };
@@ -96,10 +100,10 @@ std::string LastFM::method_name(const Method method) {
     }
 }
 
-std::string LastFM::url(const Method method, const std::string& apiKey, const std::map<std::string, std::string>& params) {
+std::string LastFM::url(const Method method, const std::map<std::string, std::string>& params) {
     std::map<std::string, std::string> full_params(params);
     full_params["method"] = method_name(method);
-    full_params["api_key"] = apiKey;
+    full_params["api_key"] = _apiKey;
     full_params["format"] = "json";
 
     return url_with_params(BASE_URL, full_params);

@@ -22,7 +22,7 @@ AlbumArtComponent::sig_art AlbumArtComponent::signal_art() {
     return _signal_art;
 }
 
-void AlbumArtComponent::set_albumarts(const std::vector<Spotify::AlbumArt>& arts, const int windowWidth) {
+void AlbumArtComponent::set_albumarts(const std::vector<AlbumArtProvider::AlbumArt>& arts, const int windowWidth) {
     Gtk::Grid* newGrid = new Gtk::Grid();
     newGrid->set_halign(Gtk::Align::CENTER);
     newGrid->set_valign(Gtk::Align::START);

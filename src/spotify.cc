@@ -31,7 +31,7 @@ void Spotify::init() {
     Spotify::_accessToken = response["access_token"].asString();
 }
 
-std::vector<Spotify::AlbumArt> Spotify::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
+std::vector<AlbumArtProvider::AlbumArt> Spotify::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
     cURLpp::Cleanup cleanup;
     cURLpp::Easy easyhandle;
 
@@ -86,7 +86,7 @@ std::vector<Spotify::AlbumArt> Spotify::album_art(const std::string& artist, con
             Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
             is->add_bytes(bytes);
 
-            Spotify::AlbumArt art = {
+            AlbumArtProvider::AlbumArt art = {
                 .art = Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true),
                 .url = url
             };
@@ -96,13 +96,13 @@ std::vector<Spotify::AlbumArt> Spotify::album_art(const std::string& artist, con
     }
 
     if (arts.empty()) {
-        throw NotFoundException();
+        throw AlbumArtProvider::NotFoundException();
     }
 
     return arts;
 }
 
-Spotify::AlbumArt Spotify::album_art(const std::string& url, const int width, const int height) {
+AlbumArtProvider::AlbumArt Spotify::album_art(const std::string& url, const int width, const int height) {
     cURLpp::Cleanup cleanup;
     cURLpp::Easy easyhandle;
 
@@ -116,7 +116,7 @@ Spotify::AlbumArt Spotify::album_art(const std::string& url, const int width, co
     Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
     is->add_bytes(bytes);
 
-    Spotify::AlbumArt art = {
+    AlbumArtProvider::AlbumArt art = {
         .art = Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true),
         .url = url
     };

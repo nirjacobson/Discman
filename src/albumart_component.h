@@ -12,7 +12,7 @@
 #include <gtkmm/image.h>
 #include <sigc++/signal.h>
 
-#include "spotify.h"
+#include "albumart_provider.h"
 
 class AlbumArtComponent {
 
@@ -28,7 +28,7 @@ class AlbumArtComponent {
         sig_done signal_done();
         sig_art signal_art();
 
-        void set_albumarts(const std::vector<Spotify::AlbumArt>& arts, const int windowWidth);
+        void set_albumarts(const std::vector<AlbumArtProvider::AlbumArt>& arts, const int windowWidth);
 
     private:
         static constexpr int SPACING = 16;

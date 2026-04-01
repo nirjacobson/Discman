@@ -22,10 +22,10 @@
 #include "cd_drive.h"
 #include "disc_component.h"
 #include "now_playing_component.h"
+#include "albumart_provider.h"
 #include "albumart_component.h"
 #include "bluetooth_component.h"
 #include "audio_output.h"
-#include "spotify.h"
 
 class Application {
 

@@ -12,7 +12,8 @@
 #include <sigc++/signal.h>
 
 #include <discdb/disc.h>
-#include "spotify.h"
+
+#include "albumart_provider.h"
 
 class NowPlayingComponent {
 

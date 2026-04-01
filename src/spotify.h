@@ -18,18 +18,10 @@
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
 
-class Spotify {
-    public:
-        struct NotFoundException : public std::exception {
-            const char* what() const throw() {
-                return "Resource could not be found.";
-            }
-        };
+#include "albumart_provider.h"
 
-        struct AlbumArt {
-            Glib::RefPtr<Gdk::Pixbuf> art;
-            std::string url;
-        };
+class Spotify : public AlbumArtProvider {
+    public:
 
         enum Method {
             SEARCH_FOR_ITEM
@@ -37,10 +29,10 @@ class Spotify {
 
         static constexpr const char* BASE_URL = "https://api.spotify.com/v1/";
 
-        static void init();
+        void init() override;
 
-        static std::vector<AlbumArt> album_art(const std::string& artist, const std::string& title, const int width, const int height);
-        static AlbumArt album_art(const std::string& url, const int width, const int height);
+        std::vector<AlbumArt> album_art(const std::string& artist, const std::string& title, const int width, const int height) override;
+        AlbumArt album_art(const std::string& url, const int width, const int height) override;
 
     private:
         static std::string _accessToken;
