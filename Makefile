@@ -1,6 +1,7 @@
 SHELL = /bin/bash
 
 MODULES = resources             \
+          albumart_component    \
           bluetooth_component   \
           last_fm               \
           now_playing_component \

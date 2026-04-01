@@ -18,6 +18,7 @@ Application::Application(int argc, char **argv)
     _stack = _builder->get_widget<Gtk::Stack>("stack");
     _bluetoothBox = _builder->get_widget<Gtk::Box>("bluetoothBox");
     _playerBox = _builder->get_widget<Gtk::Box>("playerBox");
+    _albumArtBox = _builder->get_widget<Gtk::Box>("albumArtBox");
     _bluetoothButton = _builder->get_widget<Gtk::Button>("bluetoothButton");
     _shutdownButton = _builder->get_widget<Gtk::Button>("shutdownButton");
     _bluetoothButton->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_bluetooth_button));
@@ -28,6 +29,11 @@ Application::Application(int argc, char **argv)
 
     _nowPlayingComponent = new NowPlayingComponent(_builder);
     _nowPlayingComponent->signal_button().connect(sigc::mem_fun(*this, &Application::on_button));
+    _nowPlayingComponent->signal_albumart().connect(sigc::mem_fun(*this, &Application::on_albumart_button));
+
+    _albumArtComponent = new AlbumArtComponent(_builder);
+    _albumArtComponent->signal_done().connect(sigc::mem_fun(*this, &Application::on_albumart_done));
+    _albumArtComponent->signal_art().connect(sigc::mem_fun(*this, &Application::on_albumart_art));
 
     _bluetoothComponent = new BluetoothComponent(_builder);
     _bluetoothComponent->signal_connected().connect(sigc::mem_fun(*this, &Application::on_bluetooth_connected));
@@ -50,11 +56,13 @@ Application::Application(int argc, char **argv)
 Application::~Application() {
     delete _playerBox;
     delete _bluetoothBox;
+    delete _albumArtBox;
     delete _shutdownButton;
     delete _bluetoothButton;
     delete _stack;
     delete _window;
     delete _bluetoothComponent;
+    delete _albumArtComponent;
     delete _nowPlayingComponent;
     delete _discComponent;
     if (_poller) delete _poller;
@@ -95,7 +103,11 @@ void Application::on_activate() {
 void Application::on_notification_from_poller() {
     queryDiscDB();
     _discComponent->set_disc(&_disc);
-    _nowPlayingComponent->set_album(_disc.artist(), _disc.title());
+
+    std::vector<LastFM::AlbumArt> arts = LastFM::album_art(_disc.artist(), _disc.title(), AlbumArtComponent::ART_SIZE, AlbumArtComponent::ART_SIZE);
+
+    _albumArtComponent->set_albumarts(arts, _window->get_width());
+    _nowPlayingComponent->set_album(arts[0].url);
     _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
 
     delete _poller;
@@ -105,6 +117,10 @@ void Application::on_notification_from_poller() {
 void Application::on_bluetooth_button() {
     _stack->set_visible_child(*_bluetoothBox);
     _bluetoothComponent->on_show();
+}
+
+void Application::on_albumart_button() {
+    _stack->set_visible_child(*_albumArtBox);
 }
 
 void Application::on_bluetooth_connected() {
@@ -118,6 +134,17 @@ void Application::on_bluetooth_connected() {
 void Application::on_bluetooth_done() {
     _bluetoothComponent->on_hide();
     _stack->set_visible_child(*_playerBox);
+}
+
+void Application::on_albumart_done() {
+    // _albumArtComponent->on_hide();
+    _stack->set_visible_child(*_playerBox);
+}
+
+void Application::on_albumart_art(const std::string url) {
+    _nowPlayingComponent->set_album(url);
+    _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
+    on_albumart_done();
 }
 
 void Application::on_track_selected(unsigned int track) {

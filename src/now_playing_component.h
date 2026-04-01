@@ -33,6 +33,7 @@ class NowPlayingComponent {
         };
 
         typedef sigc::signal<void(const Button)> sig_button;
+        typedef sigc::signal<void(void)> sig_albumart;
 
         NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder);
         ~NowPlayingComponent();
@@ -41,13 +42,15 @@ class NowPlayingComponent {
         void set_state(const State state);
         State get_state() const;
         void set_seconds(const float seconds);
-        void set_album(const std::string& artist, const std::string& title);
+        void set_album(const std::string& url);
 
         sig_button signal_button();
+        sig_albumart signal_albumart();
 
     private:
         State _state;
 
+        Gtk::Button* _albumArtButton;
         Gtk::Image* _albumArtImage;
         Gtk::Label* _trackTitleLabel;
         Gtk::Label* _trackArtistLabel;
@@ -60,11 +63,13 @@ class NowPlayingComponent {
         Gtk::Image* _playPauseImage;
 
         sig_button _signal_button;
+        sig_albumart _signal_albumart;
 
         void on_prev_button_clicked();
         void on_playpause_button_clicked();
         void on_stop_button_clicked();
         void on_next_button_clicked();
+        void on_album_art_button_clicked();
 };
 
 #endif // NOW_PLAYING_COMPONENT

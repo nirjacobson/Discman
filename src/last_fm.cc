@@ -2,7 +2,7 @@
 
 std::string LastFM::API_KEY = "c4f9a47a4ca890c0981d1707ff28c434";
 
-Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
+std::vector<LastFM::AlbumArt> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
     cURLpp::Cleanup cleanup;
     cURLpp::Easy easyhandle;
 
@@ -26,8 +26,11 @@ Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std
         "extralarge",
         "large",
         "medium",
-        "small"
+        "small",
+        ""
     }};
+
+    std::vector<LastFM::AlbumArt> albumArts;
 
     for (unsigned int i = 0; i < sizes.size(); i++) {
         for (unsigned int j = 0; j < image.size(); j++) {
@@ -44,13 +47,45 @@ Glib::RefPtr<Gdk::Pixbuf> LastFM::album_art(const std::string& artist, const std
                     Glib::RefPtr<Glib::Bytes> bytes = Glib::Bytes::create(data.c_str(), data.size());
                     Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
                     is->add_bytes(bytes);
-                    return Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true);
+
+                    LastFM::AlbumArt art = {
+                        .art = Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true),
+                        .url = request_url
+                    };
+
+                    albumArts.push_back(art);
                 }
             }
         }
     }
 
-    throw NotFoundException();
+    if (albumArts.empty()) {
+        throw NotFoundException();
+    }
+
+    return albumArts;
+}
+
+LastFM::AlbumArt LastFM::album_art(const std::string& url, const int width, const int height) {
+    cURLpp::Cleanup cleanup;
+    cURLpp::Easy easyhandle;
+
+    std::stringstream ss;
+    easyhandle.setOpt(cURLpp::Options::Url(url));
+    easyhandle.setOpt(cURLpp::Options::WriteStream(&ss));
+    easyhandle.perform();
+
+    std::string data = ss.str();
+    Glib::RefPtr<Glib::Bytes> bytes = Glib::Bytes::create(data.c_str(), data.size());
+    Glib::RefPtr<Gio::MemoryInputStream> is = Gio::MemoryInputStream::create();
+    is->add_bytes(bytes);
+
+    LastFM::AlbumArt art = {
+        .art = Gdk::Pixbuf::create_from_stream_at_scale(is, width, height, true),
+        .url = url
+    };
+
+    return art;
 }
 
 std::string LastFM::method_name(const Method method) {

@@ -2,6 +2,7 @@
 
 NowPlayingComponent::NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder)
     : _state(State::Stopped) {
+    _albumArtButton = builder->get_widget<Gtk::Button>("albumArtButton");
     _albumArtImage = builder->get_widget<Gtk::Image>("albumArtImage");
     _trackTitleLabel = builder->get_widget<Gtk::Label>("trackTitleLabel");
     _trackArtistLabel = builder->get_widget<Gtk::Label>("trackArtistLabel");
@@ -13,12 +14,14 @@ NowPlayingComponent::NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder)
     _nextButton = builder->get_widget<Gtk::Button>("nextButton");
     _playPauseImage = builder->get_widget<Gtk::Image>("playPauseImage");
 
+    _albumArtButton->set_has_frame(false);
     _albumArtImage->clear();
 
     _prevButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_prev_button_clicked));
     _playPauseButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_playpause_button_clicked));
     _stopButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_stop_button_clicked));
     _nextButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_next_button_clicked));
+    _albumArtButton->signal_clicked().connect(sigc::mem_fun(*this, &NowPlayingComponent::on_album_art_button_clicked));
 }
 
 NowPlayingComponent::~NowPlayingComponent() {
@@ -30,6 +33,7 @@ NowPlayingComponent::~NowPlayingComponent() {
     delete _trackArtistLabel;
     delete _trackTitleLabel;
     delete _albumArtImage;
+    delete _albumArtButton;
 }
 
 void NowPlayingComponent::set_track(const DiscDB::Disc& disc, unsigned int track, const bool first, const bool last) {
@@ -68,9 +72,10 @@ void NowPlayingComponent::set_seconds(const float seconds) {
     _seekScale->get_adjustment()->set_value(seconds);
 }
 
-void NowPlayingComponent::set_album(const std::string& artist, const std::string& title) {
+void NowPlayingComponent::set_album(const std::string& url) {
     try {
-        _albumArtImage->set(LastFM::album_art(artist, title, _albumArtImage->get_width(), _albumArtImage->get_height()));
+        LastFM::AlbumArt albumArt = LastFM::album_art(url, _albumArtImage->get_width(), _albumArtImage->get_height());
+        _albumArtImage->set(albumArt.art);
     } catch (const LastFM::NotFoundException& e) {
         _albumArtImage->clear();
     }
@@ -78,6 +83,10 @@ void NowPlayingComponent::set_album(const std::string& artist, const std::string
 
 NowPlayingComponent::sig_button NowPlayingComponent::signal_button() {
     return _signal_button;
+}
+
+NowPlayingComponent::sig_albumart NowPlayingComponent::signal_albumart() {
+    return _signal_albumart;
 }
 
 void NowPlayingComponent::on_prev_button_clicked() {
@@ -94,4 +103,8 @@ void NowPlayingComponent::on_stop_button_clicked() {
 
 void NowPlayingComponent::on_next_button_clicked() {
     _signal_button.emit(Button::Next);
+}
+
+void NowPlayingComponent::on_album_art_button_clicked() {
+    _signal_albumart.emit();
 }

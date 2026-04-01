@@ -29,6 +29,11 @@ class LastFM {
             }
         };
 
+        struct AlbumArt {
+            Glib::RefPtr<Gdk::Pixbuf> art;
+            std::string url;
+        };
+
         enum Method {
             ALBUM_GET_INFO
         };
@@ -37,7 +42,8 @@ class LastFM {
 
         static bool init();
 
-        static Glib::RefPtr<Gdk::Pixbuf> album_art(const std::string& artist, const std::string& title, const int width, const int height);
+        static std::vector<AlbumArt> album_art(const std::string& artist, const std::string& title, const int width, const int height);
+        static AlbumArt album_art(const std::string& url, const int width, const int height);
 
     private:
         static std::string method_name(const Method method);
