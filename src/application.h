@@ -20,6 +20,7 @@
 #include <discdb/discdb.h>
 
 #include "cd_drive.h"
+#include "cd_ripper.h"
 #include "disc_component.h"
 #include "now_playing_component.h"
 #include "albumart_provider.h"
@@ -59,6 +60,7 @@ class Application {
         Glib::RefPtr<Gtk::Application> _app;
         Gtk::Window* _window;
         CDDrive _drive;
+        CDRipper* _ripper;
         DiscDB::Disc _disc;
         AudioOutput<int16_t>* _audioOutput;
         unsigned int _track;
@@ -87,6 +89,8 @@ class Application {
         void on_bluetooth_button();
         void on_bluetooth_connected();
         void on_bluetooth_done();
+        void on_track_progress(unsigned int track, unsigned int progress);
+        void on_rip_done();
         void notify();
 
         void on_albumart_done();
@@ -108,6 +112,8 @@ class Application {
         void pause();
         void stop();
         void eject();
+
+        void rip(unsigned int track);
 
         void queryDiscDB();
 

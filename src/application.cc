@@ -3,6 +3,7 @@
 Application::Application(int argc, char **argv)
     : _argc(argc)
     , _argv(argv)
+    , _ripper(nullptr)
     , _audioOutput(AudioOutput<int16_t>::instance())
     , _track(0)
     , _poller(new Poller(*this)) {
@@ -26,7 +27,9 @@ Application::Application(int argc, char **argv)
     _bluetoothButton->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_bluetooth_button));
 
     _discComponent = new DiscComponent(_builder);
+    _discComponent->set_disc(nullptr);
     _discComponent->signal_eject_requested().connect(sigc::mem_fun(*this, &Application::eject));
+    _discComponent->signal_rip_requested().connect(sigc::mem_fun(*this, &Application::rip));
     _discComponent->signal_track_selected().connect(sigc::mem_fun(*this, &Application::on_track_selected));
 
     _nowPlayingComponent = new NowPlayingComponent(_builder);
@@ -239,6 +242,35 @@ void Application::eject() {
 
     if (!_poller)
         _poller = new Poller(*this);
+}
+
+void Application::rip(unsigned int track) {
+    stop();
+
+    _ripper = new CDRipper(_drive, _disc);
+
+    _ripper->signal_track_progress().connect(sigc::mem_fun(*this, &Application::on_track_progress));
+    _ripper->signal_done().connect(sigc::mem_fun(*this, &Application::on_rip_done));
+
+    _drive.resize_buffer(CDDrive::BUFFER_SIZE_RIPPING);
+
+    if (track == 0) {
+        _ripper->rip();
+    } else {
+        _ripper->rip(track);
+    }
+}
+
+void Application::on_track_progress(const unsigned track, const unsigned progress) {
+    _discComponent->update_track_progress(track, progress);
+}
+
+void Application::on_rip_done() {
+    _discComponent->rip_done();
+
+    delete _ripper;
+
+    _drive.resize_buffer(CDDrive::BUFFER_SIZE_PLAYING);
 }
 
 Application::Poller::Poller(Application& app)

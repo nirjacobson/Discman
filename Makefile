@@ -1,18 +1,30 @@
 SHELL = /bin/bash
 
-MODULES = resources             \
+MODULES = application           \
           albumart_provider     \
           albumart_component    \
           bluetooth_component   \
-          last_fm               \
-          spotify               \
-          now_playing_component \
-          disc_component        \
-          application           \
           cd_drive              \
-          main
+          cd_ripper             \
+          disc_component        \
+          last_fm               \
+          main                  \
+          now_playing_component \
+          resources             \
+          spotify
+
 OBJECTS   = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-LIBS      = libcdio_paranoia portaudio-2.0 gtkmm-4.0 glibmm-2.68 curlpp jsoncpp openssl
+LIBS      = libcdio_paranoia \
+            portaudio-2.0    \
+            gtkmm-4.0        \
+            glibmm-2.68      \
+            curlpp           \
+            jsoncpp          \
+            openssl          \
+            libavformat      \
+            libavcodec       \
+            libavutil        \
+            libswresample
 CFLAGS    = -std=c++20 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS   = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -lbluez -ldiscdb
 EXEC      = discman

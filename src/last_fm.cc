@@ -4,7 +4,7 @@ std::string LastFM::_apiKey;
 
 LastFM::LastFM() {
     if (!std::getenv("LASTFM_API_KEY")) {
-        throw new AlbumArtProvider::InitializationFailed();
+        throw AlbumArtProvider::InitializationFailed();
     }
 }
 

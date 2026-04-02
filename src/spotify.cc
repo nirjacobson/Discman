@@ -4,7 +4,7 @@ std::string Spotify::_accessToken;
 
 Spotify::Spotify() {
     if (!std::getenv("SPOTIFY_CLIENT_ID") || !std::getenv("SPOTIFY_CLIENT_SECRET")) {
-        throw new AlbumArtProvider::InitializationFailed();
+        throw AlbumArtProvider::InitializationFailed();
     }
 }
 

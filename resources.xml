@@ -10,5 +10,6 @@
     <file>ui/icons/prev.png</file>
     <file>ui/icons/shutdown.png</file>
     <file>ui/icons/stop.png</file>
+    <file>ui/icons/ipod.png</file>
   </gresource>
 </gresources>

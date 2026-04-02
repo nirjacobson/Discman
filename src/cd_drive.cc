@@ -41,9 +41,20 @@ CDDrive::Reader::Action CDDrive::Reader::action() {
     return action;
 }
 
+void CDDrive::resize_buffer(unsigned int sectors) {
+    _bufferSectors = sectors;
+    _bufferSamples = (CDIO_CD_FRAMESIZE_RAW / BYTES_PER_SAMPLE * _bufferSectors);
+
+    delete [] _buffers[0];
+    delete [] _buffers[1];
+
+    _buffers[0] = new int16_t[_bufferSamples];
+    _buffers[1] = new int16_t[_bufferSamples];
+}
+
 void CDDrive::Reader::load() {
     _drive._load_lock.lock();
-    for (int i = 0; i < BUFFER_SECTORS; i++) {
+    for (int i = 0; i < _drive._bufferSectors; i++) {
         int16_t* sector = paranoia_read(_paranoia, NULL);
         char* start = reinterpret_cast<char*>(_drive._buffers[_buffer]);
         memcpy(start + (i * CDIO_CD_FRAMESIZE_RAW), sector, CDIO_CD_FRAMESIZE_RAW);
@@ -111,7 +122,9 @@ void CDDrive::Poller::poll() {
 }
 
 CDDrive::CDDrive()
-    : _drive(nullptr)
+    : _bufferSectors(BUFFER_SIZE_PLAYING)
+    , _bufferSamples(CDIO_CD_FRAMESIZE_RAW / BYTES_PER_SAMPLE * _bufferSectors)
+    , _drive(nullptr)
     , _reader(nullptr)
     , _poller(new Poller(*this))
     , _buffer(0)
@@ -119,8 +132,8 @@ CDDrive::CDDrive()
     , _track(0)
     , _cursor(0)
     , _end(0) {
-    _buffers[0] = new int16_t[BUFFER_SAMPLES];
-    _buffers[1] = new int16_t[BUFFER_SAMPLES];
+    _buffers[0] = new int16_t[_bufferSamples];
+    _buffers[1] = new int16_t[_bufferSamples];
 }
 
 
@@ -161,7 +174,12 @@ std::vector<std::string> CDDrive::devices() {
 
     std::vector<std::string> ready_devices;
 
-    pipe(p);
+    int ret = pipe(p);
+
+    if (ret < 0) {
+        return {};
+    }
+
     pid = fork();
 
     if (pid == 0) {
@@ -257,7 +275,7 @@ void CDDrive::open() {
     if (!_drive) throw NoDiscPresentException();
 
     if ( 0 != cdda_open(_drive) ) {
-        throw new DiscErrorException();
+        throw DiscErrorException();
     }
 
     _reader = new Reader(*this);
@@ -307,6 +325,14 @@ float CDDrive::elapsed() {
     return static_cast<float>(cursor) / (2 * SAMPLE_RATE);
 }
 
+float CDDrive::progress() {
+    _cursor_lock.lock();
+    int cursor = _cursor;
+    _cursor_lock.unlock();
+
+    return static_cast<float>(cursor) / static_cast<float>(_end);
+}
+
 lba_t CDDrive::lba(const track_t track) const {
     if (!present()) throw NoDiscPresentException();
 
@@ -329,7 +355,7 @@ int16_t CDDrive::next() {
 
     const int16_t sample = _buffers[_buffer][_buffer_idx++];
 
-    _buffer_idx %= BUFFER_SAMPLES;
+    _buffer_idx %= _bufferSamples;
 
     if (_buffer_idx == 0) {
         _buffer = 1 - _buffer;

@@ -30,6 +30,8 @@ const auto __open = open;
 class CDDrive : public Producer<int16_t> {
 
     public:
+        static constexpr int BUFFER_SIZE_PLAYING  = 2048;
+        static constexpr int BUFFER_SIZE_RIPPING  =  512;
 
         static constexpr int SAMPLE_RATE = 44100;
 
@@ -65,7 +67,10 @@ class CDDrive : public Producer<int16_t> {
         lba_t lba(const track_t track) const;
 
         float elapsed();
+        float progress();
         unsigned int seconds() const;
+
+        void resize_buffer(unsigned int sectors);
 
         int16_t next();
 
@@ -74,8 +79,9 @@ class CDDrive : public Producer<int16_t> {
     private:
 
         static constexpr int BYTES_PER_SAMPLE = sizeof(int16_t);
-        static constexpr int BUFFER_SECTORS   = 2048;
-        static constexpr int BUFFER_SAMPLES   = (CDIO_CD_FRAMESIZE_RAW / BYTES_PER_SAMPLE * BUFFER_SECTORS);
+
+        int _bufferSectors;
+        int _bufferSamples;
 
         bool identify();
         void open();
