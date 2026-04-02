@@ -10,6 +10,7 @@
 #include <gdkmm/pixbuf.h>
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
+#include <curlpp/Infos.hpp>
 #include <curlpp/cURLpp.hpp>
 #include <json/value.h>
 #include <json/reader.h>

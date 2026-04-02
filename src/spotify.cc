@@ -56,6 +56,15 @@ std::vector<AlbumArtProvider::AlbumArt> Spotify::album_art(const std::string& ar
     easyhandle.setOpt(cURLpp::Options::WriteStream(&ss));
     easyhandle.perform();
 
+    int httpCode = curlpp::infos::ResponseCode::get(easyhandle);
+
+    if (httpCode == 401) {
+        init();
+
+        ss.str("");
+        easyhandle.perform();
+    }
+
     Json::Value root;
     ss >> root;
 
