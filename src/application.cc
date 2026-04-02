@@ -145,7 +145,6 @@ void Application::on_albumart_done() {
 
 void Application::on_albumart_art(const std::string url) {
     _nowPlayingComponent->set_album(url);
-    _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
     on_albumart_done();
 }
 

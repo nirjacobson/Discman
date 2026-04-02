@@ -1,12 +1,22 @@
 #ifndef ALBUMART_PROVIDER_H
 #define ALBUMART_PROVIDER_H
 
+#include <algorithm>
+#include <cctype>
+#include <string>
+
 #include <glibmm.h>
 #include <giomm/memoryinputstream.h>
 #include <gdkmm/pixbuf.h>
 
 class AlbumArtProvider {
     public:
+        struct InitializationFailed : public std::exception {
+            const char* what() const throw() {
+                return "Album art provider could not initialize. Please check your environment variables.";
+            }
+        };
+
         struct NotFoundException : public std::exception {
             const char* what() const throw() {
                 return "Resource could not be found.";

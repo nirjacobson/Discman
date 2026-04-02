@@ -2,6 +2,12 @@
 
 std::string Spotify::_accessToken;
 
+Spotify::Spotify() {
+    if (!std::getenv("SPOTIFY_CLIENT_ID") || !std::getenv("SPOTIFY_CLIENT_SECRET")) {
+        throw new AlbumArtProvider::InitializationFailed();
+    }
+}
+
 void Spotify::init() {
     std::string clientId = std::getenv("SPOTIFY_CLIENT_ID");
     std::string clientSecret = std::getenv("SPOTIFY_CLIENT_SECRET");

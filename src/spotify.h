@@ -29,6 +29,8 @@ class Spotify : public AlbumArtProvider {
 
         static constexpr const char* BASE_URL = "https://api.spotify.com/v1/";
 
+        Spotify();
+
         void init() override;
 
         std::vector<AlbumArt> album_art(const std::string& artist, const std::string& title, const int width, const int height) override;
