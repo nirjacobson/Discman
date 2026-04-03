@@ -112,7 +112,7 @@ void Application::on_notification_from_poller() {
     std::vector<AlbumArtProvider::AlbumArt> arts = AlbumArtProvider::instance()->album_art(_disc.artist(), _disc.title(), AlbumArtComponent::ART_SIZE, AlbumArtComponent::ART_SIZE);
 
     _albumArtComponent->set_albumarts(arts, _window->get_width());
-    _nowPlayingComponent->set_album(arts[0].url);
+    _nowPlayingComponent->set_album(_albumArtURL = arts[0].url);
     _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
 
     delete _poller;
@@ -147,7 +147,7 @@ void Application::on_albumart_done() {
 }
 
 void Application::on_albumart_art(const std::string url) {
-    _nowPlayingComponent->set_album(url);
+    _nowPlayingComponent->set_album(_albumArtURL = url);
     on_albumart_done();
 }
 
@@ -247,7 +247,7 @@ void Application::eject() {
 void Application::rip(unsigned int track) {
     stop();
 
-    _ripper = new CDRipper(_drive, _disc);
+    _ripper = new CDRipper(_drive, _disc, _albumArtURL);
 
     _ripper->signal_track_progress().connect(sigc::mem_fun(*this, &Application::on_track_progress));
     _ripper->signal_done().connect(sigc::mem_fun(*this, &Application::on_rip_done));

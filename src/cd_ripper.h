@@ -4,6 +4,7 @@
 #include <thread>
 #include <filesystem>
 #include <iomanip>
+
 #include <unistd.h>
 #include <glibmm.h>
 
@@ -16,6 +17,13 @@ extern "C" {
 }
 
 #include <sigc++/signal.h>
+
+#include <curlpp/Easy.hpp>
+#include <curlpp/Infos.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/cURLpp.hpp>
+
+#include <stb/stb_image.h>
 
 #include <discdb/disc.h>
 
@@ -47,7 +55,7 @@ class CDRipper : public Consumer<int16_t> {
         sig_track_progress signal_track_progress();
         sig_done signal_done();
 
-        CDRipper(CDDrive& drive, const DiscDB::Disc& disc);
+        CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& albumArtURL);
         ~CDRipper();
 
         void rip();
@@ -58,6 +66,7 @@ class CDRipper : public Consumer<int16_t> {
         struct RipContext {
             AVFormatContext* fmt_ctx;
             AVStream* st;
+            AVStream* sta;
             const AVCodec* codec;
             AVCodecContext* c;
             AVFrame* frame;
@@ -77,6 +86,12 @@ class CDRipper : public Consumer<int16_t> {
         unsigned int _progress;
         std::string _mediaRoot;
         std::string _outputDir;
+        std::string _outputFilename;
+        std::string _albumArtURL;
+        uint8_t* _albumArtImage;
+        int _albumArtImageSize;
+        AVCodecID _albumArtImageCodec;
+        std::pair<int, int> _albumArtImageDims;
         
         void on_notification();
         void on_done_notification();
@@ -92,6 +107,8 @@ class CDRipper : public Consumer<int16_t> {
 
         void start_file(RipContext* rip_ctx);
         void end_file(RipContext* rip_ctx);
+        void tag_file(RipContext* rip_ctx);
+        void add_file_art(RipContext* rip_ctx);
 };
 
 

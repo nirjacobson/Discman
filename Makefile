@@ -14,17 +14,19 @@ MODULES = application           \
           spotify
 
 OBJECTS   = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
-LIBS      = libcdio_paranoia \
-            portaudio-2.0    \
+LIBS      = curlpp           \
             gtkmm-4.0        \
             glibmm-2.68      \
-            curlpp           \
             jsoncpp          \
-            openssl          \
             libavformat      \
             libavcodec       \
             libavutil        \
-            libswresample
+            libcdio_paranoia \
+            libswresample    \
+            openssl          \
+            portaudio-2.0    \
+            stb
+
 CFLAGS    = -std=c++20 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS   = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -lbluez -ldiscdb
 EXEC      = discman

@@ -13,7 +13,9 @@ DiscComponent::DiscComponent(Glib::RefPtr<Gtk::Builder> builder) {
     _tracksTreeView->append_column("Title", cols.titleColumn);
 
     auto renderer = Gtk::make_managed<Gtk::CellRendererProgress>();
-    int idx = _tracksTreeView->append_column("Progress", *renderer);
+    int idx = _tracksTreeView->append_column("", *renderer);
+    _tracksTreeView->get_column(idx - 1)->set_sizing(Gtk::TreeViewColumn::Sizing::FIXED);
+    _tracksTreeView->get_column(idx - 1)->set_fixed_width(96);
     _tracksTreeView->get_column(idx - 1)->add_attribute(renderer->property_value(), cols.progressColumn);
     _tracksTreeView->get_column(idx - 1)->set_visible(false);
 

@@ -1,11 +1,15 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "cd_ripper.h"
 
-CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc)
+CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& albumArtURL)
     : _drive(drive)
     , _disc(disc)
     , _thread(nullptr)
     , _track(0)
-    , _progress(0) {
+    , _progress(0)
+    , _albumArtURL(albumArtURL)
+    , _albumArtImage(nullptr)
+    , _albumArtImageSize(0) {
     producer(&_drive);
 
     _dispatcher.connect(sigc::mem_fun(*this, &CDRipper::on_notification));
@@ -13,6 +17,9 @@ CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc)
 }
 
 CDRipper::~CDRipper() {
+    if (_albumArtImage) {
+        av_free(_albumArtImage);
+    }
     if (_thread) {
         _thread->join();
         delete _thread;
@@ -81,6 +88,46 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
         .packet  = packet,
         .swr_ctx = swr_ctx
     };
+
+
+    cURLpp::Cleanup cleanup;
+    cURLpp::Easy easyhandle;
+
+    std::stringstream ss;
+    easyhandle.setOpt(cURLpp::Options::Url(_albumArtURL));
+    easyhandle.setOpt(cURLpp::Options::WriteStream(&ss));
+    easyhandle.perform();
+
+    std::string contentType;
+    cURLpp::infos::ContentType::get(easyhandle, contentType);
+
+    if (contentType == "image/jpeg") {
+        _albumArtImageCodec = AV_CODEC_ID_MJPEG;
+    } else if (contentType == "image/png") {
+        _albumArtImageCodec = AV_CODEC_ID_PNG;
+    }
+
+    std::string s = ss.str();
+
+    _albumArtImage = (uint8_t*)av_malloc(s.size());
+    memcpy(_albumArtImage, s.c_str(), s.size());
+
+    _albumArtImageSize = s.size();
+
+    int width, height;
+
+    unsigned char* stb_image = stbi_load_from_memory(
+        _albumArtImage,
+        _albumArtImageSize,
+        &width,
+        &height,
+        nullptr,
+        0
+    );
+
+    stbi_image_free(stb_image);
+
+    _albumArtImageDims = std::make_pair(width, height);
 }
 
 void CDRipper::do_rip(CDRipper::RipContext* rip_ctx, bool continuous) {
@@ -122,18 +169,16 @@ void CDRipper::do_rip(CDRipper::RipContext* rip_ctx, bool continuous) {
                 return;
             }
 
-            av_write_frame(rip_ctx->fmt_ctx, rip_ctx->packet);
+            av_interleaved_write_frame(rip_ctx->fmt_ctx, rip_ctx->packet);
 
             unsigned int progress = std::ceil(_drive.progress() * 100);
-            if (_progress != progress) {
+            if (_progress < progress) {
                 _progress = progress;
                 _dispatcher.emit();
             }
         }
 
         if (_track != _drive.track() || _drive.done()) {
-            _track++;
-            _progress = 0;
 
             ret = avcodec_send_frame(rip_ctx->c, nullptr);
             if (ret < 0) {
@@ -148,10 +193,13 @@ void CDRipper::do_rip(CDRipper::RipContext* rip_ctx, bool continuous) {
                     throw RipperErrorException("Error encoding audio frame");
                 }
 
-                av_write_frame(rip_ctx->fmt_ctx, rip_ctx->packet);
+                av_interleaved_write_frame(rip_ctx->fmt_ctx, rip_ctx->packet);
             }
 
             end_file(rip_ctx);
+
+            _track++;
+            _progress = 0;
 
             if (continuous) {
                 if (_drive.done()) {
@@ -185,6 +233,7 @@ void CDRipper::start_file(RipContext* rip_ctx) {
     c->sample_fmt = AV_SAMPLE_FMT_FLTP;
     c->bit_rate = 128000;
     c->time_base = {1, 44100};
+    c->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
     avcodec_open2(c, rip_ctx->codec, nullptr);
 
@@ -206,19 +255,28 @@ void CDRipper::start_file(RipContext* rip_ctx) {
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << _track;
 
-    std::string output_filename =
-        _outputDir
-        + "/" + ss.str()
+    _outputFilename = ss.str()
         + " " + _disc.tracks()[_track - 1].title()
         + ".m4a";
 
+    std::string output_filename = _outputDir + "/" + _outputFilename;
+
     rip_ctx->fmt_ctx = nullptr;
     avformat_alloc_output_context2(&rip_ctx->fmt_ctx, nullptr, "ipod", output_filename.c_str());
+
+    tag_file(rip_ctx);
 
     rip_ctx->st = avformat_new_stream(rip_ctx->fmt_ctx, rip_ctx->codec);
     rip_ctx->st->time_base = {1, 44100};
 
     avcodec_parameters_from_context(rip_ctx->st->codecpar, rip_ctx->c);
+
+    rip_ctx->sta = avformat_new_stream(rip_ctx->fmt_ctx, nullptr);
+    rip_ctx->sta->codecpar->codec_type  = AVMEDIA_TYPE_VIDEO;
+    rip_ctx->sta->codecpar->codec_id    = _albumArtImageCodec;
+    rip_ctx->sta->codecpar->width       = _albumArtImageDims.first;
+    rip_ctx->sta->codecpar->height      = _albumArtImageDims.second;
+    rip_ctx->sta->disposition          |= AV_DISPOSITION_ATTACHED_PIC;
 
     avio_open(&rip_ctx->fmt_ctx->pb, output_filename.c_str(), AVIO_FLAG_WRITE);
     ret = avformat_write_header(rip_ctx->fmt_ctx, nullptr);
@@ -226,6 +284,8 @@ void CDRipper::start_file(RipContext* rip_ctx) {
     if (ret < 0) {
         throw RipperErrorException("Could not write file header");
     }
+
+    add_file_art(rip_ctx);
 }
 
 void CDRipper::end_file(RipContext* rip_ctx) {
@@ -298,4 +358,35 @@ CDRipper::sig_track_progress CDRipper::signal_track_progress() {
 
 CDRipper::sig_done CDRipper::signal_done() {
     return _sig_done;
+}
+
+void CDRipper::tag_file(RipContext* rip_ctx) {
+    std::stringstream ss;
+    ss << _disc.year();
+
+    av_dict_set(&rip_ctx->fmt_ctx->metadata, "title",  _disc.tracks()[_track - 1].title().c_str(), 0);
+    av_dict_set(&rip_ctx->fmt_ctx->metadata, "artist", _disc.artist().c_str(),                     0);
+    av_dict_set(&rip_ctx->fmt_ctx->metadata, "album",  _disc.title().c_str(),                      0);
+    av_dict_set(&rip_ctx->fmt_ctx->metadata, "date",   ss.str().c_str(),                           0);
+    av_dict_set(&rip_ctx->fmt_ctx->metadata, "genre",  _disc.genre().c_str(),                      0);
+
+}
+
+void CDRipper::add_file_art(RipContext* rip_ctx) {
+    uint8_t* newImage = (uint8_t*)av_memdup(_albumArtImage, _albumArtImageSize);
+
+    AVPacket* pkt = av_packet_alloc();
+    int ret = av_packet_from_data(pkt, _albumArtImage, _albumArtImageSize);
+
+    if (ret != 0) {
+        throw RipperErrorException("Could not allocate packet buffer");
+    }
+
+    pkt->stream_index = rip_ctx->sta->index;
+    pkt->flags       |= AV_PKT_FLAG_KEY;
+    av_interleaved_write_frame(rip_ctx->fmt_ctx, pkt);
+
+    av_packet_free(&pkt);
+
+    _albumArtImage = newImage;
 }

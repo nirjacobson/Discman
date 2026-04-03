@@ -64,6 +64,7 @@ class Application {
         DiscDB::Disc _disc;
         AudioOutput<int16_t>* _audioOutput;
         unsigned int _track;
+        std::string _albumArtURL;
 
         Glib::RefPtr<Gio::DBus::Proxy> _systemdProxy;
 
