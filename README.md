@@ -5,7 +5,7 @@ Once assembled...
 
 ## Install dependencies
 ```
-emerge -av libcdio-paranoia portaudio gtkmm glibmm curlpp jsoncpp sg3_utils bluez-alsa weston
+emerge -av libcdio-paranoia portaudio gtkmm glibmm curlpp jsoncpp sg3_utils bluez-alsa stb udisks udiskie weston
 ```
 
 ## Clone the code
