@@ -1,7 +1,23 @@
 #include "disc_component.h"
 
-DiscComponent::DiscComponent(Glib::RefPtr<Gtk::Builder> builder) {
+DiscComponent::DiscComponent(DriveManager& driveManager, Glib::RefPtr<Gtk::Builder> builder)
+    : _driveManager(driveManager) {
+    _ejectButtonStack = builder->get_widget<Gtk::Stack>("ejectButtonStack");
     _ejectButton = builder->get_widget<Gtk::Button>("ejectButton");
+    _doubleEjectButton = builder->get_widget<Gtk::MenuButton>("doubleEjectButton");
+    _doubleEjectButtonMenu = Gio::Menu::create();
+    _doubleEjectButtonMenu->append("CD", "eject.cd");
+    _doubleEjectButtonMenu->append("iPod", "eject.ipod");
+    _doubleEjectButton->set_menu_model(_doubleEjectButtonMenu);
+
+    _ejectActionGroup = Gio::SimpleActionGroup::create();
+    _ejectActionGroup->add_action("cd", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::DISC));
+    _ejectActionGroup->add_action("ipod", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::REMOVABLE));
+
+    Gtk::Root* root = _doubleEjectButton->get_root();
+    Gtk::Window* window = dynamic_cast<Gtk::Window*>(root);
+    window->insert_action_group("eject", _ejectActionGroup);
+
     _ipodButton = builder->get_widget<Gtk::Button>("ipodButton");
     _albumLabel = builder->get_widget<Gtk::Label>("albumLabel");
     _albumArtistLabel = builder->get_widget<Gtk::Label>("albumArtistLabel");
@@ -39,8 +55,8 @@ DiscComponent::~DiscComponent() {
     delete _ejectButton;
 }
 
-void DiscComponent::show_progress() {
-    _tracksTreeView->get_column(_tracksTreeView->get_n_columns() - 2)->set_visible(true);
+void DiscComponent::show_progress(const bool show) {
+    _tracksTreeView->get_column(_tracksTreeView->get_n_columns() - 2)->set_visible(show);
 }
 
 void DiscComponent::set_disc(const DiscDB::Disc* const disc) {
@@ -60,7 +76,8 @@ void DiscComponent::set_disc(const DiscDB::Disc* const disc) {
             const unsigned int seconds = disc->trackLength(i + 1);
             lengthStream << seconds / 60
                          << ":"
-                         << std::setw(2) << std::setfill('0') << seconds % 60;
+                         << std::setw(2) << std::setfill('0')
+                         << seconds % 60;
 
             row[cols.lengthColumn] = lengthStream.str();
         }
@@ -68,11 +85,8 @@ void DiscComponent::set_disc(const DiscDB::Disc* const disc) {
         _tracksListStore->clear();
     }
 
-    _ejectButton->set_sensitive(!!disc);
-    _ipodButton->set_sensitive(!!disc);
-
     if (!disc) {
-        _tracksTreeView->get_column(_tracksTreeView->get_n_columns() - 2)->set_visible(false);
+        show_progress(false);
     }
 }
 
@@ -112,16 +126,39 @@ void DiscComponent::update_track_progress(unsigned int track, unsigned int progr
     row[cols.progressColumn] = progress;
 }
 
+void DiscComponent::show_ipod_button(const bool show) {
+    _ipodButton->set_visible(show);
+}
+
+void DiscComponent::enable_ipod_button(const bool enable) {
+    _ipodButton->set_sensitive(enable);
+}
+
+void DiscComponent::enable_eject_button(const bool enable) {
+    _ejectButton->set_sensitive(enable);
+}
+
+void DiscComponent::show_double_eject_button(const bool show) {
+    _ejectButtonStack->set_visible_child(*_ejectButtonStack->get_children()[show]);
+}
+
 void DiscComponent::on_eject_button_clicked() {
-    set_disc(nullptr);
-    _signal_eject_requested.emit();
+
+    DriveManager::Drive drive = _driveManager.isRemovablePresent()
+        ? DriveManager::Drive::REMOVABLE
+        : DriveManager::Drive::DISC;
+
+    on_eject(drive);
+}
+
+void DiscComponent::on_eject(const DriveManager::Drive drive) {
+    if (drive == DriveManager::Drive::DISC) {
+        set_disc(nullptr);
+    }
+    _signal_eject_requested.emit(drive);
 }
 
 void DiscComponent::on_ipod_button_clicked() {
-    _ipodButton->set_sensitive(false);
-
-    show_progress();
-
     Glib::RefPtr<Gtk::TreeSelection> selection = _tracksTreeView->get_selection();
     Gtk::TreeModel::iterator it = selection->get_selected();
 
@@ -133,10 +170,6 @@ void DiscComponent::on_ipod_button_clicked() {
     } else {
         _signal_rip_requested.emit(0);
     }
-}
-
-void DiscComponent::rip_done() {
-    _ipodButton->set_sensitive(true);
 }
 
 void DiscComponent::on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeView::Column*) {

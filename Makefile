@@ -7,6 +7,7 @@ MODULES = application           \
           cd_drive              \
           cd_ripper             \
           disc_component        \
+          drive_manager         \
           last_fm               \
           main                  \
           now_playing_component \
@@ -28,7 +29,7 @@ LIBS      = curlpp           \
             stb
 
 CFLAGS    = -std=c++20 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
-LDFLAGS   = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -lbluez -ldiscdb
+LDFLAGS   = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -ludisks2cc -lbluez -ldiscdb
 EXEC      = discman
 LINENOPAT = ^[^:]+:([^:]+):(.+)$
 

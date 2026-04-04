@@ -20,6 +20,7 @@
 #include <discdb/discdb.h>
 
 #include "cd_drive.h"
+#include "drive_manager.h"
 #include "cd_ripper.h"
 #include "disc_component.h"
 #include "now_playing_component.h"
@@ -38,28 +39,13 @@ class Application {
         void run();
 
     private:
-        class Poller {
-            public:
-                Poller(Application& app);
-                ~Poller();
-
-                void loop();
-
-            private:
-                Application& _app;
-                bool _exit;
-
-                std::mutex _exit_lock;
-                std::thread _thread;
-        };
-
         int _argc;
         char** _argv;
 
         Glib::RefPtr<Gtk::Builder> _builder;
         Glib::RefPtr<Gtk::Application> _app;
         Gtk::Window* _window;
-        CDDrive _drive;
+        DriveManager _driveManager;
         CDRipper* _ripper;
         DiscDB::Disc _disc;
         AudioOutput<int16_t>* _audioOutput;
@@ -68,8 +54,6 @@ class Application {
 
         Glib::RefPtr<Gio::DBus::Proxy> _systemdProxy;
 
-        Glib::Dispatcher _dispatcher;
-        Poller* _poller;
         sigc::connection _timerConnection;
 
         Gtk::Stack* _stack;
@@ -86,13 +70,13 @@ class Application {
 
         void on_activate();
 
-        void on_notification_from_poller();
+        void on_insert(DriveManager::Drive drive);
+        void on_eject(DriveManager::Drive drive);
         void on_bluetooth_button();
         void on_bluetooth_connected();
         void on_bluetooth_done();
         void on_track_progress(unsigned int track, unsigned int progress);
         void on_rip_done();
-        void notify();
 
         void on_albumart_done();
         void on_albumart_art(const std::string url);
@@ -112,7 +96,7 @@ class Application {
         void play();
         void pause();
         void stop();
-        void eject();
+        void eject(const DriveManager::Drive drive);
 
         void rip(unsigned int track);
 

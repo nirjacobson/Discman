@@ -55,7 +55,7 @@ class CDRipper : public Consumer<int16_t> {
         sig_track_progress signal_track_progress();
         sig_done signal_done();
 
-        CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& albumArtURL);
+        CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& albumArtURL, const std::string& mediaRoot);
         ~CDRipper();
 
         void rip();

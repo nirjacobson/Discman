@@ -6,8 +6,8 @@ Application::Application(int argc, char **argv)
     , _ripper(nullptr)
     , _audioOutput(AudioOutput<int16_t>::instance())
     , _track(0)
-    , _poller(new Poller(*this)) {
-    _audioOutput->producer(&_drive);
+    {
+    _audioOutput->producer(&_driveManager.discDrive());
     _audioOutput->init();
 
     AlbumArtProvider::instance()->init();
@@ -26,7 +26,7 @@ Application::Application(int argc, char **argv)
     _shutdownButton = _builder->get_widget<Gtk::Button>("shutdownButton");
     _bluetoothButton->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_bluetooth_button));
 
-    _discComponent = new DiscComponent(_builder);
+    _discComponent = new DiscComponent(_driveManager, _builder);
     _discComponent->set_disc(nullptr);
     _discComponent->signal_eject_requested().connect(sigc::mem_fun(*this, &Application::eject));
     _discComponent->signal_rip_requested().connect(sigc::mem_fun(*this, &Application::rip));
@@ -49,7 +49,8 @@ Application::Application(int argc, char **argv)
     _window = _builder->get_widget<Gtk::Window>("window");
     _window->fullscreen();
 
-    _dispatcher.connect(sigc::mem_fun(*this, &Application::on_notification_from_poller));
+    _driveManager.signal_inserted().connect(sigc::mem_fun(*this, &Application::on_insert));
+    _driveManager.signal_ejected().connect(sigc::mem_fun(*this, &Application::on_eject));
 
     _systemdProxy = Gio::DBus::Proxy::create_for_bus_sync(
                         Gio::DBus::BusType::SYSTEM,
@@ -70,7 +71,6 @@ Application::~Application() {
     delete _albumArtComponent;
     delete _nowPlayingComponent;
     delete _discComponent;
-    if (_poller) delete _poller;
 
     _audioOutput->destroy();
 }
@@ -79,21 +79,57 @@ void Application::run() {
     _app->run(_argc, _argv);
 }
 
-void Application::notify() {
-    _dispatcher.emit();
-}
+void Application::on_insert(DriveManager::Drive drive) {
+    if (drive == DriveManager::Drive::DISC) {
+        queryDiscDB();
+        _discComponent->set_disc(&_disc);
+
+        std::vector<AlbumArtProvider::AlbumArt> arts = AlbumArtProvider::instance()->album_art(_disc.artist(), _disc.title(), AlbumArtComponent::ART_SIZE, AlbumArtComponent::ART_SIZE);
+
+        _albumArtComponent->set_albumarts(arts, _window->get_width());
+        _nowPlayingComponent->set_album(_albumArtURL = arts[0].url);
+        _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
+
+        _discComponent->show_double_eject_button(_driveManager.isRemovablePresent());
+
+        if (_driveManager.isRemovablePresent()) {
+        }
+    } else if (drive == DriveManager::Drive::REMOVABLE) {
+        _discComponent->show_ipod_button(true);
+
+        _discComponent->show_double_eject_button(_driveManager.isDiscPresent());
+        _discComponent->enable_ipod_button(_driveManager.isDiscPresent());
+    }
+};
+
+
+void Application::on_eject(DriveManager::Drive drive) {
+    _discComponent->show_double_eject_button(false);
+    _discComponent->enable_eject_button(_driveManager.isDiscPresent() || _driveManager.isRemovablePresent());
+
+    if (drive == DriveManager::Drive::DISC) {
+        _discComponent->set_disc(nullptr);
+        _nowPlayingComponent->set_state(NowPlayingComponent::State::Disabled);
+
+        if (_driveManager.isRemovablePresent()) {
+            _discComponent->enable_ipod_button(false);
+        }
+    } else if (drive == DriveManager::Drive::REMOVABLE) {
+        _discComponent->show_ipod_button(false);
+    }
+};
 
 void Application::queryDiscDB() {
     DiscDB::Disc::Builder builder;
 
-    for (unsigned int i = 0; i < _drive.tracks(); i++) {
+    for (unsigned int i = 0; i < _driveManager.discDrive().tracks(); i++) {
         builder.track(DiscDB::Track::Builder()
-                      .frameOffset(_drive.lba(1 + i))
+                      .frameOffset(_driveManager.discDrive().lba(1 + i))
                       .build());
     }
 
     const DiscDB::Disc disc = builder
-                              .length(_drive.seconds())
+                              .length(_driveManager.discDrive().seconds())
                               .calculateDiscID()
                               .build();
 
@@ -103,20 +139,6 @@ void Application::queryDiscDB() {
 void Application::on_activate() {
     _app->add_window(*_window);
     _window->show();
-}
-
-void Application::on_notification_from_poller() {
-    queryDiscDB();
-    _discComponent->set_disc(&_disc);
-
-    std::vector<AlbumArtProvider::AlbumArt> arts = AlbumArtProvider::instance()->album_art(_disc.artist(), _disc.title(), AlbumArtComponent::ART_SIZE, AlbumArtComponent::ART_SIZE);
-
-    _albumArtComponent->set_albumarts(arts, _window->get_width());
-    _nowPlayingComponent->set_album(_albumArtURL = arts[0].url);
-    _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
-
-    delete _poller;
-    _poller = nullptr;
 }
 
 void Application::on_bluetooth_button() {
@@ -142,7 +164,6 @@ void Application::on_bluetooth_done() {
 }
 
 void Application::on_albumart_done() {
-    // _albumArtComponent->on_hide();
     _stack->set_visible_child(*_playerBox);
 }
 
@@ -177,15 +198,15 @@ void Application::on_button(const NowPlayingComponent::Button button) {
 }
 
 bool Application::on_timeout() {
-    if (_drive.done()) {
-        eject();
+    if (_driveManager.discDrive().done()) {
+        eject(DriveManager::Drive::DISC);
     } else {
-        if (_track != _drive.track()) {
-            _track = _drive.track();
+        if (_track != _driveManager.discDrive().track()) {
+            _track = _driveManager.discDrive().track();
             _discComponent->set_selection(_track);
             _nowPlayingComponent->set_track(_disc, _track, _track == 1, _track == _disc.tracks().size());
         }
-        _nowPlayingComponent->set_seconds(_drive.elapsed());
+        _nowPlayingComponent->set_seconds(_driveManager.discDrive().elapsed());
     }
 
     return true;
@@ -201,7 +222,7 @@ void Application::play(unsigned int track) {
 
     _track = track;
 
-    _drive.track(track);
+    _driveManager.discDrive().track(track);
     _discComponent->set_selection(track);
     _nowPlayingComponent->set_track(_disc, _track, track == 1, track == _disc.tracks().size());
     play();
@@ -232,27 +253,28 @@ void Application::stop() {
     _nowPlayingComponent->set_state(NowPlayingComponent::State::Stopped);
 }
 
-void Application::eject() {
-    if (_nowPlayingComponent->get_state() == NowPlayingComponent::State::Playing)
-        stop();
+void Application::eject(const DriveManager::Drive drive) {
+    if (drive == DriveManager::Drive::DISC) {
+        if (_nowPlayingComponent->get_state() == NowPlayingComponent::State::Playing) {
+            stop();
+        }
+    }
 
-    _discComponent->set_disc(nullptr);
-    _nowPlayingComponent->set_state(NowPlayingComponent::State::Disabled);
-    _drive.eject();
-
-    if (!_poller)
-        _poller = new Poller(*this);
+    _driveManager.eject(drive);
 }
 
 void Application::rip(unsigned int track) {
     stop();
 
-    _ripper = new CDRipper(_drive, _disc, _albumArtURL);
+    _discComponent->enable_ipod_button(false);
+    _discComponent->show_progress(true);
+
+    _ripper = new CDRipper(_driveManager.discDrive(), _disc, _albumArtURL, _driveManager.removable().mountPoint());
 
     _ripper->signal_track_progress().connect(sigc::mem_fun(*this, &Application::on_track_progress));
     _ripper->signal_done().connect(sigc::mem_fun(*this, &Application::on_rip_done));
 
-    _drive.resize_buffer(CDDrive::BUFFER_SIZE_RIPPING);
+    _driveManager.discDrive().resize_buffer(CDDrive::BUFFER_SIZE_RIPPING);
 
     if (track == 0) {
         _ripper->rip();
@@ -266,39 +288,9 @@ void Application::on_track_progress(const unsigned track, const unsigned progres
 }
 
 void Application::on_rip_done() {
-    _discComponent->rip_done();
+    _discComponent->enable_ipod_button(true);
 
     delete _ripper;
 
-    _drive.resize_buffer(CDDrive::BUFFER_SIZE_PLAYING);
-}
-
-Application::Poller::Poller(Application& app)
-    : _app(app)
-    , _exit(false)
-    , _thread(&Application::Poller::loop, this) {
-
-}
-
-Application::Poller::~Poller() {
-    _exit_lock.lock();
-    _exit = true;
-    _exit_lock.unlock();
-
-    _thread.join();
-}
-
-void Application::Poller::loop() {
-    while (true) {
-        _exit_lock.lock();
-        bool exit = _exit;
-        _exit_lock.unlock();
-
-        if (exit) return;
-
-        if (_app._drive.present()) {
-            _app.notify();
-            return;
-        }
-    }
+    _driveManager.discDrive().resize_buffer(CDDrive::BUFFER_SIZE_PLAYING);
 }

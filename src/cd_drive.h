@@ -20,6 +20,7 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <linux/cdrom.h>
+#include <sigc++/signal.h>
 #include <climits>
 #include <chrono>
 
@@ -34,6 +35,8 @@ class CDDrive : public Producer<int16_t> {
         static constexpr int BUFFER_SIZE_RIPPING  =  512;
 
         static constexpr int SAMPLE_RATE = 44100;
+
+        typedef sigc::signal<void()> sig_eject;
 
         struct DriveErrorException : public std::exception {
             const char* what() const throw() {
@@ -76,9 +79,13 @@ class CDDrive : public Producer<int16_t> {
 
         bool done();
 
+        sig_eject signal_eject();
+
     private:
 
         static constexpr int BYTES_PER_SAMPLE = sizeof(int16_t);
+
+        sig_eject _sig_eject;
 
         int _bufferSectors;
         int _bufferSamples;

@@ -86,7 +86,6 @@
                     <child>
                       <object class="GtkButton" id="ipodButton">
                         <property name="width-request">84</property>
-                        <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <child>
@@ -126,18 +125,45 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="ejectButton">
-                        <property name="width-request">84</property>
+                      <object class="GtkStack" id="ejectButtonStack">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="can-focus">False</property>
                         <child>
-                          <object class="GtkImage" id="ejectImage">
+                          <object class="GtkButton" id="ejectButton">
+                            <property name="width-request">84</property>
                             <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="resource">/ui/icons/eject.png</property>
-                            <property name="icon_size">3</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <child>
+                              <object class="GtkImage" id="ejectImage">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="resource">/ui/icons/eject.png</property>
+                                <property name="icon_size">3</property>
+                              </object>
+                            </child>
                           </object>
+                          <packing>
+                            <property name="title" translatable="yes">page0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkMenuButton" id="doubleEjectButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="focus-on-click">False</property>
+                            <property name="receives-default">True</property>
+                            <child>
+                              <object class="GtkImage" id="doubleEjectImage">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="resource">/ui/icons/eject.png</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="title" translatable="yes">page1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>

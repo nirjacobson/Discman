@@ -1,12 +1,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "cd_ripper.h"
 
-CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& albumArtURL)
+CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& albumArtURL, const std::string& mediaRoot)
     : _drive(drive)
     , _disc(disc)
     , _thread(nullptr)
     , _track(0)
     , _progress(0)
+    , _mediaRoot(mediaRoot)
     , _albumArtURL(albumArtURL)
     , _albumArtImage(nullptr)
     , _albumArtImageSize(0) {
@@ -35,13 +36,6 @@ void CDRipper::on_done_notification() {
 }
 
 void CDRipper::ensure_media_root() {
-    for (const auto& entry : std::filesystem::directory_iterator("/media")) {
-        if (entry.is_directory()) {
-            _mediaRoot = entry.path();
-            break;
-        }
-    }
-
     if (_mediaRoot.empty()) {
         throw NoMedia();
     }

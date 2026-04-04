@@ -164,6 +164,8 @@ void CDDrive::eject() {
     cdio_eject_media_drive(_device.c_str());
     _device.clear();
 
+    _sig_eject.emit();
+
     if (_poller) delete _poller;
     _poller = new Poller(*this);
 }
@@ -279,6 +281,10 @@ void CDDrive::open() {
     }
 
     _reader = new Reader(*this);
+}
+
+CDDrive::sig_eject CDDrive::signal_eject() {
+    return _sig_eject;
 }
 
 void CDDrive::update_track(const unsigned int track) {
