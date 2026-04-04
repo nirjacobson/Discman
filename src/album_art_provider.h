@@ -36,7 +36,7 @@ class AlbumArtProvider {
         virtual void init();
         virtual std::vector<AlbumArt> album_art(const std::string& artist, const std::string& title, const int width, const int height) = 0;
         virtual AlbumArt album_art(const std::string& url, const int width, const int height) = 0;
-    
+
     private:
         static AlbumArtProvider* _instance;
 };

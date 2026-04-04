@@ -9,11 +9,11 @@
 #include <glibmm.h>
 
 extern "C" {
-    #include <libavformat/avformat.h>
-    #include <libavformat/avio.h>
-    #include <libavcodec/avcodec.h>
-    #include <libavutil/opt.h>
-    #include <libswresample/swresample.h>
+#include <libavformat/avformat.h>
+#include <libavformat/avio.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/opt.h>
+#include <libswresample/swresample.h>
 }
 
 #include <sigc++/signal.h>
@@ -38,13 +38,13 @@ class CDRipper : public Consumer<int16_t> {
             }
         };
         struct RipperErrorException : public std::exception {
-            RipperErrorException(const std::string& what)
-                : _what(what) { }
+                RipperErrorException(const std::string& what)
+                    : _what(what) { }
 
-            const char* what() const throw() {
-                return _what.c_str();
-            }
-            
+                const char* what() const throw() {
+                    return _what.c_str();
+                }
+
             private:
                 std::string _what;
         };
@@ -92,7 +92,7 @@ class CDRipper : public Consumer<int16_t> {
         int _album_art_image_size;
         AVCodecID _album_art_image_codec;
         std::pair<int, int> _album_art_image_dims;
-        
+
         void on_notification();
         void on_done_notification();
 

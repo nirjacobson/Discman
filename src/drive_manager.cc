@@ -110,7 +110,7 @@ void DriveManager::on_removable_removed(const std::string& path) {
         if (!_removable_fs->mount_point().empty()) {
             _sig_ejected.emit(Removable);
         }
-        
+
         delete _removable_fs;
         _removable_fs = nullptr;
 

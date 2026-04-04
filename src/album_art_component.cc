@@ -31,7 +31,7 @@ void AlbumArtComponent::set_album_arts(const std::vector<AlbumArtProvider::Album
 
     int cols = window_width / (ART_SIZE + SPACING);
     int rows = std::ceil(((float)arts.size())/((float)cols));
-    
+
     for (int i = 0; i < cols; i++) {
         newGrid->insert_column(0);
     }
@@ -57,7 +57,7 @@ void AlbumArtComponent::set_album_arts(const std::vector<AlbumArtProvider::Album
             button->set_child(*image);
 
             const std::string url = arts[(i * cols) + j].url;
-            button->signal_clicked().connect([this,url](){
+            button->signal_clicked().connect([this,url]() {
                 _signal_art.emit(url);
             });
 

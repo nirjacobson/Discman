@@ -32,13 +32,14 @@ std::vector<AlbumArtProvider::AlbumArt> LastFM::album_art(const std::string& art
     const Json::Value image = root["album"]["image"];
 
     const std::vector<std::string> sizes = {{
-        "mega",
-        "extralarge",
-        "large",
-        "medium",
-        "small",
-        ""
-    }};
+            "mega",
+            "extralarge",
+            "large",
+            "medium",
+            "small",
+            ""
+        }
+    };
 
     std::vector<AlbumArtProvider::AlbumArt> albumArts;
 

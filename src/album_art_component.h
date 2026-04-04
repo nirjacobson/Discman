@@ -32,7 +32,7 @@ class AlbumArtComponent {
 
     private:
         static constexpr int SPACING = 16;
-        
+
         sig_done _signal_done;
         sig_art _signal_art;
 

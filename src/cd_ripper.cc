@@ -73,7 +73,7 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
         throw RipperErrorException("Failed to initialize resampler");
     }
 
-    *rip_ctx = (struct CDRipper::RipContext){
+    *rip_ctx = (struct CDRipper::RipContext) {
         .fmt_ctx = nullptr,
         .st      = nullptr,
         .codec   = codec,
@@ -111,13 +111,13 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
     int width, height;
 
     unsigned char* stb_image = stbi_load_from_memory(
-        _albumArtImage,
-        _album_art_image_size,
-        &width,
-        &height,
-        nullptr,
-        0
-    );
+                                   _albumArtImage,
+                                   _album_art_image_size,
+                                   &width,
+                                   &height,
+                                   nullptr,
+                                   0
+                               );
 
     stbi_image_free(stb_image);
 
@@ -250,8 +250,8 @@ void CDRipper::start_file(RipContext* rip_ctx) {
     ss << std::setw(2) << std::setfill('0') << _track;
 
     _output_filename = ss.str()
-        + " " + _disc.tracks()[_track - 1].title()
-        + ".m4a";
+                       + " " + _disc.tracks()[_track - 1].title()
+                       + ".m4a";
 
     std::string output_filename = _output_dir + "/" + _output_filename;
 

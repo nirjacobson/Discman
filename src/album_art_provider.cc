@@ -16,10 +16,12 @@ AlbumArtProvider* AlbumArtProvider::instance() {
         };
 
         std::string provider = std::getenv("DISCMAN_ALBUMART_PROVIDER")
-            ? std::getenv("DISCMAN_ALBUMART_PROVIDER")
-            : "";
+                               ? std::getenv("DISCMAN_ALBUMART_PROVIDER")
+                               : "";
 
-        std::transform(provider.begin(), provider.end(), provider.begin(), [](unsigned char c){ return std::tolower(c); });
+        std::transform(provider.begin(), provider.end(), provider.begin(), [](unsigned char c) {
+            return std::tolower(c);
+        });
 
         auto it = std::find(providers.begin(), providers.end(), provider);
 

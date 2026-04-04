@@ -81,7 +81,8 @@ std::vector<AlbumArtProvider::AlbumArt> Spotify::album_art(const std::string& ar
 
             if (urlsBySize.contains(size)) {
                 urlsBySize[size].push_back(url);
-            } else {
+            }
+            else {
                 urlsBySize[size] = {{ url }};
             }
         }

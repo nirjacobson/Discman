@@ -6,7 +6,7 @@ Application::Application(int argc, char **argv)
     , _ripper(nullptr)
     , _audio_output(AudioOutput<int16_t>::instance())
     , _track(0)
-    {
+{
     _audio_output->producer(&_drive_manager.disc_drive());
     _audio_output->init();
 
@@ -53,10 +53,10 @@ Application::Application(int argc, char **argv)
     _drive_manager.signal_ejected().connect(sigc::mem_fun(*this, &Application::on_eject));
 
     _systemd_proxy = Gio::DBus::Proxy::create_for_bus_sync(
-                        Gio::DBus::BusType::SYSTEM,
-                        "org.freedesktop.login1",
-                        "/org/freedesktop/login1",
-                        "org.freedesktop.login1.Manager");
+                         Gio::DBus::BusType::SYSTEM,
+                         "org.freedesktop.login1",
+                         "/org/freedesktop/login1",
+                         "org.freedesktop.login1.Manager");
 }
 
 Application::~Application() {

@@ -145,8 +145,8 @@ void DiscComponent::show_double_eject_button(const bool show) {
 void DiscComponent::on_eject_button_clicked() {
 
     DriveManager::Drive drive = _drive_manager.is_removable_present()
-        ? DriveManager::Drive::Removable
-        : DriveManager::Drive::Disc;
+                                ? DriveManager::Drive::Removable
+                                : DriveManager::Drive::Disc;
 
     on_eject(drive);
 }
