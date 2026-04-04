@@ -10,20 +10,26 @@ emerge -av libcdio-paranoia portaudio gtkmm glibmm curlpp jsoncpp sg3_utils blue
 
 ## Clone the code
 ```
-git clone https://github.com/nirjacobson/libbluez.git
 git clone https://github.com/nirjacobson/libdiscdb.git
+git clone https://github.com/nirjacobson/libbluez.git
+git clone https://github.com/nirjacobson/libudisks2.git
 git clone https://github.com/nirjacobson/Discman.git
 ```
 
 ## Build the libraries
 ```
+cd libdiscdb
+make
+make install
+
 cd libbluez
 make
 make install
 
-cd libdiscdb
+cd libudisks2
 make
 make install
+
 ```
 
 ## Build Discman
