@@ -13,7 +13,7 @@
 
 #include <discdb/disc.h>
 
-#include "albumart_provider.h"
+#include "album_art_provider.h"
 
 class NowPlayingComponent {
 
@@ -34,7 +34,7 @@ class NowPlayingComponent {
         };
 
         typedef sigc::signal<void(const Button)> sig_button;
-        typedef sigc::signal<void(void)> sig_albumart;
+        typedef sigc::signal<void(void)> sig_album_art;
 
         NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder);
         ~NowPlayingComponent();
@@ -46,25 +46,25 @@ class NowPlayingComponent {
         void set_album(const std::string& url);
 
         sig_button signal_button();
-        sig_albumart signal_albumart();
+        sig_album_art signal_album_art();
 
     private:
         State _state;
 
-        Gtk::Button* _albumArtButton;
-        Gtk::Image* _albumArtImage;
-        Gtk::Label* _trackTitleLabel;
-        Gtk::Label* _trackArtistLabel;
-        Gtk::Scale* _seekScale;
-        Gtk::Button* _prevButton;
-        Gtk::Button* _playPauseButton;
-        Gtk::Button* _stopButton;
-        Gtk::Button* _nextButton;
+        Gtk::Button* _album_art_button;
+        Gtk::Image* _album_art_image;
+        Gtk::Label* _track_title_label;
+        Gtk::Label* _track_artist_label;
+        Gtk::Scale* _seek_scale;
+        Gtk::Button* _prev_button;
+        Gtk::Button* _play_pause_button;
+        Gtk::Button* _stop_button;
+        Gtk::Button* _next_button;
 
-        Gtk::Image* _playPauseImage;
+        Gtk::Image* _play_pause_image;
 
         sig_button _signal_button;
-        sig_albumart _signal_albumart;
+        sig_album_art _signal_album_art;
 
         void on_prev_button_clicked();
         void on_playpause_button_clicked();

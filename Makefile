@@ -1,8 +1,8 @@
 SHELL = /bin/bash
 
 MODULES = application           \
-          albumart_provider     \
-          albumart_component    \
+          album_art_provider    \
+          album_art_component   \
           bluetooth_component   \
           cd_drive              \
           cd_ripper             \

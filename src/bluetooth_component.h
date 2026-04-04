@@ -45,28 +45,28 @@ class BluetoothComponent {
         class DevicesListColumnRecord : public Gtk::TreeModel::ColumnRecord {
             public:
                 DevicesListColumnRecord() {
-                    this->add(this->addressColumn);
-                    this->add(this->nameColumn);
+                    this->add(this->address_column);
+                    this->add(this->name_column);
                 }
 
-                Gtk::TreeModelColumn<Glib::ustring> addressColumn;
-                Gtk::TreeModelColumn<Glib::ustring> nameColumn;
+                Gtk::TreeModelColumn<Glib::ustring> address_column;
+                Gtk::TreeModelColumn<Glib::ustring> name_column;
         };
 
         sig_conn _signal_connected;
 
         Bluez::Adapter _adapter;
-        std::string _alsaDeviceAddress;
-        Bluez::Device* _alsaDevice;
+        std::string _alsa_device_address;
+        Bluez::Device* _alsa_device;
 
-        Gtk::Label* _deviceLabel;
-        Gtk::Label* _deviceStatusLabel;
-        Gtk::TreeView* _devicesTreeView;
-        Glib::RefPtr<Gtk::ListStore> _devicesListStore;
-        Gtk::Button* _doneButton;
-        Gtk::Button* _connectButton;
+        Gtk::Label* _device_label;
+        Gtk::Label* _device_status_label;
+        Gtk::TreeView* _devices_tree_view;
+        Glib::RefPtr<Gtk::ListStore> _devices_list_store;
+        Gtk::Button* _done_button;
+        Gtk::Button* _connect_button;
 
-        DeviceInitialization _alsaDeviceInitialization;
+        DeviceInitialization _alsa_device_init;
 
         sig_done _signal_done;
 

@@ -26,23 +26,23 @@ class AudioOutput : public Consumer<T> {
     private:
         static AudioOutput* _instance;
 
-        static PaError _paError;
-        static PaStream* _paStream;
+        static PaError _pa_error;
+        static PaStream* _pa_stream;
 
-        static int paCallback(const void* inputBuffer,
-                              void* outputBuffer,
-                              unsigned long framesPerBuffer,
-                              const PaStreamCallbackTimeInfo* timeInfo,
-                              PaStreamCallbackFlags statusFlags,
-                              void* userData);
+        static int pa_callback(const void* input_buffer,
+                              void* output_buffer,
+                              unsigned long frames_per_buffer,
+                              const PaStreamCallbackTimeInfo* time_info,
+                              PaStreamCallbackFlags status_flags,
+                              void* user_data);
 };
 
 template <typename T>
 AudioOutput<T>* AudioOutput<T>::_instance = nullptr;
 template <typename T>
-PaError AudioOutput<T>::_paError;
+PaError AudioOutput<T>::_pa_error;
 template <typename T>
-PaStream* AudioOutput<T>::_paStream;
+PaStream* AudioOutput<T>::_pa_stream;
 
 template <typename T>
 AudioOutput<T>* AudioOutput<T>::instance() {
@@ -55,9 +55,9 @@ AudioOutput<T>* AudioOutput<T>::instance() {
 
 template <typename T>
 void AudioOutput<T>::init() {
-    _paError = Pa_Initialize();
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    _pa_error = Pa_Initialize();
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 
@@ -68,7 +68,7 @@ void AudioOutput<T>::init() {
         format = paFloat32;
 
     /* Open an audio I/O stream. */
-    _paError = Pa_OpenDefaultStream( &_paStream,
+    _pa_error = Pa_OpenDefaultStream( &_pa_stream,
                                      0,          /* no input channels */
                                      2,          /* stereo output */
                                      format,
@@ -77,29 +77,29 @@ void AudioOutput<T>::init() {
                                                   of sample frames that PortAudio will
                                                   request from the callback. Many apps
                                                   may want to use
-                                                  paFramesPerBufferUnspecified, which
+                                                  paframes_per_bufferUnspecified, which
                                                   tells PortAudio to pick the best,
                                                   possibly changing, buffer size.*/
-                                     &paCallback, /* this is your callback function */
+                                     &pa_callback, /* this is your callback function */
                                      nullptr); /*This is a pointer that will be passed to
                                                   your callback*/
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 }
 
 template <typename T>
 void AudioOutput<T>::destroy() {
-    _paError = Pa_CloseStream( _paStream );
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    _pa_error = Pa_CloseStream( _pa_stream );
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 
-    _paError = Pa_Terminate();
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    _pa_error = Pa_Terminate();
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 
@@ -108,33 +108,33 @@ void AudioOutput<T>::destroy() {
 
 template <typename T>
 void AudioOutput<T>::start() {
-    _paError = Pa_StartStream( _paStream );
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    _pa_error = Pa_StartStream( _pa_stream );
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 }
 
 template <typename T>
 void AudioOutput<T>::stop() {
-    _paError = Pa_StopStream( _paStream );
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    _pa_error = Pa_StopStream( _pa_stream );
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 }
 
 template <typename T>
 void AudioOutput<T>::restart() {
-    _paError = Pa_CloseStream( _paStream );
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    _pa_error = Pa_CloseStream( _pa_stream );
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 
-    _paError = Pa_Terminate();
-    if( _paError != paNoError ) {
-        std::cerr << "PortAudio error: " << Pa_GetErrorText( _paError ) << std::endl;
+    _pa_error = Pa_Terminate();
+    if( _pa_error != paNoError ) {
+        std::cerr << "PortAudio error: " << Pa_GetErrorText( _pa_error ) << std::endl;
         return;
     }
 
@@ -147,18 +147,18 @@ bool AudioOutput<T>::isDefault() {
 }
 
 template <typename T>
-int AudioOutput<T>::paCallback(const void* inputBuffer,
-                               void* outputBuffer,
-                               unsigned long framesPerBuffer,
-                               const PaStreamCallbackTimeInfo* timeInfo,
-                               PaStreamCallbackFlags statusFlags,
-                               void* userData) {
-    T* out = (T*)outputBuffer;
+int AudioOutput<T>::pa_callback(const void* input_buffer,
+                               void* output_buffer,
+                               unsigned long frames_per_buffer,
+                               const PaStreamCallbackTimeInfo* time_info,
+                               PaStreamCallbackFlags status_flags,
+                               void* user_data) {
+    T* out = (T*)output_buffer;
     unsigned int i;
-    (void) inputBuffer; /* Prevent unused variable warning. */
-    (void) userData;
+    (void) input_buffer; /* Prevent unused variable warning. */
+    (void) user_data;
 
-    for( i=0; i<framesPerBuffer; i++ )
+    for( i=0; i<frames_per_buffer; i++ )
     {
         *out++ = instance()->consume(); // left
         *out++ = instance()->consume(); // right

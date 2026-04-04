@@ -7,14 +7,14 @@ CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& 
     , _thread(nullptr)
     , _track(0)
     , _progress(0)
-    , _mediaRoot(mediaRoot)
-    , _albumArtURL(albumArtURL)
+    , _media_root(mediaRoot)
+    , _album_art_url(albumArtURL)
     , _albumArtImage(nullptr)
-    , _albumArtImageSize(0) {
+    , _album_art_image_size(0) {
     producer(&_drive);
 
     _dispatcher.connect(sigc::mem_fun(*this, &CDRipper::on_notification));
-    _dispatcherDone.connect(sigc::mem_fun(*this, &CDRipper::on_done_notification));
+    _dispatcher_done.connect(sigc::mem_fun(*this, &CDRipper::on_done_notification));
 }
 
 CDRipper::~CDRipper() {
@@ -36,17 +36,17 @@ void CDRipper::on_done_notification() {
 }
 
 void CDRipper::ensure_media_root() {
-    if (_mediaRoot.empty()) {
+    if (_media_root.empty()) {
         throw NoMedia();
     }
 
-    _outputDir =
-        _mediaRoot
+    _output_dir =
+        _media_root
         + "/Music"
         + "/" + _disc.artist()
         + "/" + _disc.title();
 
-    std::filesystem::create_directories(_outputDir);
+    std::filesystem::create_directories(_output_dir);
 }
 
 void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
@@ -88,7 +88,7 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
     cURLpp::Easy easyhandle;
 
     std::stringstream ss;
-    easyhandle.setOpt(cURLpp::Options::Url(_albumArtURL));
+    easyhandle.setOpt(cURLpp::Options::Url(_album_art_url));
     easyhandle.setOpt(cURLpp::Options::WriteStream(&ss));
     easyhandle.perform();
 
@@ -96,9 +96,9 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
     cURLpp::infos::ContentType::get(easyhandle, contentType);
 
     if (contentType == "image/jpeg") {
-        _albumArtImageCodec = AV_CODEC_ID_MJPEG;
+        _album_art_image_codec = AV_CODEC_ID_MJPEG;
     } else if (contentType == "image/png") {
-        _albumArtImageCodec = AV_CODEC_ID_PNG;
+        _album_art_image_codec = AV_CODEC_ID_PNG;
     }
 
     std::string s = ss.str();
@@ -106,13 +106,13 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
     _albumArtImage = (uint8_t*)av_malloc(s.size());
     memcpy(_albumArtImage, s.c_str(), s.size());
 
-    _albumArtImageSize = s.size();
+    _album_art_image_size = s.size();
 
     int width, height;
 
     unsigned char* stb_image = stbi_load_from_memory(
         _albumArtImage,
-        _albumArtImageSize,
+        _album_art_image_size,
         &width,
         &height,
         nullptr,
@@ -121,7 +121,7 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
 
     stbi_image_free(stb_image);
 
-    _albumArtImageDims = std::make_pair(width, height);
+    _album_art_image_dims = std::make_pair(width, height);
 }
 
 void CDRipper::do_rip(CDRipper::RipContext* rip_ctx, bool continuous) {
@@ -249,11 +249,11 @@ void CDRipper::start_file(RipContext* rip_ctx) {
     std::stringstream ss;
     ss << std::setw(2) << std::setfill('0') << _track;
 
-    _outputFilename = ss.str()
+    _output_filename = ss.str()
         + " " + _disc.tracks()[_track - 1].title()
         + ".m4a";
 
-    std::string output_filename = _outputDir + "/" + _outputFilename;
+    std::string output_filename = _output_dir + "/" + _output_filename;
 
     rip_ctx->fmt_ctx = nullptr;
     avformat_alloc_output_context2(&rip_ctx->fmt_ctx, nullptr, "ipod", output_filename.c_str());
@@ -267,9 +267,9 @@ void CDRipper::start_file(RipContext* rip_ctx) {
 
     rip_ctx->sta = avformat_new_stream(rip_ctx->fmt_ctx, nullptr);
     rip_ctx->sta->codecpar->codec_type  = AVMEDIA_TYPE_VIDEO;
-    rip_ctx->sta->codecpar->codec_id    = _albumArtImageCodec;
-    rip_ctx->sta->codecpar->width       = _albumArtImageDims.first;
-    rip_ctx->sta->codecpar->height      = _albumArtImageDims.second;
+    rip_ctx->sta->codecpar->codec_id    = _album_art_image_codec;
+    rip_ctx->sta->codecpar->width       = _album_art_image_dims.first;
+    rip_ctx->sta->codecpar->height      = _album_art_image_dims.second;
     rip_ctx->sta->disposition          |= AV_DISPOSITION_ATTACHED_PIC;
 
     avio_open(&rip_ctx->fmt_ctx->pb, output_filename.c_str(), AVIO_FLAG_WRITE);
@@ -315,7 +315,7 @@ void CDRipper::rip_helper() {
     do_rip(&rip_ctx);
     end_rip(&rip_ctx);
 
-    _dispatcherDone.emit();
+    _dispatcher_done.emit();
 }
 
 void CDRipper::rip(const int track) {
@@ -343,7 +343,7 @@ void CDRipper::rip_helper(const int track) {
     do_rip(&rip_ctx, false);
     end_rip(&rip_ctx);
 
-    _dispatcherDone.emit();
+    _dispatcher_done.emit();
 }
 
 CDRipper::sig_track_progress CDRipper::signal_track_progress() {
@@ -367,10 +367,10 @@ void CDRipper::tag_file(RipContext* rip_ctx) {
 }
 
 void CDRipper::add_file_art(RipContext* rip_ctx) {
-    uint8_t* newImage = (uint8_t*)av_memdup(_albumArtImage, _albumArtImageSize);
+    uint8_t* newImage = (uint8_t*)av_memdup(_albumArtImage, _album_art_image_size);
 
     AVPacket* pkt = av_packet_alloc();
-    int ret = av_packet_from_data(pkt, _albumArtImage, _albumArtImageSize);
+    int ret = av_packet_from_data(pkt, _albumArtImage, _album_art_image_size);
 
     if (ret != 0) {
         throw RipperErrorException("Could not allocate packet buffer");

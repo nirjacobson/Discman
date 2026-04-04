@@ -19,7 +19,7 @@
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
 
-#include "albumart_provider.h"
+#include "album_art_provider.h"
 
 class Spotify : public AlbumArtProvider {
     public:

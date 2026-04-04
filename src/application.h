@@ -24,8 +24,8 @@
 #include "cd_ripper.h"
 #include "disc_component.h"
 #include "now_playing_component.h"
-#include "albumart_provider.h"
-#include "albumart_component.h"
+#include "album_art_provider.h"
+#include "album_art_component.h"
 #include "bluetooth_component.h"
 #include "audio_output.h"
 
@@ -45,28 +45,28 @@ class Application {
         Glib::RefPtr<Gtk::Builder> _builder;
         Glib::RefPtr<Gtk::Application> _app;
         Gtk::Window* _window;
-        DriveManager _driveManager;
+        DriveManager _drive_manager;
         CDRipper* _ripper;
         DiscDB::Disc _disc;
-        AudioOutput<int16_t>* _audioOutput;
+        AudioOutput<int16_t>* _audio_output;
         unsigned int _track;
-        std::string _albumArtURL;
+        std::string _album_art_url;
 
-        Glib::RefPtr<Gio::DBus::Proxy> _systemdProxy;
+        Glib::RefPtr<Gio::DBus::Proxy> _systemd_proxy;
 
-        sigc::connection _timerConnection;
+        sigc::connection _timer_connection;
 
         Gtk::Stack* _stack;
-        Gtk::Button* _bluetoothButton;
-        Gtk::Box* _playerBox;
-        Gtk::Box* _bluetoothBox;
-        Gtk::Box* _albumArtBox;
-        DiscComponent* _discComponent;
-        NowPlayingComponent* _nowPlayingComponent;
-        BluetoothComponent* _bluetoothComponent;
-        AlbumArtComponent* _albumArtComponent;
+        Gtk::Button* _bluetooth_button;
+        Gtk::Box* _player_box;
+        Gtk::Box* _bluetooth_box;
+        Gtk::Box* _album_art_box;
+        DiscComponent* _disc_component;
+        NowPlayingComponent* _now_playing_component;
+        BluetoothComponent* _bluetooth_component;
+        AlbumArtComponent* _album_art_component;
 
-        Gtk::Button* _shutdownButton;
+        Gtk::Button* _shutdown_button;
 
         void on_activate();
 
@@ -78,8 +78,8 @@ class Application {
         void on_track_progress(unsigned int track, unsigned int progress);
         void on_rip_done();
 
-        void on_albumart_done();
-        void on_albumart_art(const std::string url);
+        void on_album_art_done();
+        void on_album_art_art(const std::string url);
 
         void on_track_selected(unsigned int track);
         void on_button(const NowPlayingComponent::Button button);
@@ -87,7 +87,7 @@ class Application {
         void on_playpause();
         void on_stop();
         void on_next();
-        void on_albumart_button();
+        void on_album_art_button();
         bool on_timeout();
 
         void on_shutdown_button();
@@ -100,7 +100,7 @@ class Application {
 
         void rip(unsigned int track);
 
-        void queryDiscDB();
+        void query_discdb();
 
 };
 

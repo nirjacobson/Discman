@@ -35,11 +35,11 @@ class DriveManager {
 
         void eject(const Drive drive);
 
-        bool isDiscPresent() const;
-        bool isRemovablePresent() const;
+        bool is_disc_present() const;
+        bool is_removable_present() const;
 
         UDisks2::Filesystem& removable();
-        CDDrive& discDrive();
+        CDDrive& disc_drive();
 
     private:
         class Poller;
@@ -50,13 +50,13 @@ class DriveManager {
         CDDrive _drive;
 
         UDisks2::Manager _udisks2;
-        UDisks2::Filesystem* _removableFS;
+        UDisks2::Filesystem* _removable_fs;
 
         Poller* _poller;
 
         Glib::Dispatcher _dispatcher;
 
-        std::regex _acceptableFSPattern;
+        std::regex _acceptable_fs_pat;
 
         void on_udisks2_init();
         void on_notification_from_poller();

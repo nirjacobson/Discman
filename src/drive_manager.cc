@@ -1,9 +1,9 @@
 #include "drive_manager.h"
 
 DriveManager::DriveManager()
-    : _removableFS(nullptr)
+    : _removable_fs(nullptr)
     , _poller(new Poller(*this))
-    , _acceptableFSPattern("^.+/sd[b-z]\\d+$") {
+    , _acceptable_fs_pat("^.+/sd[b-z]\\d+$") {
     _dispatcher.connect(sigc::mem_fun(*this, &DriveManager::on_notification_from_poller));
     _drive.signal_eject().connect(sigc::mem_fun(*this, &DriveManager::on_cddrive_eject));
     _udisks2.signal_init().connect(sigc::mem_fun(*this, &DriveManager::on_udisks2_init));
@@ -50,8 +50,8 @@ void DriveManager::eject(const DriveManager::Drive drive) {
             break;
         case DriveManager::Drive::REMOVABLE:
         default:
-            _removableFS->unmount();
-            _udisks2.drive_for_filesystem(_removableFS)->eject();
+            _removable_fs->unmount();
+            _udisks2.drive_for_filesystem(_removable_fs)->eject();
             break;
     }
 }
@@ -74,10 +74,10 @@ DriveManager::sig_drive DriveManager::signal_ejected() {
 void DriveManager::on_udisks2_init() {
     if (!_udisks2.filesystems().empty()) {
         for (const auto& fs : _udisks2.filesystems()) {
-            if (std::regex_match(fs, _acceptableFSPattern)) {
-                _removableFS = _udisks2.filesystem(fs);
-                _removableFS->signal_mounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_mounted));
-                _removableFS->signal_unmounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_unmounted));
+            if (std::regex_match(fs, _acceptable_fs_pat)) {
+                _removable_fs = _udisks2.filesystem(fs);
+                _removable_fs->signal_mounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_mounted));
+                _removable_fs->signal_unmounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_unmounted));
                 _sig_inserted.emit(REMOVABLE);
                 return;
             }
@@ -93,26 +93,26 @@ void DriveManager::on_notification_from_poller() {
 }
 
 void DriveManager::on_removable_added(const std::string& path) {
-    if (!_removableFS) {
-        if (std::regex_match(path, _acceptableFSPattern)) {
-            _removableFS = _udisks2.filesystem(path);
-            if (!_removableFS->mountPoint().empty()) {
+    if (!_removable_fs) {
+        if (std::regex_match(path, _acceptable_fs_pat)) {
+            _removable_fs = _udisks2.filesystem(path);
+            if (!_removable_fs->mount_point().empty()) {
                 _sig_inserted.emit(REMOVABLE);
             }
-            _removableFS->signal_mounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_mounted));
-            _removableFS->signal_unmounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_unmounted));
+            _removable_fs->signal_mounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_mounted));
+            _removable_fs->signal_unmounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_unmounted));
         }
     }
 }
 
 void DriveManager::on_removable_removed(const std::string& path) {
-    if (_removableFS->path() == path) {
-        if (!_removableFS->mountPoint().empty()) {
+    if (_removable_fs->path() == path) {
+        if (!_removable_fs->mount_point().empty()) {
             _sig_ejected.emit(REMOVABLE);
         }
         
-        delete _removableFS;
-        _removableFS = nullptr;
+        delete _removable_fs;
+        _removable_fs = nullptr;
 
     }
 }
@@ -125,22 +125,22 @@ void DriveManager::on_removable_unmounted() {
     _sig_ejected.emit(REMOVABLE);
 }
 
-bool DriveManager::isDiscPresent() const {
+bool DriveManager::is_disc_present() const {
     return _drive.present();
 }
 
-bool DriveManager::isRemovablePresent() const {
-    return !!_removableFS && !_removableFS->mountPoint().empty();
+bool DriveManager::is_removable_present() const {
+    return !!_removable_fs && !_removable_fs->mount_point().empty();
 }
 
 UDisks2::Filesystem& DriveManager::removable() {
-    if (!isRemovablePresent()) {
+    if (!is_removable_present()) {
         throw NoDriveException();
     }
 
-    return *_removableFS;
+    return *_removable_fs;
 }
 
-CDDrive& DriveManager::discDrive() {
+CDDrive& DriveManager::disc_drive() {
     return _drive;
 }

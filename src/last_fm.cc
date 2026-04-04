@@ -1,6 +1,6 @@
 #include "last_fm.h"
 
-std::string LastFM::_apiKey;
+std::string LastFM::_api_key;
 
 LastFM::LastFM() {
     if (!std::getenv("LASTFM_API_KEY")) {
@@ -9,7 +9,7 @@ LastFM::LastFM() {
 }
 
 void LastFM::init() {
-    LastFM::_apiKey = std::getenv("LASTFM_API_KEY");
+    LastFM::_api_key = std::getenv("LASTFM_API_KEY");
 }
 
 std::vector<AlbumArtProvider::AlbumArt> LastFM::album_art(const std::string& artist, const std::string& title, const int width, const int height) {
@@ -109,7 +109,7 @@ std::string LastFM::method_name(const Method method) {
 std::string LastFM::url(const Method method, const std::map<std::string, std::string>& params) {
     std::map<std::string, std::string> full_params(params);
     full_params["method"] = method_name(method);
-    full_params["api_key"] = _apiKey;
+    full_params["api_key"] = _api_key;
     full_params["format"] = "json";
 
     return url_with_params(BASE_URL, full_params);

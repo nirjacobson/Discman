@@ -1,4 +1,4 @@
-#include "albumart_provider.h"
+#include "album_art_provider.h"
 #include "last_fm.h"
 #include "spotify.h"
 

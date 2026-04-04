@@ -1,88 +1,88 @@
 #include "disc_component.h"
 
-DiscComponent::DiscComponent(DriveManager& driveManager, Glib::RefPtr<Gtk::Builder> builder)
-    : _driveManager(driveManager) {
-    _ejectButtonStack = builder->get_widget<Gtk::Stack>("ejectButtonStack");
-    _ejectButton = builder->get_widget<Gtk::Button>("ejectButton");
-    _doubleEjectButton = builder->get_widget<Gtk::MenuButton>("doubleEjectButton");
-    _doubleEjectButtonMenu = Gio::Menu::create();
-    _doubleEjectButtonMenu->append("CD", "eject.cd");
-    _doubleEjectButtonMenu->append("iPod", "eject.ipod");
-    _doubleEjectButton->set_menu_model(_doubleEjectButtonMenu);
+DiscComponent::DiscComponent(DriveManager& drive_manager, Glib::RefPtr<Gtk::Builder> builder)
+    : _drive_manager(drive_manager) {
+    _eject_button_stack = builder->get_widget<Gtk::Stack>("ejectButtonStack");
+    _eject_button = builder->get_widget<Gtk::Button>("ejectButton");
+    _double_eject_button = builder->get_widget<Gtk::MenuButton>("doubleEjectButton");
+    _double_eject_button_menu = Gio::Menu::create();
+    _double_eject_button_menu->append("CD", "eject.cd");
+    _double_eject_button_menu->append("iPod", "eject.ipod");
+    _double_eject_button->set_menu_model(_double_eject_button_menu);
 
-    _ejectActionGroup = Gio::SimpleActionGroup::create();
-    _ejectActionGroup->add_action("cd", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::DISC));
-    _ejectActionGroup->add_action("ipod", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::REMOVABLE));
+    _eject_action_group = Gio::SimpleActionGroup::create();
+    _eject_action_group->add_action("cd", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::DISC));
+    _eject_action_group->add_action("ipod", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::REMOVABLE));
 
-    Gtk::Root* root = _doubleEjectButton->get_root();
+    Gtk::Root* root = _double_eject_button->get_root();
     Gtk::Window* window = dynamic_cast<Gtk::Window*>(root);
-    window->insert_action_group("eject", _ejectActionGroup);
+    window->insert_action_group("eject", _eject_action_group);
 
-    _ipodButton = builder->get_widget<Gtk::Button>("ipodButton");
-    _albumLabel = builder->get_widget<Gtk::Label>("albumLabel");
-    _albumArtistLabel = builder->get_widget<Gtk::Label>("albumArtistLabel");
-    _tracksTreeView = builder->get_widget<Gtk::TreeView>("tracksTreeView");
-    _tracksListStore = std::dynamic_pointer_cast<Gtk::ListStore>(builder->get_object("tracksListStore"));
+    _ipod_button = builder->get_widget<Gtk::Button>("ipodButton");
+    _album_label = builder->get_widget<Gtk::Label>("albumLabel");
+    _album_artist_label = builder->get_widget<Gtk::Label>("albumArtistLabel");
+    _tracks_tree_view = builder->get_widget<Gtk::TreeView>("tracksTreeView");
+    _tracks_list_store = std::dynamic_pointer_cast<Gtk::ListStore>(builder->get_object("tracksListStore"));
 
     TracksListColumnRecord cols;
-    _tracksTreeView->append_column_numeric("#", cols.numberColumn, "%d");
-    _tracksTreeView->append_column("Title", cols.titleColumn);
+    _tracks_tree_view->append_column_numeric("#", cols.number_column, "%d");
+    _tracks_tree_view->append_column("Title", cols.title_column);
 
     auto renderer = Gtk::make_managed<Gtk::CellRendererProgress>();
-    int idx = _tracksTreeView->append_column("", *renderer);
-    _tracksTreeView->get_column(idx - 1)->set_sizing(Gtk::TreeViewColumn::Sizing::FIXED);
-    _tracksTreeView->get_column(idx - 1)->set_fixed_width(96);
-    _tracksTreeView->get_column(idx - 1)->add_attribute(renderer->property_value(), cols.progressColumn);
-    _tracksTreeView->get_column(idx - 1)->set_visible(false);
+    int idx = _tracks_tree_view->append_column("", *renderer);
+    _tracks_tree_view->get_column(idx - 1)->set_sizing(Gtk::TreeViewColumn::Sizing::FIXED);
+    _tracks_tree_view->get_column(idx - 1)->set_fixed_width(96);
+    _tracks_tree_view->get_column(idx - 1)->add_attribute(renderer->property_value(), cols.progress_column);
+    _tracks_tree_view->get_column(idx - 1)->set_visible(false);
 
-    _tracksTreeView->append_column("Length", cols.lengthColumn);
+    _tracks_tree_view->append_column("Length", cols.length_column);
 
-    _tracksTreeView->get_column_cell_renderer(0)->set_alignment(1.0, 0.5);
-    _tracksTreeView->get_column_cell_renderer(3)->set_alignment(1.0, 0.5);
+    _tracks_tree_view->get_column_cell_renderer(0)->set_alignment(1.0, 0.5);
+    _tracks_tree_view->get_column_cell_renderer(3)->set_alignment(1.0, 0.5);
 
-    _tracksTreeView->get_column_cell_renderer(1)->set_property("ellipsize", Pango::EllipsizeMode::END);
-    _tracksTreeView->get_column(1)->set_property("expand", true);
+    _tracks_tree_view->get_column_cell_renderer(1)->set_property("ellipsize", Pango::EllipsizeMode::END);
+    _tracks_tree_view->get_column(1)->set_property("expand", true);
 
-    _ejectButton->signal_clicked().connect(sigc::mem_fun(*this, &DiscComponent::on_eject_button_clicked));
-    _ipodButton->signal_clicked().connect(sigc::mem_fun(*this, &DiscComponent::on_ipod_button_clicked));
-    _tracksTreeView->signal_row_activated().connect(sigc::mem_fun(*this, &DiscComponent::on_row_activated));
+    _eject_button->signal_clicked().connect(sigc::mem_fun(*this, &DiscComponent::on_eject_button_clicked));
+    _ipod_button->signal_clicked().connect(sigc::mem_fun(*this, &DiscComponent::on_ipod_button_clicked));
+    _tracks_tree_view->signal_row_activated().connect(sigc::mem_fun(*this, &DiscComponent::on_row_activated));
 }
 
 DiscComponent::~DiscComponent() {
-    delete _tracksTreeView;
-    delete _albumArtistLabel;
-    delete _albumLabel;
-    delete _ejectButton;
+    delete _tracks_tree_view;
+    delete _album_artist_label;
+    delete _album_label;
+    delete _eject_button;
 }
 
 void DiscComponent::show_progress(const bool show) {
-    _tracksTreeView->get_column(_tracksTreeView->get_n_columns() - 2)->set_visible(show);
+    _tracks_tree_view->get_column(_tracks_tree_view->get_n_columns() - 2)->set_visible(show);
 }
 
 void DiscComponent::set_disc(const DiscDB::Disc* const disc) {
-    _albumLabel->set_text(disc ? disc->title() : "No Disc");
-    _albumArtistLabel->set_text(disc ? disc->artist() : "Please insert disc.");
+    _album_label->set_text(disc ? disc->title() : "No Disc");
+    _album_artist_label->set_text(disc ? disc->artist() : "Please insert disc.");
 
     if (!!disc) {
         const TracksListColumnRecord cols;
 
         for (unsigned int i = 0; i < disc->tracks().size(); i++) {
-            auto row = *(_tracksListStore->append());
-            row[cols.numberColumn] = i + 1;
-            row[cols.titleColumn] = disc->tracks().at(i).title();
-            row[cols.progressColumn] = 0;
+            auto row = *(_tracks_list_store->append());
+            row[cols.number_column] = i + 1;
+            row[cols.title_column] = disc->tracks().at(i).title();
+            row[cols.progress_column] = 0;
 
             std::stringstream lengthStream;
-            const unsigned int seconds = disc->trackLength(i + 1);
+            const unsigned int seconds = disc->track_length(i + 1);
             lengthStream << seconds / 60
                          << ":"
                          << std::setw(2) << std::setfill('0')
                          << seconds % 60;
 
-            row[cols.lengthColumn] = lengthStream.str();
+            row[cols.length_column] = lengthStream.str();
         }
     } else {
-        _tracksListStore->clear();
+        _tracks_list_store->clear();
     }
 
     if (!disc) {
@@ -91,15 +91,15 @@ void DiscComponent::set_disc(const DiscDB::Disc* const disc) {
 }
 
 void DiscComponent::clear_selection() {
-    _tracksTreeView->get_selection()->unselect_all();
+    _tracks_tree_view->get_selection()->unselect_all();
 }
 
 void DiscComponent::set_selection(unsigned int track) {
-    Glib::RefPtr<Gtk::TreeModel> model = _tracksTreeView->get_model();
-    Gtk::TreeNodeChildren::iterator it = _tracksListStore->children().begin();
+    Glib::RefPtr<Gtk::TreeModel> model = _tracks_tree_view->get_model();
+    Gtk::TreeNodeChildren::iterator it = _tracks_list_store->children().begin();
     for (unsigned int i = 0; i < track - 1; i++)
         it++;
-    _tracksTreeView->get_selection()->select(model->get_path(it));
+    _tracks_tree_view->get_selection()->select(model->get_path(it));
 }
 
 DiscComponent::sig_eject_requested DiscComponent::signal_eject_requested() {
@@ -116,35 +116,35 @@ DiscComponent::sig_track_selected DiscComponent::signal_track_selected() {
 }
 
 void DiscComponent::update_track_progress(unsigned int track, unsigned int progress) {
-    Glib::RefPtr<Gtk::TreeModel> model = _tracksTreeView->get_model();
-    Gtk::TreeNodeChildren::iterator it = _tracksListStore->children().begin();
+    Glib::RefPtr<Gtk::TreeModel> model = _tracks_tree_view->get_model();
+    Gtk::TreeNodeChildren::iterator it = _tracks_list_store->children().begin();
     for (unsigned int i = 0; i < track - 1; i++)
         it++;
 
     auto row = *it;
     const TracksListColumnRecord cols;
-    row[cols.progressColumn] = progress;
+    row[cols.progress_column] = progress;
 }
 
 void DiscComponent::show_ipod_button(const bool show) {
-    _ipodButton->set_visible(show);
+    _ipod_button->set_visible(show);
 }
 
 void DiscComponent::enable_ipod_button(const bool enable) {
-    _ipodButton->set_sensitive(enable);
+    _ipod_button->set_sensitive(enable);
 }
 
 void DiscComponent::enable_eject_button(const bool enable) {
-    _ejectButton->set_sensitive(enable);
+    _eject_button->set_sensitive(enable);
 }
 
 void DiscComponent::show_double_eject_button(const bool show) {
-    _ejectButtonStack->set_visible_child(*_ejectButtonStack->get_children()[show]);
+    _eject_button_stack->set_visible_child(*_eject_button_stack->get_children()[show]);
 }
 
 void DiscComponent::on_eject_button_clicked() {
 
-    DriveManager::Drive drive = _driveManager.isRemovablePresent()
+    DriveManager::Drive drive = _drive_manager.is_removable_present()
         ? DriveManager::Drive::REMOVABLE
         : DriveManager::Drive::DISC;
 
@@ -159,12 +159,12 @@ void DiscComponent::on_eject(const DriveManager::Drive drive) {
 }
 
 void DiscComponent::on_ipod_button_clicked() {
-    Glib::RefPtr<Gtk::TreeSelection> selection = _tracksTreeView->get_selection();
+    Glib::RefPtr<Gtk::TreeSelection> selection = _tracks_tree_view->get_selection();
     Gtk::TreeModel::iterator it = selection->get_selected();
 
     if (it) {
-        Gtk::TreeModel::Path path = _tracksTreeView->get_model()->get_path(it);
-        unsigned int track = _tracksListStore->get_iter(path)->get_value(TracksListColumnRecord().numberColumn);
+        Gtk::TreeModel::Path path = _tracks_tree_view->get_model()->get_path(it);
+        unsigned int track = _tracks_list_store->get_iter(path)->get_value(TracksListColumnRecord().number_column);
 
         _signal_rip_requested.emit(track);
     } else {
@@ -173,6 +173,6 @@ void DiscComponent::on_ipod_button_clicked() {
 }
 
 void DiscComponent::on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeView::Column*) {
-    unsigned int track = _tracksListStore->get_iter(path)->get_value(TracksListColumnRecord().numberColumn);
+    unsigned int track = _tracks_list_store->get_iter(path)->get_value(TracksListColumnRecord().number_column);
     _signal_track_selected.emit(track);
 }

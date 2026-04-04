@@ -1,17 +1,17 @@
-#include "albumart_component.h"
+#include "album_art_component.h"
 
 AlbumArtComponent::AlbumArtComponent(Glib::RefPtr<Gtk::Builder> builder) {
-    _doneButton = builder->get_widget<Gtk::Button>("albumArtDoneButton");
+    _done_button = builder->get_widget<Gtk::Button>("albumArtDoneButton");
     _viewport = builder->get_widget<Gtk::Viewport>("albumArtViewport");
     _grid = builder->get_widget<Gtk::Grid>("albumArtGrid");
 
-    _doneButton->signal_clicked().connect(sigc::mem_fun(*this, &AlbumArtComponent::on_done_button_clicked));
+    _done_button->signal_clicked().connect(sigc::mem_fun(*this, &AlbumArtComponent::on_done_button_clicked));
 }
 
 AlbumArtComponent::~AlbumArtComponent() {
     delete _grid;
     delete _viewport;
-    delete _doneButton;
+    delete _done_button;
 }
 
 AlbumArtComponent::sig_done AlbumArtComponent::signal_done() {
@@ -22,14 +22,14 @@ AlbumArtComponent::sig_art AlbumArtComponent::signal_art() {
     return _signal_art;
 }
 
-void AlbumArtComponent::set_albumarts(const std::vector<AlbumArtProvider::AlbumArt>& arts, const int windowWidth) {
+void AlbumArtComponent::set_album_arts(const std::vector<AlbumArtProvider::AlbumArt>& arts, const int window_width) {
     Gtk::Grid* newGrid = new Gtk::Grid();
     newGrid->set_halign(Gtk::Align::CENTER);
     newGrid->set_valign(Gtk::Align::START);
     newGrid->set_column_spacing(SPACING);
     newGrid->set_row_spacing(SPACING);
 
-    int cols = windowWidth / (ART_SIZE + SPACING);
+    int cols = window_width / (ART_SIZE + SPACING);
     int rows = std::ceil(((float)arts.size())/((float)cols));
     
     for (int i = 0; i < cols; i++) {

@@ -19,7 +19,7 @@
 #include <json/reader.h>
 #include <json/writer.h>
 
-#include "albumart_provider.h"
+#include "album_art_provider.h"
 
 class LastFM : public AlbumArtProvider {
 
@@ -43,7 +43,7 @@ class LastFM : public AlbumArtProvider {
         static std::string url_with_params(const std::string& url, const std::map<std::string, std::string>& params);
         static std::string url_encode(const std::string& input);
 
-        static std::string _apiKey;
+        static std::string _api_key;
 };
 
 #endif // LAST_FM_H

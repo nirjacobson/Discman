@@ -12,7 +12,7 @@
 #include <gtkmm/image.h>
 #include <sigc++/signal.h>
 
-#include "albumart_provider.h"
+#include "album_art_provider.h"
 
 class AlbumArtComponent {
 
@@ -28,7 +28,7 @@ class AlbumArtComponent {
         sig_done signal_done();
         sig_art signal_art();
 
-        void set_albumarts(const std::vector<AlbumArtProvider::AlbumArt>& arts, const int windowWidth);
+        void set_album_arts(const std::vector<AlbumArtProvider::AlbumArt>& arts, const int window_width);
 
     private:
         static constexpr int SPACING = 16;
@@ -36,7 +36,7 @@ class AlbumArtComponent {
         sig_done _signal_done;
         sig_art _signal_art;
 
-        Gtk::Button* _doneButton;
+        Gtk::Button* _done_button;
         Gtk::Viewport* _viewport;
         Gtk::Grid* _grid;
 

@@ -30,7 +30,7 @@ class DiscComponent {
         typedef sigc::signal<void(unsigned int)> sig_track_selected;
         typedef sigc::signal<void(unsigned int)> sig_rip_requested;
 
-        DiscComponent(DriveManager& driveManager, Glib::RefPtr<Gtk::Builder> builder);
+        DiscComponent(DriveManager& drive_manager, Glib::RefPtr<Gtk::Builder> builder);
         ~DiscComponent();
 
         void set_disc(const DiscDB::Disc* const disc);
@@ -55,32 +55,32 @@ class DiscComponent {
         class TracksListColumnRecord : public Gtk::TreeModel::ColumnRecord {
             public:
                 TracksListColumnRecord() {
-                    this->add(this->numberColumn);
-                    this->add(this->titleColumn);
-                    this->add(this->progressColumn);
-                    this->add(this->lengthColumn);
+                    this->add(this->number_column);
+                    this->add(this->title_column);
+                    this->add(this->progress_column);
+                    this->add(this->length_column);
                 }
 
-                Gtk::TreeModelColumn<guint> numberColumn;
-                Gtk::TreeModelColumn<Glib::ustring> titleColumn;
-                Gtk::TreeModelColumn<int> progressColumn;
-                Gtk::TreeModelColumn<Glib::ustring> lengthColumn;
+                Gtk::TreeModelColumn<guint> number_column;
+                Gtk::TreeModelColumn<Glib::ustring> title_column;
+                Gtk::TreeModelColumn<int> progress_column;
+                Gtk::TreeModelColumn<Glib::ustring> length_column;
         };
 
-        DriveManager& _driveManager;
+        DriveManager& _drive_manager;
 
-        Gtk::Label* _albumLabel;
-        Gtk::Label* _albumArtistLabel;
+        Gtk::Label* _album_label;
+        Gtk::Label* _album_artist_label;
 
-        Gtk::Button* _ejectButton;
-        Gtk::Stack* _ejectButtonStack;
-        Gtk::MenuButton* _doubleEjectButton;
-        Glib::RefPtr<Gio::Menu> _doubleEjectButtonMenu;
-        Glib::RefPtr<Gio::SimpleActionGroup> _ejectActionGroup;
+        Gtk::Button* _eject_button;
+        Gtk::Stack* _eject_button_stack;
+        Gtk::MenuButton* _double_eject_button;
+        Glib::RefPtr<Gio::Menu> _double_eject_button_menu;
+        Glib::RefPtr<Gio::SimpleActionGroup> _eject_action_group;
 
-        Gtk::Button* _ipodButton;
-        Gtk::TreeView* _tracksTreeView;
-        Glib::RefPtr<Gtk::ListStore> _tracksListStore;
+        Gtk::Button* _ipod_button;
+        Gtk::TreeView* _tracks_tree_view;
+        Glib::RefPtr<Gtk::ListStore> _tracks_list_store;
 
         sig_eject_requested _signal_eject_requested;
         sig_rip_requested _signal_rip_requested;

@@ -81,17 +81,17 @@ class CDRipper : public Consumer<int16_t> {
         const DiscDB::Disc& _disc;
         std::thread* _thread;
         Glib::Dispatcher _dispatcher;
-        Glib::Dispatcher _dispatcherDone;
+        Glib::Dispatcher _dispatcher_done;
         unsigned int _track;
         unsigned int _progress;
-        std::string _mediaRoot;
-        std::string _outputDir;
-        std::string _outputFilename;
-        std::string _albumArtURL;
+        std::string _media_root;
+        std::string _output_dir;
+        std::string _output_filename;
+        std::string _album_art_url;
         uint8_t* _albumArtImage;
-        int _albumArtImageSize;
-        AVCodecID _albumArtImageCodec;
-        std::pair<int, int> _albumArtImageDims;
+        int _album_art_image_size;
+        AVCodecID _album_art_image_codec;
+        std::pair<int, int> _album_art_image_dims;
         
         void on_notification();
         void on_done_notification();
