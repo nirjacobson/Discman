@@ -15,8 +15,8 @@
 class DriveManager {
     public:
         enum Drive {
-            DISC,
-            REMOVABLE
+            Disc,
+            Removable
         };
 
         DriveManager();

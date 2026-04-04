@@ -16,7 +16,7 @@ std::vector<AlbumArtProvider::AlbumArt> LastFM::album_art(const std::string& art
     cURLpp::Cleanup cleanup;
     cURLpp::Easy easyhandle;
 
-    std::string request_url = url(Method::ALBUM_GET_INFO, {
+    std::string request_url = url(Method::AlbumGetInfo, {
         {"artist", artist},
         {"album", title}
     });
@@ -101,7 +101,7 @@ AlbumArtProvider::AlbumArt LastFM::album_art(const std::string& url, const int w
 std::string LastFM::method_name(const Method method) {
     switch (method) {
         default:
-        case ALBUM_GET_INFO:
+        case AlbumGetInfo:
             return "album.getinfo";
     }
 }

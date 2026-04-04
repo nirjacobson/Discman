@@ -25,7 +25,7 @@ class Spotify : public AlbumArtProvider {
     public:
 
         enum Method {
-            SEARCH_FOR_ITEM
+            SearchForItem
         };
 
         static constexpr const char* BASE_URL = "https://api.spotify.com/v1/";

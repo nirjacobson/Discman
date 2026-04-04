@@ -45,10 +45,10 @@ void DriveManager::Poller::loop() {
 
 void DriveManager::eject(const DriveManager::Drive drive) {
     switch (drive) {
-        case DriveManager::Drive::DISC:
+        case DriveManager::Drive::Disc:
             _drive.eject();
             break;
-        case DriveManager::Drive::REMOVABLE:
+        case DriveManager::Drive::Removable:
         default:
             _removable_fs->unmount();
             _udisks2.drive_for_filesystem(_removable_fs)->eject();
@@ -57,7 +57,7 @@ void DriveManager::eject(const DriveManager::Drive drive) {
 }
 
 void DriveManager::on_cddrive_eject() {
-    _sig_ejected.emit(DISC);
+    _sig_ejected.emit(Disc);
 
     if (!_poller)
         _poller = new Poller(*this);
@@ -78,7 +78,7 @@ void DriveManager::on_udisks2_init() {
                 _removable_fs = _udisks2.filesystem(fs);
                 _removable_fs->signal_mounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_mounted));
                 _removable_fs->signal_unmounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_unmounted));
-                _sig_inserted.emit(REMOVABLE);
+                _sig_inserted.emit(Removable);
                 return;
             }
         }
@@ -89,7 +89,7 @@ void DriveManager::on_notification_from_poller() {
     delete _poller;
     _poller = nullptr;
 
-    _sig_inserted.emit(DISC);
+    _sig_inserted.emit(Disc);
 }
 
 void DriveManager::on_removable_added(const std::string& path) {
@@ -97,7 +97,7 @@ void DriveManager::on_removable_added(const std::string& path) {
         if (std::regex_match(path, _acceptable_fs_pat)) {
             _removable_fs = _udisks2.filesystem(path);
             if (!_removable_fs->mount_point().empty()) {
-                _sig_inserted.emit(REMOVABLE);
+                _sig_inserted.emit(Removable);
             }
             _removable_fs->signal_mounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_mounted));
             _removable_fs->signal_unmounted().connect(sigc::mem_fun(*this, &DriveManager::on_removable_unmounted));
@@ -108,7 +108,7 @@ void DriveManager::on_removable_added(const std::string& path) {
 void DriveManager::on_removable_removed(const std::string& path) {
     if (_removable_fs->path() == path) {
         if (!_removable_fs->mount_point().empty()) {
-            _sig_ejected.emit(REMOVABLE);
+            _sig_ejected.emit(Removable);
         }
         
         delete _removable_fs;
@@ -118,11 +118,11 @@ void DriveManager::on_removable_removed(const std::string& path) {
 }
 
 void DriveManager::on_removable_mounted(const std::string&) {
-    _sig_inserted.emit(REMOVABLE);
+    _sig_inserted.emit(Removable);
 }
 
 void DriveManager::on_removable_unmounted() {
-    _sig_ejected.emit(REMOVABLE);
+    _sig_ejected.emit(Removable);
 }
 
 bool DriveManager::is_disc_present() const {

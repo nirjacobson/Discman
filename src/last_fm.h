@@ -25,7 +25,7 @@ class LastFM : public AlbumArtProvider {
 
     public:
         enum Method {
-            ALBUM_GET_INFO
+            AlbumGetInfo
         };
 
         static constexpr const char* BASE_URL = "http://ws.audioscrobbler.com/2.0/";

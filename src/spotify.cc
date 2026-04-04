@@ -41,7 +41,7 @@ std::vector<AlbumArtProvider::AlbumArt> Spotify::album_art(const std::string& ar
     cURLpp::Cleanup cleanup;
     cURLpp::Easy easyhandle;
 
-    std::string request_url = url(Method::SEARCH_FOR_ITEM, {
+    std::string request_url = url(Method::SearchForItem, {
         {"q", "artist:"+artist+" album:"+title},
         {"type", "album"},
         {"limit", "10"},
@@ -162,7 +162,7 @@ std::string Spotify::base64_encode(const std::string& input) {
 std::string Spotify::method_name(const Spotify::Method method) {
     switch (method) {
         default:
-        case SEARCH_FOR_ITEM:
+        case SearchForItem:
             return "search";
     }
 }

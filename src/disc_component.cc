@@ -11,8 +11,8 @@ DiscComponent::DiscComponent(DriveManager& drive_manager, Glib::RefPtr<Gtk::Buil
     _double_eject_button->set_menu_model(_double_eject_button_menu);
 
     _eject_action_group = Gio::SimpleActionGroup::create();
-    _eject_action_group->add_action("cd", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::DISC));
-    _eject_action_group->add_action("ipod", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::REMOVABLE));
+    _eject_action_group->add_action("cd", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::Disc));
+    _eject_action_group->add_action("ipod", sigc::bind(sigc::mem_fun(*this, &DiscComponent::on_eject), DriveManager::Drive::Removable));
 
     Gtk::Root* root = _double_eject_button->get_root();
     Gtk::Window* window = dynamic_cast<Gtk::Window*>(root);
@@ -145,14 +145,14 @@ void DiscComponent::show_double_eject_button(const bool show) {
 void DiscComponent::on_eject_button_clicked() {
 
     DriveManager::Drive drive = _drive_manager.is_removable_present()
-        ? DriveManager::Drive::REMOVABLE
-        : DriveManager::Drive::DISC;
+        ? DriveManager::Drive::Removable
+        : DriveManager::Drive::Disc;
 
     on_eject(drive);
 }
 
 void DiscComponent::on_eject(const DriveManager::Drive drive) {
-    if (drive == DriveManager::Drive::DISC) {
+    if (drive == DriveManager::Drive::Disc) {
         set_disc(nullptr);
     }
     _signal_eject_requested.emit(drive);

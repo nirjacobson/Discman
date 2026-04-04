@@ -80,7 +80,7 @@ void Application::run() {
 }
 
 void Application::on_insert(DriveManager::Drive drive) {
-    if (drive == DriveManager::Drive::DISC) {
+    if (drive == DriveManager::Drive::Disc) {
         query_discdb();
         _disc_component->set_disc(&_disc);
 
@@ -94,7 +94,7 @@ void Application::on_insert(DriveManager::Drive drive) {
 
         if (_drive_manager.is_removable_present()) {
         }
-    } else if (drive == DriveManager::Drive::REMOVABLE) {
+    } else if (drive == DriveManager::Drive::Removable) {
         _disc_component->show_ipod_button(true);
 
         _disc_component->show_double_eject_button(_drive_manager.is_disc_present());
@@ -107,14 +107,14 @@ void Application::on_eject(DriveManager::Drive drive) {
     _disc_component->show_double_eject_button(false);
     _disc_component->enable_eject_button(_drive_manager.is_disc_present() || _drive_manager.is_removable_present());
 
-    if (drive == DriveManager::Drive::DISC) {
+    if (drive == DriveManager::Drive::Disc) {
         _disc_component->set_disc(nullptr);
         _now_playing_component->set_state(NowPlayingComponent::State::Disabled);
 
         if (_drive_manager.is_removable_present()) {
             _disc_component->enable_ipod_button(false);
         }
-    } else if (drive == DriveManager::Drive::REMOVABLE) {
+    } else if (drive == DriveManager::Drive::Removable) {
         _disc_component->show_ipod_button(false);
     }
 };
@@ -199,7 +199,7 @@ void Application::on_button(const NowPlayingComponent::Button button) {
 
 bool Application::on_timeout() {
     if (_drive_manager.disc_drive().done()) {
-        eject(DriveManager::Drive::DISC);
+        eject(DriveManager::Drive::Disc);
     } else {
         if (_track != _drive_manager.disc_drive().track()) {
             _track = _drive_manager.disc_drive().track();
@@ -254,7 +254,7 @@ void Application::stop() {
 }
 
 void Application::eject(const DriveManager::Drive drive) {
-    if (drive == DriveManager::Drive::DISC) {
+    if (drive == DriveManager::Drive::Disc) {
         if (_now_playing_component->get_state() == NowPlayingComponent::State::Playing) {
             stop();
         }
