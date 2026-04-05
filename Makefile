@@ -37,7 +37,7 @@ LINENOPAT = ^[^:]+:([^:]+):(.+)$
 all: build/ ${EXEC}
 
 install: ${EXEC}
-	install -D $< ${DESTDIR}${BIN_DIR}
+	install -D $< -t ${DESTDIR}${BIN_DIR}
 
 ${EXEC}: ${OBJECTS}
 	g++ $^ -o $@ ${LDFLAGS}
