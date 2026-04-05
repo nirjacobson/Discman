@@ -294,5 +294,4 @@ void Application::on_rip_done() {
     _drive_manager.disc_drive().resize_buffer(CDDrive::BUFFER_SIZE_PLAYING);
 
     _timer_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout), 250);
-    _audio_output->start();
 }
