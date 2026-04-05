@@ -21,6 +21,7 @@ class NowPlayingComponent {
 
         enum State {
             Disabled,
+            Cleared,
             Playing,
             Paused,
             Stopped

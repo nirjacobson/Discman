@@ -49,8 +49,8 @@ void NowPlayingComponent::set_track(const DiscDB::Disc& disc, unsigned int track
 void NowPlayingComponent::set_state(const State state) {
     _state = state;
 
-    if (state == State::Disabled || state == State::Stopped) {
-        if (state == State::Disabled)
+    if (state == State::Cleared || state == State::Stopped || state == State::Disabled) {
+        if (state == State::Cleared)
             _album_art_image->clear();
         _track_title_label->set_text("");
         _track_artist_label->set_text("");
@@ -59,9 +59,9 @@ void NowPlayingComponent::set_state(const State state) {
         _next_button->set_sensitive(false);
     }
 
-    _play_pause_button->set_sensitive(state != State::Disabled);
+    _play_pause_button->set_sensitive(state != State::Disabled && state != State::Cleared);
     _play_pause_image->set_from_resource((state != State::Playing) ? "/ui/icons/play.png" : "/ui/icons/pause.png");
-    _stop_button->set_sensitive(state != State::Stopped && state != State::Disabled);
+    _stop_button->set_sensitive(state != State::Stopped && state != State::Disabled && state != State::Cleared);
 }
 
 NowPlayingComponent::State NowPlayingComponent::get_state() const {

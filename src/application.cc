@@ -108,7 +108,7 @@ void Application::on_eject(DriveManager::Drive drive) {
 
     if (drive == DriveManager::Drive::Disc) {
         _disc_component->set_disc(nullptr);
-        _now_playing_component->set_state(NowPlayingComponent::State::Disabled);
+        _now_playing_component->set_state(NowPlayingComponent::State::Cleared);
 
         if (_drive_manager.is_removable_present()) {
             _disc_component->enable_ipod_button(false);
@@ -263,7 +263,12 @@ void Application::eject(const DriveManager::Drive drive) {
 }
 
 void Application::rip(unsigned int track) {
-    stop();
+    _track = 0;
+
+    _timer_connection.disconnect();
+    _audio_output->stop();
+    _disc_component->clear_selection();
+    _now_playing_component->set_state(NowPlayingComponent::State::Disabled);
 
     _disc_component->enable_ipod_button(false);
     _disc_component->show_progress(true);
@@ -294,4 +299,5 @@ void Application::on_rip_done() {
     _drive_manager.disc_drive().resize_buffer(CDDrive::BUFFER_SIZE_PLAYING);
 
     _timer_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout), 250);
+    _now_playing_component->set_state(NowPlayingComponent::State::Stopped);
 }
