@@ -36,7 +36,7 @@ LINENOPAT = ^[^:]+:([^:]+):(.+)$
 all: build/ ${EXEC}
 
 install: ${EXEC}
-	cp $< /usr/bin
+	install -D $< /usr/bin
 
 ${EXEC}: ${OBJECTS}
 	g++ $^ -o $@ ${LDFLAGS}
