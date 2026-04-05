@@ -200,7 +200,7 @@ bool Application::on_timeout() {
     if (_drive_manager.disc_drive().done()) {
         eject(DriveManager::Drive::Disc);
     } else {
-        if (_track != _drive_manager.disc_drive().track()) {
+        if (_track > 0 && _track != _drive_manager.disc_drive().track()) {
             _track = _drive_manager.disc_drive().track();
             _disc_component->set_selection(_track);
             _now_playing_component->set_track(_disc, _track, _track == 1, _track == _disc.tracks().size());
@@ -298,6 +298,7 @@ void Application::on_rip_done() {
 
     _drive_manager.disc_drive().resize_buffer(CDDrive::BUFFER_SIZE_PLAYING);
 
+    _track = 0;
     _timer_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout), 250);
     _now_playing_component->set_state(NowPlayingComponent::State::Stopped);
 }
