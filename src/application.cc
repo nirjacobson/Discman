@@ -47,7 +47,7 @@ Application::Application(int argc, char **argv)
     _shutdown_button->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_shutdown_button));
 
     _window = _builder->get_widget<Gtk::Window>("window");
-    _window->fullscreen();
+    // _window->fullscreen();
 
     _drive_manager.signal_inserted().connect(sigc::mem_fun(*this, &Application::on_insert));
     _drive_manager.signal_ejected().connect(sigc::mem_fun(*this, &Application::on_eject));

@@ -3,7 +3,7 @@
 DriveManager::DriveManager()
     : _removable_fs(nullptr)
     , _poller(new Poller(*this))
-    , _acceptable_fs_pat("^.+/sd[a-z]\\d+$") {
+    , _acceptable_fs_pat("^.+/sd[b-z]\\d+$") {
     _dispatcher.connect(sigc::mem_fun(*this, &DriveManager::on_notification_from_poller));
     _drive.signal_eject().connect(sigc::mem_fun(*this, &DriveManager::on_cddrive_eject));
     _udisks2.signal_init().connect(sigc::mem_fun(*this, &DriveManager::on_udisks2_init));

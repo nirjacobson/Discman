@@ -2,17 +2,17 @@
 
 NowPlayingComponent::NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder)
     : _state(State::Stopped) {
-    _album_art_button = builder->get_widget<Gtk::Button>("albumArt_button");
+    _album_art_button = builder->get_widget<Gtk::Button>("albumArtButton");
     _album_art_image = builder->get_widget<Gtk::Image>("albumArtImage");
     _track_title_label = builder->get_widget<Gtk::Label>("trackTitleLabel");
     _track_artist_label = builder->get_widget<Gtk::Label>("trackArtistLabel");
     _seek_scale = builder->get_widget<Gtk::Scale>("seekScale");
     _seek_scale = builder->get_widget<Gtk::Scale>("seekScale");
-    _prev_button = builder->get_widget<Gtk::Button>("prev_button");
-    _play_pause_button = builder->get_widget<Gtk::Button>("play_pause_button");
-    _stop_button = builder->get_widget<Gtk::Button>("stop_button");
-    _next_button = builder->get_widget<Gtk::Button>("next_button");
-    _play_pause_image = builder->get_widget<Gtk::Image>("play_pauseImage");
+    _prev_button = builder->get_widget<Gtk::Button>("prevButton");
+    _play_pause_button = builder->get_widget<Gtk::Button>("playPauseButton");
+    _stop_button = builder->get_widget<Gtk::Button>("stopButton");
+    _next_button = builder->get_widget<Gtk::Button>("nextButton");
+    _play_pause_image = builder->get_widget<Gtk::Image>("playPauseImage");
 
     _album_art_button->set_has_frame(false);
     _album_art_image->clear();

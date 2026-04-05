@@ -7,8 +7,8 @@ BluetoothComponent::BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder)
     _device_label = builder->get_widget<Gtk::Label>("deviceLabel");
     _device_status_label = builder->get_widget<Gtk::Label>("deviceStatusLabel");
     _devices_tree_view = builder->get_widget<Gtk::TreeView>("devicesTreeView");
-    _done_button = builder->get_widget<Gtk::Button>("bluetoothDone_button");
-    _connect_button = builder->get_widget<Gtk::Button>("connect_button");
+    _done_button = builder->get_widget<Gtk::Button>("bluetoothDoneButton");
+    _connect_button = builder->get_widget<Gtk::Button>("connectButton");
 
     _devices_list_store = std::dynamic_pointer_cast<Gtk::ListStore>(builder->get_object("devicesListStore"));
 
