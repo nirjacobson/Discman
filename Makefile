@@ -31,12 +31,13 @@ LIBS      = curlpp           \
 CFLAGS    = -std=c++20 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS   = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -ludisks2cc -lbluez -ldiscdb
 EXEC      = discman
+BIN_DIR   = /usr/bin
 LINENOPAT = ^[^:]+:([^:]+):(.+)$
 
 all: build/ ${EXEC}
 
 install: ${EXEC}
-	install -D $< /usr/bin
+	install -D $< ${DESTDIR}${BIN_DIR}
 
 ${EXEC}: ${OBJECTS}
 	g++ $^ -o $@ ${LDFLAGS}
