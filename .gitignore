@@ -1,5 +1,1 @@
-build/
-cdplayer
-ui/*~
-ui/#*#
-src/resources.cc
+docs/

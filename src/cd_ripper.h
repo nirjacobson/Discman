@@ -1,3 +1,9 @@
+/**
+ * @file cd_ripper.h
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
 #ifndef CD_RIPPER_H
 #define CD_RIPPER_H
 
@@ -30,13 +36,18 @@ extern "C" {
 #include "consumer.h"
 #include "cd_drive.h"
 
+/// @brief Rips CDs and individual tracks to M4A files
+/// @see \ref Producer/Consumer.
 class CDRipper : public Consumer<int16_t> {
     public:
+        /// @brief Thrown when there is no removable volume to rip to
         struct NoMedia : public std::exception {
             const char* what() const throw() {
-                return "No USB volumes are currently mounted.";
+                return "No removable volumes are currently mounted.";
             }
         };
+
+        /// @brief Thrown when an error occurs mid-rip
         struct RipperErrorException : public std::exception {
                 RipperErrorException(const std::string& what)
                     : _what(what) { }
@@ -55,59 +66,89 @@ class CDRipper : public Consumer<int16_t> {
         sig_track_progress signal_track_progress();
         sig_done signal_done();
 
+        /// @brief CDRipper constructor
+        /// @param [in] drive       the parent CDDrive
+        /// @param [in] disc        the fully populated DiscDB::Disc describing the album
+        /// @param [in] albumArtURL the URL to the currently shown album art
+        /// @param [in] mediaRoot   the path to the root of the removable volume
         CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& albumArtURL, const std::string& mediaRoot);
         ~CDRipper();
 
+        /// @brief Rip the entire disc
         void rip();
+
+        /// @brief Rip a specific track on the disc
+        /// @param [in] track the 1-based track index 
         void rip(const int track);
 
     private:
 
+        /// @brief Contains resources that are shared by private helper functions
         struct RipContext {
-            AVFormatContext* fmt_ctx;
-            AVStream* st;
-            AVStream* sta;
-            const AVCodec* codec;
-            AVCodecContext* c;
-            AVFrame* frame;
-            AVPacket* packet;
-            SwrContext* swr_ctx;
+            AVFormatContext* fmt_ctx;   ///< Format (file) context
+            AVStream* st;               ///< Audio stream
+            AVStream* sta;              ///< Video stream for album art
+            const AVCodec* codec;       ///< The M4A codec
+            AVCodecContext* c;          ///< The codec context
+            AVFrame* frame;             ///< The unit of input to ffmpeg
+            AVPacket* packet;           ///< The unit of output from ffmpeg
+            SwrContext* swr_ctx;        ///< Context for resampling from int16_t to float
         };
 
-        sig_track_progress _sig_track_progress;
-        sig_done _sig_done;
+        sig_track_progress _sig_track_progress;    ///< Emitted when the percentage progress ripping a track has increased
+        sig_done _sig_done;                        ///< Emiited when the rip (whole disc or single track) is done
 
-        CDDrive& _drive;
-        const DiscDB::Disc& _disc;
-        std::thread* _thread;
-        Glib::Dispatcher _dispatcher;
-        Glib::Dispatcher _dispatcher_done;
-        unsigned int _track;
-        unsigned int _progress;
-        std::string _media_root;
-        std::string _output_dir;
-        std::string _output_filename;
-        std::string _album_art_url;
-        uint8_t* _albumArtImage;
-        int _album_art_image_size;
-        AVCodecID _album_art_image_codec;
-        std::pair<int, int> _album_art_image_dims;
+        CDDrive& _drive;                           ///< The parent CDDrive
+        const DiscDB::Disc& _disc;                 ///< The fully populated DiscDB::Disc describing the album
+        std::thread* _thread;                      ///< Used to execute the ripping process
+        Glib::Dispatcher _dispatcher;              ///< Used by _thread to safely emit _sig_track_progress
+        Glib::Dispatcher _dispatcher_done;         ///< Used by _thread to safely emit _sig_done
+        unsigned int _track;                       ///< The 1-based index of the track currently being ripped
+        unsigned int _progress;                    ///< The current percentage completion ripping the current track
+        std::string _media_root;                   ///< The path to the root of the removable volume
+        std::string _output_dir;                   ///< The path to the album folder on the removable volume
+        std::string _output_filename;              ///< The output filename
+        std::string _album_art_url;                ///< The URL of the album art currently shown
+        uint8_t* _album_art_image;                 ///< Raw bytes received from the _album_art_url
+        int _album_art_image_size;                 ///< The size of _album_art_image
+        AVCodecID _album_art_image_codec;          ///< Reflects whether the _album_art_image is JPEG or PNG
+        std::pair<int, int> _album_art_image_dims; ///< The dimensions of _album_art_image in pixels
 
-        void on_notification();
-        void on_done_notification();
+        void on_notification();                    ///< Called when _dispatcher is notified
+        void on_done_notification();               ///< Called when _dispatcher_done is notified
 
-        void rip_helper();
-        void rip_helper(const int track);
+        void rip_helper();                         ///< Private helper for rip()
+        void rip_helper(const int track);          ///< Private helper for rip(const int track)
 
-        void ensure_media_root();
+        void ensure_output_dir();                  ///< Verifies _media_root exists and sets _output_dir
 
+        /// @brief Begins the ripping process
+        /// @param [in] rip_ctx pointer to the ripping context 
         void start_rip(RipContext* rip_ctx);
+
+        /// @brief The core ripping method interacting directly with ffmpeg
+        /// @param [in] rip_ctx    pointer to the ripping context
+        /// @param [in] continuous whether to continue ripping after the current track
         void do_rip(RipContext* rip_ctx, bool continuous=true);
+
+        /// @brief Ends the ripping process
+        /// @param rip_ctx pointer to the ripping context
         void end_rip(RipContext* rip_ctx);
 
+        /// @brief Creates the ouput file, tags it and writes the M4A header
+        /// @param rip_ctx pointer to the ripping context
         void start_file(RipContext* rip_ctx);
+
+        /// @brief Frees resources in the ripping context specific to the output file
+        /// @param rip_ctx pointer to the ripping context
         void end_file(RipContext* rip_ctx);
+
+        /// @brief Adds textual metadata (album and track information) to the output file
+        /// @param rip_ctx pointer to the ripping context
         void tag_file(RipContext* rip_ctx);
+
+        /// @brief Adds _album_art_image to the output file
+        /// @param rip_ctx pointer to the ripping context
         void add_file_art(RipContext* rip_ctx);
 };
 

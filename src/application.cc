@@ -1,3 +1,9 @@
+/**
+ * @file application.cc
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
 #include "application.h"
 
 Application::Application(int argc, char **argv)
@@ -72,6 +78,8 @@ Application::~Application() {
     delete _disc_component;
 
     _audio_output->destroy();
+
+    AlbumArtProvider::destroy();
 }
 
 void Application::run() {

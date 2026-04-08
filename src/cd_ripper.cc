@@ -1,3 +1,9 @@
+/**
+ * @file cd_ripper.cc
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "cd_ripper.h"
 
@@ -9,7 +15,7 @@ CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& 
     , _progress(0)
     , _media_root(mediaRoot)
     , _album_art_url(albumArtURL)
-    , _albumArtImage(nullptr)
+    , _album_art_image(nullptr)
     , _album_art_image_size(0) {
     producer(&_drive);
 
@@ -18,8 +24,8 @@ CDRipper::CDRipper(CDDrive& drive, const DiscDB::Disc& disc, const std::string& 
 }
 
 CDRipper::~CDRipper() {
-    if (_albumArtImage) {
-        av_free(_albumArtImage);
+    if (_album_art_image) {
+        av_free(_album_art_image);
     }
     if (_thread) {
         _thread->join();
@@ -35,7 +41,7 @@ void CDRipper::on_done_notification() {
     _sig_done.emit();
 }
 
-void CDRipper::ensure_media_root() {
+void CDRipper::ensure_output_dir() {
     if (_media_root.empty()) {
         throw NoMedia();
     }
@@ -103,15 +109,15 @@ void CDRipper::start_rip(CDRipper::RipContext* rip_ctx) {
 
     std::string s = ss.str();
 
-    _albumArtImage = (uint8_t*)av_malloc(s.size());
-    memcpy(_albumArtImage, s.c_str(), s.size());
+    _album_art_image = (uint8_t*)av_malloc(s.size());
+    memcpy(_album_art_image, s.c_str(), s.size());
 
     _album_art_image_size = s.size();
 
     int width, height;
 
     unsigned char* stb_image = stbi_load_from_memory(
-                                   _albumArtImage,
+                                   _album_art_image,
                                    _album_art_image_size,
                                    &width,
                                    &height,
@@ -291,7 +297,7 @@ void CDRipper::end_file(RipContext* rip_ctx) {
 }
 
 void CDRipper::rip() {
-    ensure_media_root();
+    ensure_output_dir();
 
     if (_thread) {
         _thread->join();
@@ -319,7 +325,7 @@ void CDRipper::rip_helper() {
 }
 
 void CDRipper::rip(const int track) {
-    ensure_media_root();
+    ensure_output_dir();
 
     if (_thread) {
         _thread->join();
@@ -367,10 +373,10 @@ void CDRipper::tag_file(RipContext* rip_ctx) {
 }
 
 void CDRipper::add_file_art(RipContext* rip_ctx) {
-    uint8_t* newImage = (uint8_t*)av_memdup(_albumArtImage, _album_art_image_size);
+    uint8_t* newImage = (uint8_t*)av_memdup(_album_art_image, _album_art_image_size);
 
     AVPacket* pkt = av_packet_alloc();
-    int ret = av_packet_from_data(pkt, _albumArtImage, _album_art_image_size);
+    int ret = av_packet_from_data(pkt, _album_art_image, _album_art_image_size);
 
     if (ret != 0) {
         throw RipperErrorException("Could not allocate packet buffer");
@@ -382,5 +388,5 @@ void CDRipper::add_file_art(RipContext* rip_ctx) {
 
     av_packet_free(&pkt);
 
-    _albumArtImage = newImage;
+    _album_art_image = newImage;
 }

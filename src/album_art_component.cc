@@ -1,4 +1,10 @@
-#include "album_art_component.h"
+/**
+ * @file album_art_component.cc
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
+ #include "album_art_component.h"
 
 AlbumArtComponent::AlbumArtComponent(Glib::RefPtr<Gtk::Builder> builder) {
     _done_button = builder->get_widget<Gtk::Button>("albumArtDoneButton");

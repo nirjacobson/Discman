@@ -1,3 +1,9 @@
+/**
+ * @file cd_drive.cc
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
 #include "cd_drive.h"
 
 CDDrive::Reader::Reader(CDDrive& drive)
@@ -349,6 +355,12 @@ unsigned int CDDrive::seconds() const {
     return lba(CDIO_CDROM_LEADOUT_TRACK) / CDIO_CD_FRAMES_PER_SEC;
 }
 
+bool CDDrive::done() {
+    if (!present()) throw NoDiscPresentException();
+
+    return _cursor == _end;
+}
+
 int16_t CDDrive::next() {
     if (_buffer_idx == 0) {
         _load_lock.lock();
@@ -377,10 +389,4 @@ int16_t CDDrive::next() {
     _cursor_lock.unlock();
 
     return sample;
-}
-
-bool CDDrive::done() {
-    if (!present()) throw NoDiscPresentException();
-
-    return _cursor == _end;
 }

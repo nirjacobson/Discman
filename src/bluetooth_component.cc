@@ -1,3 +1,9 @@
+/**
+ * @file bluetooth_component.cc
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
 #include "bluetooth_component.h"
 
 BluetoothComponent::BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder)

@@ -34,7 +34,13 @@ EXEC      = discman
 BIN_DIR   = /usr/bin
 LINENOPAT = ^[^:]+:([^:]+):(.+)$
 
+.PHONY: docs
+
 all: build/ ${EXEC}
+
+docs:
+	rm -rf docs/
+	doxygen doxygen.txt
 
 install: ${EXEC}
 	install -D $< -t ${DESTDIR}${BIN_DIR}

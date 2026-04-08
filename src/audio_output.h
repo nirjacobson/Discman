@@ -1,4 +1,10 @@
-#ifndef AUDIO_OUTPUT_H
+/**
+ * @file audio_output.h
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
+ #ifndef AUDIO_OUTPUT_H
 #define AUDIO_OUTPUT_H
 
 #include <iostream>
@@ -7,28 +13,56 @@
 
 #include "consumer.h"
 
+/// @brief Abstracts PortAudio using a given audio sample data type
+/// @see \ref Producer/Consumer.
+/// @tparam T The audio sample format. Must be int16_t or float.
 template <typename T>
 class AudioOutput : public Consumer<T> {
     public:
+
+        /// @brief Factory method to return the AudioOutput.
+        /// It may be called one or more times.
+        /// Be sure to destroy() the instance in order to avoid leaks.
+        /// It is suggested to do so in the teardown of the first caller.
+        /// @return The AudioOutput
         static AudioOutput* instance();
 
-        static void init();
-        static void destroy();
+        static void init();    ///< Initializes PortAudio
+        static void destroy(); ///< Tears down PortAudio
+        static void restart(); ///< Restart PortAudio
 
-        static void start();
-        static void stop();
-        static void restart();
+        static void start();   ///< Start the invokation of the PortAudio callback
+        static void stop();    ///< Stop the invokation of the PortAudio callback
 
+        /// @brief Returns whether the default audio output device is used.
+        /// This indicates that a Bluetooth device is *not* being used.
+        /// The default output is typically an audio jack or an HDMI port on the host.
+        /// @return Whether the default audio output device is used
         static bool isDefault();
 
+        /// @brief The AudioOutput sample rate, which is matched to the sample rate
+        /// of CD audio.
         static constexpr int SAMPLE_RATE = 44100;
 
     private:
         static AudioOutput* _instance;
 
-        static PaError _pa_error;
-        static PaStream* _pa_stream;
+        static PaError _pa_error;      ///< The most recent PortAudio error
+        static PaStream* _pa_stream;   ///< The PortAudio stream
 
+        /// @brief The PortAudio callback.
+        /** @see <a href="https://www.portaudio.com/docs/v19-doxydocs/writing_a_callback.html"
+         *          target="_blank"
+         *              PortAudio documentation
+         *       </a>.
+         */
+        /// @param [in] input_buffer      not used. Normally used for audio recording.
+        /// @param [in] output_buffer     pointer to a buffer of audio samples to be filled, then sent to the audio device
+        /// @param [in] frames_per_buffer the number of frames (left + right sample) in the output_buffer
+        /// @param [in] time_info         not used
+        /// @param [in] status_flags      not used
+        /// @param [in] user_data         not used
+        /// @return 0 for the successful filling of the output_buffer
         static int pa_callback(const void* input_buffer,
                                void* output_buffer,
                                unsigned long frames_per_buffer,
@@ -37,8 +71,12 @@ class AudioOutput : public Consumer<T> {
                                void* user_data);
 };
 
+/// @brief The global AudioOutput instance
+/// @tparam T The data type of an audio sample.
+/// Must be either int16_t or float.
 template <typename T>
 AudioOutput<T>* AudioOutput<T>::_instance = nullptr;
+
 template <typename T>
 PaError AudioOutput<T>::_pa_error;
 template <typename T>

@@ -1,12 +1,14 @@
-#include "album_art_provider.h"
+/**
+ * @file album_art_provider.cc
+ * @author Nir Jacobson
+ * @date 2026-04-07
+ */
+
+ #include "album_art_provider.h"
 #include "last_fm.h"
 #include "spotify.h"
 
 AlbumArtProvider* AlbumArtProvider::_instance = nullptr;
-
-AlbumArtProvider::~AlbumArtProvider() {
-
-}
 
 AlbumArtProvider* AlbumArtProvider::instance() {
     if (_instance == nullptr) {
@@ -47,6 +49,10 @@ AlbumArtProvider* AlbumArtProvider::instance() {
     }
 
     return _instance;
+}
+
+void AlbumArtProvider::destroy() {
+    if (_instance) delete _instance;
 }
 
 void AlbumArtProvider::init() {
