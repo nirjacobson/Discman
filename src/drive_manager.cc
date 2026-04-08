@@ -1,4 +1,10 @@
-#include "drive_manager.h"
+/**
+ * @file drive_manager.cc
+ * @author Nir Jacobson
+ * @date 2026-04-08
+ */
+
+ #include "drive_manager.h"
 
 DriveManager::DriveManager()
     : _removable_fs(nullptr)
@@ -18,7 +24,7 @@ DriveManager::~DriveManager() {
 DriveManager::Poller::Poller(DriveManager& manager)
     : _manager(manager)
     , _exit(false)
-    , _thread(&DriveManager::Poller::loop, this) {
+    , _thread(&DriveManager::Poller::poll, this) {
 
 }
 DriveManager::Poller::~Poller() {
@@ -28,7 +34,7 @@ DriveManager::Poller::~Poller() {
     _thread.join();
 }
 
-void DriveManager::Poller::loop() {
+void DriveManager::Poller::poll() {
     while (true) {
         _exit_lock.lock();
         bool exit = _exit;

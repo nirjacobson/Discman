@@ -1,4 +1,10 @@
-#include "disc_component.h"
+/**
+ * @file disc_component.cc
+ * @author Nir Jacobson
+ * @date 2026-04-08
+ */
+
+ #include "disc_component.h"
 
 DiscComponent::DiscComponent(DriveManager& drive_manager, Glib::RefPtr<Gtk::Builder> builder)
     : _drive_manager(drive_manager) {

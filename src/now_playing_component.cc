@@ -1,4 +1,10 @@
-#include "now_playing_component.h"
+/**
+ * @file now_playing_component.cc
+ * @author Nir Jacobson
+ * @date 2026-04-08
+ */
+
+ #include "now_playing_component.h"
 
 NowPlayingComponent::NowPlayingComponent(Glib::RefPtr<Gtk::Builder> builder)
     : _state(State::Stopped) {

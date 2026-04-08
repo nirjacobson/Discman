@@ -60,8 +60,8 @@ class BluetoothComponent {
                     this->add(this->name_column);
                 }
 
-                Gtk::TreeModelColumn<Glib::ustring> address_column;
-                Gtk::TreeModelColumn<Glib::ustring> name_column;
+                Gtk::TreeModelColumn<Glib::ustring> address_column; ///< Device address column (hidden)
+                Gtk::TreeModelColumn<Glib::ustring> name_column;    ///< Device name column
         };
 
         sig_conn _signal_connected;                         ///< Emitted when the chosen device has been connected to

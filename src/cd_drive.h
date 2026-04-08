@@ -226,7 +226,7 @@ class CDDrive::Poller {
     private:
         CDDrive& _drive;       ///< The parent CDDrive
 
-        bool _exit;            ///< Stores a request to exit poll().
+        bool _exit;            ///< Stores a request to exit poll()
 
         /// @brief Provides mutually exclusive access to the _exit member
         /// between the the application thread and the Poller thread.

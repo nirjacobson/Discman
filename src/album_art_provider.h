@@ -10,6 +10,10 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <sstream>
+#include <curlpp/Easy.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/cURLpp.hpp>
 
 #include <glibmm.h>
 #include <giomm/memoryinputstream.h>
@@ -61,12 +65,24 @@ class AlbumArtProvider {
         /// @return A list of album art images
         virtual std::vector<AlbumArt> album_art(const std::string& artist, const std::string& title, const int width, const int height) = 0;
 
-        /// @brief Return an album art image at the given URL, at a specific width and height
-        /// @param [in] url    the URL of the image 
+        /// @brief             Retrieves the album art image at a given URL
+        /// @param [in] url    the URL of the album art image to retrieve
         /// @param [in] width  the width of the returned image
         /// @param [in] height the height of the returned image
-        /// @return One album art image
-        virtual AlbumArt album_art(const std::string& url, const int width, const int height) = 0;
+        /// @return            an album art image
+        AlbumArt album_art(const std::string& url, const int width, const int height);
+
+        /// @brief Returns the URL of the API endpoint with the given parameters encoded as query parameters.
+        /// @param [in] url an API endpoint. This usually corresponds to an API method.
+        /// @param [in] params the method parameters as key-value pairs
+        /// @return an API endpoint URL
+        static std::string url_with_params(const std::string& url, const std::map<std::string, std::string>& params);
+
+        /// @brief Encodes an arbitrary string into a query parameter value
+        /// @param [in] input an arbitrary string
+        /// @return the URL encoded input
+        static std::string url_encode(const std::string& input);
+
 
     private:
         static AlbumArtProvider* _instance; ///< The global AlbumArtProvider instance

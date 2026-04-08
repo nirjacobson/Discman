@@ -21,6 +21,11 @@ class Producer {
         /// @return the next datum
         T next(const Consumer<T>* const consumer);
 
+        /// @brief Use this method to maintain state associated with a particular Consumer.
+        /// The state can be used to retrieve the right datum for the Consumer.
+        /// @param [in] consumer the Consumer to register
+        void register_consumer(const Consumer<T>* const consumer) {};
+
         /// @brief When a producer has a single Consumer, that Consumer
         /// may simply call this version of next() to retrieve the next datum.
         /// When a Producer has multiple Consumers, this method must take
@@ -31,11 +36,6 @@ class Producer {
     private:
         /// @brief The Consumer that will receive the datum returned by next()
         Consumer<T>* _current_consumer = nullptr;
-
-        /// @brief Use this method to maintain state associated with a particular Consumer.
-        /// The state can be used to retrieve the right datum for the Consumer.
-        /// @param [in] consumer the Consumer to register
-        void register_consumer(const Consumer<T>* const consumer) {};
 
     protected:
         Consumer<T>* current_consumer() const;

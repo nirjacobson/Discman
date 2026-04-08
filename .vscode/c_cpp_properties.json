@@ -8,6 +8,7 @@
                 "/usr/include/glibmm-2.68/**",
                 "/usr/include/giomm-2.68/**",
                 "/usr/include/gtkmm-4.0/**",
+                "/usr/include/sigc++-3.0/**",
                 "/usr/include/**",
                 "/usr/lib64/**"
             ],
