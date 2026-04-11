@@ -10,6 +10,7 @@ BluetoothComponent::BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder)
     : _adapter("hci0")
     , _alsa_device(nullptr)
     , _alsa_device_init(DeviceInitialization::NotInitialized) {
+    _bluetooth_button = builder->get_widget<Gtk::Button>("bluetoothButton");
     _device_label = builder->get_widget<Gtk::Label>("deviceLabel");
     _device_status_label = builder->get_widget<Gtk::Label>("deviceStatusLabel");
     _devices_tree_view = builder->get_widget<Gtk::TreeView>("devicesTreeView");
@@ -21,12 +22,10 @@ BluetoothComponent::BluetoothComponent(Glib::RefPtr<Gtk::Builder> builder)
     DevicesListColumnRecord cols;
     _devices_tree_view->append_column("Devices", cols.name_column);
 
+    _bluetooth_button->signal_clicked().connect(sigc::mem_fun(*this, &BluetoothComponent::on_bluetooth_button));
     _devices_tree_view->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &BluetoothComponent::on_devices_list_selection_changed));
-
     _connect_button->signal_clicked().connect(sigc::mem_fun(*this, &BluetoothComponent::on_connect_button_clicked));
-
     _done_button->signal_clicked().connect(sigc::mem_fun(*this, &BluetoothComponent::on_done_button_clicked));
-
     _adapter.signal_device_added().connect(sigc::mem_fun(*this, &BluetoothComponent::on_device_added));
     _adapter.signal_device_removed().connect(sigc::mem_fun(*this, &BluetoothComponent::on_device_removed));
 }
@@ -59,6 +58,10 @@ void BluetoothComponent::on_hide() {
 void BluetoothComponent::on_device_initialization_complete(const bool initialized) {
     _alsa_device_init = initialized ? DeviceInitialization::Initialized : DeviceInitialization::Error;
     set_device_labels();
+}
+
+BluetoothComponent::sig_done BluetoothComponent::signal_button() {
+    return _signal_button;
 }
 
 BluetoothComponent::sig_done BluetoothComponent::signal_done() {
@@ -235,4 +238,8 @@ void BluetoothComponent::set_device_labels() {
         _device_label->set_text("Not Connected");
         _device_status_label->set_text("Please select a device.");
     }
+}
+
+void BluetoothComponent::on_bluetooth_button() {
+    _signal_button.emit();
 }

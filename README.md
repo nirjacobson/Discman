@@ -79,7 +79,7 @@ ACTION=="add", ATTRS{idProduct}=="1500", ATTRS{idVendor}=="05ac", DRIVERS=="usb"
 [Service]
 Type=simple
 ExecStart=
-ExecStart=-/sbin/agetty --autologin <your username> --noclear %I 38400 linux
+ExecStart=-/sbin/agetty -n --autologin discman --noclear %I 38400 linux
 ```
 
 `~/.bash_profile`:
@@ -87,9 +87,14 @@ ExecStart=-/sbin/agetty --autologin <your username> --noclear %I 38400 linux
 ...
 
 if tty | grep -q 'tty1'; then
+    export DISCMAN_ALBUM_ART_PROVIDER="spotify" // Can be "lastfm" instead
+    export SPOTIFY_CLIENT_ID=<your ID>          // Spotify client ID
+    export SPOTIFY_CLIENT_SECRET=<your secret>  // Spotify client secret
+    export LASTFM_API_kEY=<your key>            // last.fm API key (if using last.fm)
+
     weston --shell=kiosk-shell.so &
     export WAYLAND_DISPLAY=wayland-1
-    sleep 3
+    sleep 8
     discman&
 fi
 ```

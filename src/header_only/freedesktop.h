@@ -9,25 +9,30 @@
 
 #include <string>
 
-/// @brief Freedesktop D-Bus information
+/// @brief Freedesktop D-Bus information.
 namespace Freedesktop {
 
-    /// @brief The D-Bus object manager interface
+    /// @brief The D-Bus object manager interface.
     class ObjectManager {
         public:
-            /// @brief Object manager signal names
+            /// @brief Object manager signal names.
             class Signals {
                 public:
+                    /// @brief InterfacesAdded signal name.
                     inline static const std::string InterfacesAdded = "InterfacesAdded";
+
+                    /// @brief InterfacesRemoved signal name.
                     inline static const std::string InterfacesRemoved = "InterfacesRemoved";
             };
 
-            /// @brief Object manager method names
+            /// @brief Object manager method names.
             class Methods {
                 public:
+                    /// @brief GetManagedObjects method name.
                     inline static const std::string GetManagedObjects = "GetManagedObjects";
             };
             
+            /// @brief Object manager D-Bus interface name.
             inline static const std::string Interface = "org.freedesktop.DBus.ObjectManager";
     };
 

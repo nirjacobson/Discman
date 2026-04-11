@@ -8,26 +8,29 @@
 
 #include "producer.h"
 
-/// @brief The Consumer interface
+/// @brief The Consumer interface.
 /// @see \ref Producer/Consumer.
-/// @tparam T The data type consumed
+/// @tparam T The data type consumed.
 template <typename T>
 class Consumer {
     public:
+        /// @brief Consumer constructor.
         Consumer();
+
+        /// @brief Consumer destructor.
         virtual ~Consumer() {};
 
-        /// @brief Sets the producer from which to retrieve data
-        /// @param [in] producer The producer from which to retrieve data
+        /// @brief Sets the producer from which to retrieve data.
+        /// @param [in] producer The producer from which to retrieve data.
         virtual void producer(Producer<T>* const producer);
 
     protected:
-        /// @brief Returns one datum from the producer
-        /// @return The datum
+        /// @brief Returns one datum from the producer.
+        /// @return The datum.
         T consume() const;
 
     private:
-        /// @brief The Producer from which to retrieve data
+        /// @brief The Producer from which to retrieve data.
         Producer<T>* _producer;
 };
 

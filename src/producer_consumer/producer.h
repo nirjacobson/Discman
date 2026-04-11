@@ -9,35 +9,36 @@
 template <typename T>
 class Consumer;
 
-/// @brief The Producer interface
+/// @brief The Producer interface.
 /// @see \ref Producer/Consumer.
-/// @tparam T The data type produced
+/// @tparam T The data type produced.
 template <typename T>
 class Producer {
     public:
-        /// @brief When a Producer has multiple Consumers, each Consumer
+        /// @brief When a Producer has multiple \ref Consumer "Consumers", each Consumer
         /// must call this overloaded version of next().
-        /// @param [in] consumer the Consumer for which to provide the next datum 
-        /// @return the next datum
+        /// @param [in] consumer Consumer for which to provide the next datum .
+        /// @return Yhe next datum.
         T next(const Consumer<T>* const consumer);
 
         /// @brief Use this method to maintain state associated with a particular Consumer.
         /// The state can be used to retrieve the right datum for the Consumer.
-        /// @param [in] consumer the Consumer to register
+        /// @param [in] consumer The Consumer to register.
         void register_consumer(const Consumer<T>* const consumer) {};
 
         /// @brief When a producer has a single Consumer, that Consumer
         /// may simply call this version of next() to retrieve the next datum.
-        /// When a Producer has multiple Consumers, this method must take
-        /// into account the _current_consumer.
-        /// @return the next datum
+        /// When a Producer has multiple \ref Consumer "Consumers", this method must take
+        /// into account the ::_current_consumer.
+        /// @return The next datum.
         virtual T next() = 0;
 
     private:
-        /// @brief The Consumer that will receive the datum returned by next()
+        /// @brief The Consumer that will receive the datum returned by next().
         Consumer<T>* _current_consumer = nullptr;
 
     protected:
+        /// @brief Getter for ::_current_consumer. 
         Consumer<T>* current_consumer() const;
 };
 

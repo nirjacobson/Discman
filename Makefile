@@ -1,18 +1,19 @@
 SHELL = /bin/bash
 
-MODULES = application           \
-          album_art_provider    \
-          album_art_component   \
-          bluetooth_component   \
-          cd_drive              \
-          cd_ripper             \
-          disc_component        \
-          drive_manager         \
-          last_fm               \
-          main                  \
-          now_playing_component \
-          resources             \
-          spotify
+MODULES = application                     \
+          album_art/album_art_provider    \
+          album_art/last_fm               \
+          album_art/spotify               \
+          cd/cd_drive                     \
+          cd/cd_ripper                    \
+          component/component             \
+          component/album_art_component   \
+          component/bluetooth_component   \
+          component/disc_component        \
+          component/now_playing_component \
+          drive_manager/drive_manager     \
+          main                            \
+          resources                       \
 
 OBJECTS   = $(foreach MODULE, ${MODULES}, build/${MODULE}.o)
 LIBS      = curlpp           \
@@ -28,7 +29,7 @@ LIBS      = curlpp           \
             portaudio-2.0    \
             stb
 
-CFLAGS    = -std=c++20 -O2 -Wall `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
+CFLAGS    = -std=c++20 -O2 -Wall -Isrc `pkg-config --cflags ${LIBS}` `curlpp-config --cflags` -g
 LDFLAGS   = `pkg-config --libs ${LIBS}` -lstdc++fs `curlpp-config --libs` -ludisks2cc -lbluez -ldiscdb
 EXEC      = discman
 BIN_DIR   = /usr/bin
@@ -63,6 +64,18 @@ src/resources.cc: resources.xml ui/discman.glade
 	glib-compile-resources --target=$@ --generate-source $<
 
 build/%.o : src/%.cc
+	g++ -c $< -o $@ ${CFLAGS}
+build/album_art/%.o : src/album_art/%.cc
+	mkdir -p build/album_art
+	g++ -c $< -o $@ ${CFLAGS}
+build/cd/%.o : src/cd/%.cc
+	mkdir -p build/cd
+	g++ -c $< -o $@ ${CFLAGS}
+build/component/%.o : src/component/%.cc
+	mkdir -p build/component
+	g++ -c $< -o $@ ${CFLAGS}
+build/drive_manager/%.o : src/drive_manager/%.cc
+	mkdir -p build/drive_manager
 	g++ -c $< -o $@ ${CFLAGS}
 
 build/:

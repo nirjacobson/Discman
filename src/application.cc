@@ -28,9 +28,7 @@ Application::Application(int argc, char **argv)
     _bluetooth_box = _builder->get_widget<Gtk::Box>("bluetoothBox");
     _player_box = _builder->get_widget<Gtk::Box>("playerBox");
     _album_art_box = _builder->get_widget<Gtk::Box>("albumArtBox");
-    _bluetooth_button = _builder->get_widget<Gtk::Button>("bluetoothButton");
     _shutdown_button = _builder->get_widget<Gtk::Button>("shutdownButton");
-    _bluetooth_button->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_bluetooth_button));
 
     _disc_component = new DiscComponent(_drive_manager, _builder);
     _disc_component->set_disc(nullptr);
@@ -49,6 +47,7 @@ Application::Application(int argc, char **argv)
     _bluetooth_component = new BluetoothComponent(_builder);
     _bluetooth_component->signal_connected().connect(sigc::mem_fun(*this, &Application::on_bluetooth_connected));
     _bluetooth_component->signal_done().connect(sigc::mem_fun(*this, &Application::on_bluetooth_done));
+    _bluetooth_component->signal_button().connect(sigc::mem_fun(*this, &Application::on_bluetooth_button));
 
     _shutdown_button->signal_clicked().connect(sigc::mem_fun(*this, &Application::on_shutdown_button));
 
@@ -69,7 +68,6 @@ Application::~Application() {
     delete _bluetooth_box;
     delete _album_art_box;
     delete _shutdown_button;
-    delete _bluetooth_button;
     delete _stack;
     delete _window;
     delete _bluetooth_component;
