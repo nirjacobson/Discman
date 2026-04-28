@@ -119,6 +119,8 @@ class CDRipper : public Consumer<int16_t> {
         AVCodecID _album_art_image_codec;          ///< Reflects whether the _album_art_image is JPEG or PNG.
         std::pair<int, int> _album_art_image_dims; ///< The dimensions of _album_art_image in pixels.
 
+        std::string make_safe(const std::string& str) const;
+
         void on_notification();                    ///< Called when _dispatcher is notified.
         void on_done_notification();               ///< Called when _dispatcher_done is notified.
 
