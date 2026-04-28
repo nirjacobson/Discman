@@ -119,6 +119,9 @@ class CDRipper : public Consumer<int16_t> {
         AVCodecID _album_art_image_codec;          ///< Reflects whether the _album_art_image is JPEG or PNG.
         std::pair<int, int> _album_art_image_dims; ///< The dimensions of _album_art_image in pixels.
 
+        /// @brief Used to sanitize folder and file names
+        /// @param [in] str A file or folder path component .
+        /// @return **str** with unsafe symbols replaced with underscores.
         std::string make_safe(const std::string& str) const;
 
         void on_notification();                    ///< Called when _dispatcher is notified.
