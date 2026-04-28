@@ -3,43 +3,36 @@ A CD player built from the [Raspberry Pi 3](https://www.raspberrypi.org/products
 
 Once assembled...
 
-## Install dependencies
-```
-emerge -av libcdio-paranoia portaudio gtkmm glibmm curlpp jsoncpp sg3_utils bluez-alsa stb udisks udiskie weston
-```
+## Boot [discman-26.img](https://triton.nirjacobson.com/downloads/discman-26.img.xz)
 
-## Clone the code
-```
-git clone https://github.com/nirjacobson/libdiscdb.git
-git clone https://github.com/nirjacobson/libbluez.git
-git clone https://github.com/nirjacobson/libudisks2.git
-git clone https://github.com/nirjacobson/Discman.git
-```
-
-## Build the libraries
-```
-cd libdiscdb
-make
-make install
-
-cd libbluez
-make
-make install
-
-cd libudisks2
-make
-make install
+This is a fully configured Triton OS image for Discman. Simply re-create the initramfs on first boot.
 
 ```
-
-## Build Discman
+# dracut -fv
 ```
-cd Discman
-make
-make install
+```
+# nano /boot/config.txt
+```
+Uncomment this line:
+
+`initramfs initramfs-6.11.10-v8+.img followkernel`
+```
+# reboot
 ```
 
-## Configure ALSA for Bluetooth audio
+## Configure an existing installation
+
+### Install support packages
+```
+emerge -av sg3_utils udisks udiskie weston
+```
+
+### Install discman
+```
+emerge -av discman
+```
+
+### Configure ALSA for Bluetooth & CD audio
 `~/.asoundrc`:
 ```
 defaults.bluealsa.service "org.bluealsa"
@@ -53,7 +46,16 @@ pcm.!default {
 }
 ```
 
-## Allow powering off as user
+Configure bluez-alsa to force the audio CD sample rate (44.1 kHz):
+```
+# systemctl edit bluelsa.service
+```
+```
+ExecStart=
+ExecStart=/usr/bin/bluealsa -S -p a2dp-source -p a2dp-sink --a2dp-force-audio-cd
+```
+
+### Allow powering off as user
 
 `/etc/polkit-1/rules.d/10-poweroff.rules`:
 ```
@@ -65,21 +67,52 @@ polkit.addRule(function(action, subject) {
 });
 ```
 
-## Enable the Apple SuperDrive at boot
+### Allow udisks to automount for plugdev users
+
+`/etc/polkit-1/rules.d/10-udisks2.rules`:
+```
+polkit.addRule(function(action, subject) {
+	if (action.id.indexOf("org.freedesktop.udisks2.") == 0 &&
+	    subject.isInGroup("plugdev")) {
+		return polkit.Result.YES;
+	}
+});
+```
+
+### Set up udiskie service
+`~/.config/systemd/user/udiskie.service`:
+```
+[Unit]
+Description=udiskie automount service
+
+[Service]
+ExecStart=/usr/bin/udiskie --no-notify
+Restart=always
+
+[Install]
+WantedBy=default.target
+```
+
+### Enable udiskie
+```
+$ systemctl --user enable udiskie
+```
+
+### Enable the Apple SuperDrive at boot
 `/etc/udev/rules.d/99-local.rules`:
 ```
 # Initialise Apple SuperDrive
 ACTION=="add", ATTRS{idProduct}=="1500", ATTRS{idVendor}=="05ac", DRIVERS=="usb", RUN+="/usr/bin/sg_raw /dev/$kernel EA 00 00 00 00 00 01"
 ```
 
-## Run Discman at boot
+### Run Discman at boot
 ```
 # systemctl edit getty@tty1.service
 
 [Service]
 Type=simple
 ExecStart=
-ExecStart=-/sbin/agetty -n --autologin discman --noclear %I 38400 linux
+ExecStart=-/sbin/agetty -niJa discman %I 38400 linux
 ```
 
 `~/.bash_profile`:
@@ -92,10 +125,17 @@ if tty | grep -q 'tty1'; then
     export SPOTIFY_CLIENT_SECRET=<your secret>  // Spotify client secret
     export LASTFM_API_kEY=<your key>            // last.fm API key (if using last.fm)
 
-    weston --shell=kiosk-shell.so &
-    export WAYLAND_DISPLAY=wayland-1
-    sleep 8
-    discman&
+    sudo plymouthd --mode=boot --tty=$(tty)
+    sudo plymouth show-splash
+    sudo plymouth message --text="Waiting for Internet..."
+    sleep 12
+    sudo plymouth quit
+    sudo plymouth --wait
+    sleep 3
+    weston --shell=kiosk-shell.so --xwayland > weston.log 2>&1 &
+    export DISPLAY=:0.0
+    sleep 1
+    discman > discman.log 2>&1 &
 fi
 ```
 ## Credits
