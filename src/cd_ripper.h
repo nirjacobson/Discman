@@ -4,6 +4,8 @@
 #include <thread>
 #include <filesystem>
 #include <iomanip>
+#include <algorithm>
+#include <ranges>
 
 #include <unistd.h>
 #include <glibmm.h>
@@ -92,6 +94,8 @@ class CDRipper : public Consumer<int16_t> {
         int _album_art_image_size;
         AVCodecID _album_art_image_codec;
         std::pair<int, int> _album_art_image_dims;
+
+        std::string make_safe(const std::string& str) const;
 
         void on_notification();
         void on_done_notification();

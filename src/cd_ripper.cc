@@ -27,6 +27,16 @@ CDRipper::~CDRipper() {
     }
 }
 
+std::string CDRipper::make_safe(const std::string& str) const {
+    std::string result(str);
+
+    const std::string illegal = "<>:\"/\\|?*";
+
+    std::ranges::replace_if(result, [&](unsigned char c) { return illegal.find(c) != std::string::npos || std::iscntrl(c); }, '_');
+
+    return result;
+}
+
 void CDRipper::on_notification() {
     _sig_track_progress.emit(_track, _progress);
 }
@@ -43,8 +53,8 @@ void CDRipper::ensure_media_root() {
     _output_dir =
         _media_root
         + "/Music"
-        + "/" + _disc.artist()
-        + "/" + _disc.title();
+        + "/" + make_safe(_disc.artist())
+        + "/" + make_safe(_disc.title());
 
     std::filesystem::create_directories(_output_dir);
 }
@@ -252,6 +262,8 @@ void CDRipper::start_file(RipContext* rip_ctx) {
     _output_filename = ss.str()
                        + " " + _disc.tracks()[_track - 1].title()
                        + ".m4a";
+
+    _output_filename = make_safe(_output_filename);
 
     std::string output_filename = _output_dir + "/" + _output_filename;
 
