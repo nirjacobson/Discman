@@ -12,6 +12,7 @@ MODULES = application                     \
           component/disc_component        \
           component/now_playing_component \
           drive_manager/drive_manager     \
+          mouse/mouse                     \
           main                            \
           resources                       \
 
@@ -76,6 +77,9 @@ build/component/%.o : src/component/%.cc
 	g++ -c $< -o $@ ${CFLAGS}
 build/drive_manager/%.o : src/drive_manager/%.cc
 	mkdir -p build/drive_manager
+	g++ -c $< -o $@ ${CFLAGS}
+build/mouse/%.o : src/mouse/%.cc
+	mkdir -p build/mouse
 	g++ -c $< -o $@ ${CFLAGS}
 
 build/:

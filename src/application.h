@@ -34,6 +34,7 @@
 #include "component/disc_component.h"
 #include "component/now_playing_component.h"
 #include "header_only/audio_output.h"
+#include "mouse/mouse.h"
 
 /// @brief Captures the Discman application global scope.
 class Application {
@@ -55,28 +56,38 @@ class Application {
         int _argc;    ///< The application argument count.
         char** _argv; ///< The application arguments.
 
-        Glib::RefPtr<Gtk::Builder> _builder; ///< The builder initialized with the Discman UI.
-        Glib::RefPtr<Gtk::Application> _app; ///< The underlying Gtk::Application.
+        Glib::RefPtr<Gtk::Builder> _builder; ///< Builder initialized with the Discman UI.
+        Glib::RefPtr<Gtk::Application> _app; ///< Underlying Gtk::Application.
         Gtk::Window* _window;                ///< Reference to the application window.
         DriveManager _drive_manager;         ///< Drive manager.
         CDRipper* _ripper;                   ///< CD ripper.
         DiscDB::Disc _disc;                  ///< The Disc returned by DiscDB for the inserted CD.
-        AudioOutput<int16_t>* _audio_output; ///< The audio output.
-        unsigned int _track;                 ///< The current 1-based track being played.
-        std::string _album_art_url;          ///< The URL of the currently displayed album art.
+        Mouse _mouse;                        ///< Mouse or touchscreen.
+        AudioOutput<int16_t>* _audio_output; ///< Audio output.
+        unsigned int _track;                 ///< Current 1-based track being played.
+        std::string _album_art_url;          ///< URL of the currently displayed album art.
+
+        std::string _net_iface;              ///< Name of the network interface to monitor for the IP address.
+        int _screensaver_timeout;            ///< Number of seconds to wait after input before switching to the screensaver.
+
+        std::chrono::time_point<std::chrono::system_clock> _last_click; ///< The time of the last mouse/touchscreen press.
+        std::string _ip_address;                                        ///< The player's IP address.
 
         Glib::RefPtr<Gio::DBus::Proxy> _systemd_proxy; ///< The systemd D-Bus proxy, used for host shutdown.
 
-        sigc::connection _timer_connection;  ///< A connection of a timer to the callback that periodically checks the current track state.
+        sigc::connection _timer_track_state_connection;  ///< A connection of a timer to the callback that periodically checks the current track state.
+        sigc::connection _timer_screensaver_connection;  ///< A connection of a timer to the callback that periodically checks whether to show the screensaver.
 
         /// @name Top-level widgets
         /// @brief The application maintains references to some top-level widgets.
         ///
         /// @{
-        Gtk::Stack* _stack;             ///< Stack that switches between application screens.
-        Gtk::Box* _player_box;          ///< Box holding the main application screen.
-        Gtk::Box* _bluetooth_box;       ///< Box holding the Bluetooth device selection screen.
-        Gtk::Box* _album_art_box;       ///< Box holding the album art selection screen.
+        Gtk::Stack* _stack;                 ///< Stack that switches between application screens.
+        Gtk::Box* _player_box;              ///< Box holding the main application screen.
+        Gtk::Box* _bluetooth_box;           ///< Box holding the Bluetooth device selection screen.
+        Gtk::Box* _album_art_box;           ///< Box holding the album art selection screen.
+        Gtk::Box* _screensaver_box;         ///< Box holding the screensaver.
+        Gtk::Label* _time_ip_address_label; ///< Time & IP address label (screensaver).
         /// @}
 
         /// @name Components
@@ -165,7 +176,12 @@ class Application {
         void on_bluetooth_button(); ///< Bluetooth button handler.
         void on_shutdown_button();  ///< Shutdown button handler.
 
-        bool on_timeout();          ///< Called when the track monitoring timer reaches zero.
+        void on_click();
+
+        bool on_timeout_track_state();          ///< Called when the track monitoring timer reaches zero.
+        bool on_timeout_screensaver();          ///< Called when the screensaver timer reaches zero.
+
+        std::string get_ip_address();           ///< Retrieves the IP address of the user-defined network interface.
 
         /// @brief Instructs the DriveManager to eject a drive.
         /// @param [in] drive The drive to eject.

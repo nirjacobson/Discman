@@ -781,6 +781,29 @@
             <property name="title" translatable="yes">page0</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkBox" id="screensaverBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="timeIpAddressLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Time &amp; IP Address</property>
+                <property name="justify">center</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="title" translatable="yes">page0</property>
+          </packing>
+        </child>
       </object>
     </child>
   </object>

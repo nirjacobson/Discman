@@ -70,7 +70,7 @@ class DriveManager {
 
         Poller* _poller;                    ///< When running, checks for the presence of a disc in _drive.
 
-        Glib::Dispatcher _dispatcher;       ///< Used to samely emit _sig_inserted for the disc drive.
+        Glib::Dispatcher _dispatcher;       ///< Used to safely emit _sig_inserted for the disc drive.
 
         std::regex _acceptable_fs_pat;      ///< Filters the filesystems reported by UDisks2 to acceptable ones.
 

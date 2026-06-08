@@ -4,8 +4,8 @@
  * @date 2026-04-08
  */
 
-#ifndef NOW_PLAYING_COMPONENT
-#define NOW_PLAYING_COMPONENT
+#ifndef NOW_PLAYING_COMPONENT_H
+#define NOW_PLAYING_COMPONENT_H
 
 #include <glibmm.h>
 #include <gtkmm/builder.h>
@@ -110,4 +110,4 @@ class NowPlayingComponent : public Component {
         void on_album_art_button_clicked(); ///< Called when the album art button is clicked.
 };
 
-#endif // NOW_PLAYING_COMPONENT
+#endif // NOW_PLAYING_COMPONENT_H

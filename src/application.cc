@@ -12,6 +12,10 @@ Application::Application(int argc, char **argv)
     , _ripper(nullptr)
     , _audio_output(AudioOutput<int16_t>::instance())
     , _track(0)
+    , _net_iface(std::getenv("DISCMAN_NET_IFACE"))
+    , _screensaver_timeout(std::stoi(std::getenv("DISCMAN_SCREENSAVER_TIMEOUT")))
+    , _last_click(std::chrono::system_clock::now())
+    , _ip_address(get_ip_address())
 {
     _audio_output->producer(&_drive_manager.disc_drive());
     _audio_output->init();
@@ -28,6 +32,7 @@ Application::Application(int argc, char **argv)
     _bluetooth_box = _builder->get_widget<Gtk::Box>("bluetoothBox");
     _player_box = _builder->get_widget<Gtk::Box>("playerBox");
     _album_art_box = _builder->get_widget<Gtk::Box>("albumArtBox");
+    _screensaver_box = _builder->get_widget<Gtk::Box>("screensaverBox");
     _shutdown_button = _builder->get_widget<Gtk::Button>("shutdownButton");
 
     _disc_component = new DiscComponent(_drive_manager, _builder);
@@ -56,6 +61,15 @@ Application::Application(int argc, char **argv)
     _drive_manager.signal_inserted().connect(sigc::mem_fun(*this, &Application::on_insert));
     _drive_manager.signal_ejected().connect(sigc::mem_fun(*this, &Application::on_eject));
 
+    _time_ip_address_label = _builder->get_widget<Gtk::Label>("timeIpAddressLabel");
+
+    _mouse.signal_clicked().connect(sigc::mem_fun(*this, &Application::on_click));
+
+    if (_screensaver_timeout > 0) {
+        _timer_screensaver_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout_screensaver), 250);
+    }
+
+
     _systemd_proxy = Gio::DBus::Proxy::create_for_bus_sync(
                          Gio::DBus::BusType::SYSTEM,
                          "org.freedesktop.login1",
@@ -82,6 +96,70 @@ Application::~Application() {
 
 void Application::run() {
     _app->run(_argc, _argv);
+}
+
+std::string Application::get_ip_address() {
+    int pipe1[2];
+    int pipe2[2];
+    pid_t pid1, pid2;
+
+    if (pipe(pipe1) == -1 || pipe(pipe2) == -1) {
+        return "";
+    }
+
+    if ((pid1 = fork()) == 0) {
+        dup2(pipe1[WRITE_END], STDOUT_FILENO);
+        close(pipe1[READ_END]);
+        close(pipe1[WRITE_END]);
+
+        char* argv[3] = { new char[strlen("ifconfig")+1], new char[_net_iface.length()+1], NULL };
+        strcpy(argv[0], "ifconfig");
+        strcpy(argv[1], _net_iface.c_str());
+        execvp("ifconfig", argv);
+    }
+
+    if ((pid2 = fork()) == 0) {
+        dup2(pipe1[READ_END], STDIN_FILENO);
+        close(pipe1[READ_END]);
+        close(pipe1[WRITE_END]);
+
+        dup2(pipe2[WRITE_END], STDOUT_FILENO);
+        close(pipe2[WRITE_END]);
+        close(pipe2[READ_END]);
+
+        char* argv[3] = { new char[strlen("awk")+1], new char[strlen("NR==2 {print $2}")+1], NULL };
+        strcpy(argv[0], "awk");
+        strcpy(argv[1], "NR==2 {print $2}");
+        execvp("awk", argv);
+    }
+
+    close(pipe1[READ_END]);
+    close(pipe1[WRITE_END]);
+    close(pipe2[WRITE_END]);
+
+    std::stringstream ss;
+    char buf[512];
+    int bytes;
+    while ((bytes = read(pipe2[READ_END], buf, 512)) > 0) {
+        buf[bytes] = '\0';
+        ss << buf;
+    }
+
+    std::string ip_address = ss.str();
+
+    close(pipe2[READ_END]);
+
+    waitpid(pid1, NULL, 0);
+    waitpid(pid2, NULL, 0);
+
+    return ip_address;
+}
+
+void Application::on_click() {
+    if (_screensaver_box->get_visible()) {
+        _stack->set_visible_child(*_player_box);
+    }
+    _last_click = std::chrono::system_clock::now();
 }
 
 void Application::on_insert(DriveManager::Drive drive) {
@@ -202,7 +280,7 @@ void Application::on_button(const NowPlayingComponent::Button button) {
     }
 }
 
-bool Application::on_timeout() {
+bool Application::on_timeout_track_state() {
     if (_drive_manager.disc_drive().done()) {
         eject(DriveManager::Drive::Disc);
     } else {
@@ -212,6 +290,24 @@ bool Application::on_timeout() {
             _now_playing_component->set_track(_disc, _track, _track == 1, _track == _disc.tracks().size());
         }
         _now_playing_component->set_seconds(_drive_manager.disc_drive().elapsed());
+    }
+
+    return true;
+}
+
+bool Application::on_timeout_screensaver() {
+    std::time_t now = std::time(nullptr);
+    std::tm* localTime = std::localtime(&now);
+
+    char buffer[10];
+    std::strftime(buffer, sizeof(buffer), "%l:%M %p", localTime);
+
+    _time_ip_address_label->set_text(std::string(buffer)+"\n\n"+"IP: "+_ip_address);
+
+    int seconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - _last_click).count();
+
+    if (seconds >= _screensaver_timeout) {
+        _stack->set_visible_child(*_screensaver_box);
     }
 
     return true;
@@ -237,14 +333,14 @@ void Application::play() {
     if (_track == 0) {
         play(1);
     } else {
-        _timer_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout), 250);
+        _timer_track_state_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout_track_state), 250);
         _audio_output->start();
         _now_playing_component->set_state(NowPlayingComponent::State::Playing);
     }
 }
 
 void Application::pause() {
-    _timer_connection.disconnect();
+    _timer_track_state_connection.disconnect();
     _audio_output->stop();
     _now_playing_component->set_state(NowPlayingComponent::State::Paused);
 }
@@ -252,7 +348,7 @@ void Application::pause() {
 void Application::stop() {
     _track = 0;
 
-    _timer_connection.disconnect();
+    _timer_track_state_connection.disconnect();
     _audio_output->stop();
     _disc_component->clear_selection();
     _now_playing_component->set_state(NowPlayingComponent::State::Stopped);
@@ -271,7 +367,7 @@ void Application::eject(const DriveManager::Drive drive) {
 void Application::rip(unsigned int track) {
     _track = 0;
 
-    _timer_connection.disconnect();
+    _timer_track_state_connection.disconnect();
     _audio_output->stop();
     _disc_component->clear_selection();
     _now_playing_component->set_state(NowPlayingComponent::State::Disabled);
@@ -305,6 +401,6 @@ void Application::on_rip_done() {
     _drive_manager.disc_drive().resize_buffer(CDDrive::BUFFER_SIZE_PLAYING);
 
     _track = 0;
-    _timer_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout), 250);
+    _timer_track_state_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Application::on_timeout_track_state), 250);
     _now_playing_component->set_state(NowPlayingComponent::State::Stopped);
 }
