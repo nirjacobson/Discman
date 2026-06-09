@@ -156,7 +156,7 @@ std::string Application::get_ip_address() {
 }
 
 void Application::on_click() {
-    if (_screensaver_box->get_visible()) {
+    if (_stack->get_visible_child() == &*_screensaver_box ) {
         _stack->set_visible_child(*_player_box);
     }
     _last_click = std::chrono::system_clock::now();
